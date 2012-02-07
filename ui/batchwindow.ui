@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BatchWindow</class>
+ <widget class="QDialog" name="BatchWindow">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>440</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>440</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>440</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Batch Process</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../share/icons/icons.qrc">
+    <normaloff>:/icons/openpiv.png</normaloff>:/icons/openpiv.png</iconset>
+  </property>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>10</y>
+     <width>20</width>
+     <height>335</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>19</x>
+     <y>10</y>
+     <width>164</width>
+     <height>311</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Process Queue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>17</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/import_image.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Import images</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/arrow-down-double-3_small.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="maskIcon">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/image_mask.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="maskLabel">
+          <property name="minimumSize">
+           <size>
+            <width>92</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Apply Mask</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="maskCheck">
+          <property name="maximumSize">
+           <size>
+            <width>1677215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/arrow-down-double-3_small.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/correlate.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Cross Correlate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/arrow-down-double-3_small.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="filterIcon">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/filter.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="filterLabel">
+          <property name="minimumSize">
+           <size>
+            <width>45</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Filter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="filterCheck">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/arrow-down-double-3_small.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/edit.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="label_14">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Output data</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>11</y>
+     <width>218</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_15">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Options</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="imagesCheck">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Display images</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="vectorsCheck">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Display vectors</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="threadingCheck">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Enable multi-threading</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1" rowspan="3">
+       <widget class="QLabel" name="label_16">
+        <property name="minimumSize">
+         <size>
+          <width>190</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>190</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Note: Current settings will be used.  Make changes if necessary before proceeding.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_17">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../share/icons/icons.qrc">:/icons/bookmark-2.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>18</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="startButton">
+        <property name="text">
+         <string>Start</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../share/icons/icons.qrc">
+          <normaloff>:/icons/player_play.png</normaloff>:/icons/player_play.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>13</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="stopButton">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../share/icons/icons.qrc">
+          <normaloff>:/icons/exit.png</normaloff>:/icons/exit.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Progress</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QProgressBar" name="progressBar">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../share/icons/icons.qrc"/>
+  <include location="../share/icons/icons.qrc"/>
+  <include location="../share/icons/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
