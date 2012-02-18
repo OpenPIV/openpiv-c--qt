@@ -151,6 +151,8 @@ void ImportImages::filter()
    'B' images. */
 void ImportImages::autoConfig (QStringList importList)
 {
+    importList.sort();
+
     int count, i, j, k, rows, rowsA, nameLength, sizeCount, minLength, minNumber, minIndex;
     QString pass, str, str1, str2, common;
     QStringList tempList, tempA, tempB;

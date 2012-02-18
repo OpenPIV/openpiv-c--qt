@@ -129,6 +129,18 @@ void PivData::setIndex(int indexPass)
     _index = indexPass;
 }
 
+QString PivData::name()
+{
+    return _name;
+}
+
+void PivData::setName(QString filename)
+{
+    int dotIndex = filename.length() - filename.lastIndexOf(".");
+    filename.chop(dotIndex);
+    _name = filename;
+}
+
 void PivData::read(int indexPass, QString filename, int imageHeight)
 {
     QFile file;
@@ -183,9 +195,7 @@ void PivData::toGrids(QList<PivPointData> _data)
     QList<double> xList;
     QList<double> yList;
 
-    std::cout << "about to deleteGrids" << std::endl;
     deleteGrids();
-    std::cout << "made it to toGrids" << std::endl;
     for (i = 0; i < _data.size(); i++)
     {
         xVal = _data.value(i).x;

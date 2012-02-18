@@ -175,7 +175,6 @@ bool ImageData::readTiff(QString filename)
                 TIFFReadScanline(tif, &buf[i * linesize], i, 0);
                 for (j = 0; j < imageWidth; j++)
                 {
-                    //_buffer[i*imageWidth + j] = double(((uint8 *)buf + imageWidth*i*spp)[j*spp+1]);
                     if (spp == 1) _buffer[i*imageWidth + j] = double(((uint8 *)buf + imageWidth*i*spp)[j*spp]);
                     else if (spp == 3)
                     {
@@ -199,12 +198,6 @@ bool ImageData::readTiff(QString filename)
         return true;
     }
     else return false;
-}
-
-bool ImageData::write(QString filename, unsigned char* data, int width, int height)
-{
-    // This function has not yet been implemented.
-    return false;
 }
 
 QImage ImageData::toQImage()

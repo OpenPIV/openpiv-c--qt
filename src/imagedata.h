@@ -32,48 +32,62 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QImage>
 #include <QPixmap>
 
+//!  Class handling image data
+/*!
+  Image handling class to expand the capabilities of the QImage class.
+  PIV images are now typically taken with monochrome cameras exceeding 8-bits.
+  This class relies on the libtiff4 library to extend the limit of 8-bit depth
+  of the QImage class to 16-bit depth for tiff images.  QImage handles all
+  other compatible formats.
+*/
 class ImageData
 {
-    public:
-        ImageData();
-        virtual ~ImageData();
 
-        // Read-write functions
-        bool read(QString filename);
-        bool write(QString filename, unsigned char* data, int width, int height);
-        QImage toQImage();
+public:
 
-        // Information functions
-        int width();
-        int height();
-        int bitDepth();
+    //! ImageData constructor.
+    ImageData();
 
-        //int pixel(int i, int j);
-        double pixel(int i, int j);
+    //! ImageData destructor.
+    virtual ~ImageData();
 
-        //unsigned char* buffer();
-        double* buffer();
+    // Read-write functions
+    /*!
+        Function to read images that takes the filename as an argument and returns the outcome.
 
-    protected:
-        bool readTiff(QString filename);
-        void createBuf();
-        double toGray(int r, int g, int b);
-//        void createBuf16();
-//        void createBuf8();
-//        void createBuf8(QImage qImage);
+        \param filename a QString object containing the full path of the image
+        \return success of the operation
+        \sa write()
+    */
+    bool read(QString filename);
 
-    private:
-        double *_buffer;
-        //unsigned char* imageBuf8;
-        //const unsigned char* constBuf8;
-        //unsigned short* imageBuf16;
-        int imageWidth, imageHeight;
-        //bool buf8created, buf16created, qImageCreated;
-        bool bufCreated, qImageCreated;
-        bool isTiff;
-        int bits;
-        QImage *qImage;
-        bool windowCreated;
+    /*!
+        Converts buffer to a QImage for display purposes if such an object does not already exist.
+    */
+    QImage toQImage();
+
+    // Information functions
+    int width();
+    int height();
+    int bitDepth();
+
+    double pixel(int i, int j);
+
+    double* buffer();
+
+protected:
+    bool readTiff(QString filename);
+    void createBuf();
+    double toGray(int r, int g, int b);
+
+private:
+    double *_buffer;
+    int imageWidth, imageHeight;
+    bool bufCreated, qImageCreated;
+    bool isTiff;
+    int bits;
+    QImage *qImage;
+    bool windowCreated;
 };
 
 #endif // IMAGEDATA_H

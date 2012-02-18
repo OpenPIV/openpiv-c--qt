@@ -40,8 +40,6 @@ void Output::outputASCII(PivData *pivData)
 {
     int i, j;
     int current = pivData->index();
-    int orderOfFiles, numZeros;
-    int currentOrder;
     QFile file;
     QString filename;
     QString outputString;
@@ -49,27 +47,14 @@ void Output::outputASCII(PivData *pivData)
 
     int imageHeight = _settings->imageSize().height();
 
-    if (_filedata->size() != 0) orderOfFiles = int(floor(log10(double(_filedata->size()))));
-    else orderOfFiles = 1;
+    filename = pivData->name();
 
-    if (orderOfFiles > 5) numZeros = orderOfFiles;
-    else numZeros = 5;
-
-    filename.append(_settings->outputFolder());
-    if (!filename.endsWith("/")) filename.append("/");
-
-    filename.append(_settings->expName());
-
-    if (current != 0) currentOrder = int(floor(log10(double(current))));
-    else currentOrder = 0;
-
-    for (i = 0; i < (numZeros - currentOrder - 1); i++) filename.append("0");
-    filename.append(QString("%1").arg(current));
-
-    filename.append(".dat");
+    filename.append(".txt");
     file.setFileName(filename);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
+        file.write("x [pixels], y [pixels], u [pixels], v [pixels], ");
+        file.write("SNR [peak/mean], valid [0 if masked], filtered [1 if filtered], avg. intensity\n");
         for (i = 0; i < pivData->height(); i++)
         {
             for (j = 0; j < pivData->width(); j++)

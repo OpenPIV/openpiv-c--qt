@@ -81,12 +81,6 @@ PivPointData PivEngine::velocity(int topLeftRow, int topLeftColumn)
 {
     PivPointData pointData;
 
-//    mutex.lock();
-//    int detector = _settings->detector();
-//    int intLengthX = _settings->intLengthX();
-//    int intLengthY = _settings->intLengthY();
-//    mutex.unlock();
-
     if (crossCorrelate(topLeftRow, topLeftColumn))
     {
         switch (_detector)
@@ -136,7 +130,6 @@ double PivEngine::imageMean(ImageData *image, int topLeftRow, int topLeftColumn)
 {
     double mean = 0.0;
     int count = 0;
-    //unsigned char* data = image->buffer();
     double* data = image->buffer();
     int imageWidth = image->width();
 
@@ -146,7 +139,6 @@ double PivEngine::imageMean(ImageData *image, int topLeftRow, int topLeftColumn)
     {
         for (imageJ = topLeftColumn; imageJ < (topLeftColumn + _intLengthX); imageJ++)
         {
-            //mean += double(data[imageWidth*imageI + imageJ]);
             mean += data[imageWidth*imageI + imageJ];
             count++;
         }

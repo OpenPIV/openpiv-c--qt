@@ -84,6 +84,7 @@ void Processing::processCurrent()
     }
     delete fftCrossCorrelate;
     pivData->setIndex(filedata->currentIndex());
+    pivData->setName(filedata->currentData().imageA());
     filedata->setCurrentPivData(pivData);
     emit(currentProcessed());
 }

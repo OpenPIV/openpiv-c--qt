@@ -112,6 +112,7 @@ void PivThread::run()
             break;
         }
         pivData->setIndex(filelist.value(i).index());
+        pivData->setName(filelist.value(i).imageA());
         if (filter) analysis->filterData(pivData,filterOptions);
 
         dataVector->append(pivData);

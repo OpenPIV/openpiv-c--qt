@@ -1,3 +1,30 @@
+/*
+====================================================================================
+
+File: datacontainer.h
+Description: Class that links together the data of a PIV realization and a container
+    class for these data: index, image filenames, PIV data filename.
+Copyright (C) 2012  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
 #ifndef DATACONTAINER_H
 #define DATACONTAINER_H
 
@@ -8,6 +35,10 @@
 #include "settings.h"
 #include "pivdata.h"
 
+/*!
+    Class that links together the data of a PIV realization.  These data
+    include: index, image filenames, PIV data filename.
+*/
 class MetaData
 {
     public:
@@ -34,6 +65,8 @@ class MetaData
         QString _vectorFile;
 };
 
+
+//! Container class for MetaData objects.
 class DataContainer : public QObject
 {
 
