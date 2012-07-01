@@ -2,7 +2,7 @@
 ====================================================================================
 
 File: imagelist.cpp
-Description: This function inherits QTableWidget and provides the interface between
+Description: This class inherits QTableWidget and provides the interface between
     the user and the image lists.  This class is typically instantiated twice for
     the 'A' images and the 'B' images.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "datacontainer.h"
 #include <QTableWidget>
 #include <QHeaderView>
-#include <stdio.h>
 
 ImageList::ImageList(QWidget* parent) : QTableWidget(parent)
 {
@@ -108,6 +107,7 @@ void ImageList::rowDoubleClicked(int row, int column)
 
 void ImageList::highlightRow(int rowSelectedPass)
 {
+    // Row is highlighted by setting the text to bold
     rowSelected = rowSelectedPass;
     QFont font0, font1;
     font0 = this->item(rowSelected,0)->font();

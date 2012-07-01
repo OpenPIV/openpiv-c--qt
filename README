@@ -1,3 +1,29 @@
+* Note that these are guidelines that worked for us to install the software on various platforms.  Please do not hesitate to contact us at: if you require assistance on your specific platform.  Thanks!
+
+== Installation instructions on Ubuntu based Linux ==
+
+1. Download and install Qt4 for developers:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:
+
+
+== Installations instructions for general Linux ==
+
+1. Download and install Qt4 for developers:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:
 
 == Installation instructions on Mac OS X (Snow Leopard) ==
 
@@ -14,3 +40,16 @@ make
 sudo make install
 
 3. Download and install fftw3 library, follow their great instructions in INSTALL file (I had to use --disable-fortran to make it working)
+
+
+== Installation instructions for Windows ==
+
+1. Download and install Qt SDK from Nokia:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:

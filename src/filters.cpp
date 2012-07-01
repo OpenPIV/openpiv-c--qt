@@ -1,3 +1,29 @@
+/*
+====================================================================================
+
+File: filters.cpp
+Description: File containing the source code of the various filtering algorithms.
+Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
 #include <iostream>
 #include <cmath>
 #include <QList>
@@ -18,6 +44,9 @@ void snr(PivData *pivData, FilterOptions filterOptions)
 
     double snrThresh = filterOptions.snrThresh();
 
+    /*  Rejecting any point in the PivData where the signal-
+        to-noise ratio is below the user defined value.
+    */
     int i, j;
     for (i = 0; i < height; i++)
     {
@@ -45,6 +74,9 @@ void imageIntensity(PivData *pivData, FilterOptions filterOptions)
 
     double imageThresh = filterOptions.imageThresh();
 
+    /*  Rejecting any point in the PivData where the image intensity
+        is below the user defined value.
+    */
     int i, j;
     for (i = 0; i < height; i++)
     {
@@ -75,6 +107,9 @@ void globalRange(PivData *pivData, FilterOptions filterOptions)
     double vmin = filterOptions.vmin();
     double vmax = filterOptions.vmax();
 
+    /*  Rejecting any point in the PivData where the displacement
+        exceeds any of the user-defined global min/max values
+    */
     int i, j;
     for (i = 0; i < height; i++)
     {
@@ -106,6 +141,7 @@ void globalStd(PivData *pivData, FilterOptions filterOptions)
 
     double nSigma = filterOptions.nStd();
 
+    // First, compute the global average
     int i, j;
     int count = 0;
     for (i = 0; i < height; i++)
@@ -128,6 +164,7 @@ void globalStd(PivData *pivData, FilterOptions filterOptions)
     mxU = mxU / double(count);
     mxV = mxV / double(count);
 
+    // Next, compute the standard deviation
     count = 0;
     for (i = 0; i < height; i++)
     {
@@ -148,6 +185,11 @@ void globalStd(PivData *pivData, FilterOptions filterOptions)
 
     sxU = sqrt(sxU / double(count));
     sxV = sqrt(sxV / double(count));
+
+    /*  Rejecting any point in the PivData where the displacment
+        is farther away than nSigma times the global standard deviation
+        from the global average.
+    */
 
     for (i = 0; i < height; i++)
     {
@@ -183,8 +225,10 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
     double uTol = filterOptions.uTol();
     double vTol = filterOptions.vTol();
 
+    // First need to calculate the central estimator of the local neighbourhood
     switch(filterOptions.localMethod())
     {
+    // Calculation of the local mean
     case OpenPIV::LocalMean:
         double mxU, mxV;
         for (i = 0; i < height; i++)
@@ -211,6 +255,9 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
                 mxU = mxU / double(count);
                 mxV = mxV / double(count);
 
+                /*  Rejecting any point in the PivData where the displacment
+                    exceeds the tolerance of the local mean.
+                */
                 if (u > (mxU + uTol) || u < (mxU - uTol) || v > (mxV + vTol) || v < (mxV - vTol))
                 {
                     pivData->setFilter(i,j,true);
@@ -220,6 +267,7 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
         }
         break;
 
+    // Calculation of the local median
     case OpenPIV::LocalMedian:
         double medU, medV;
         QList<double> listU;
@@ -246,6 +294,14 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
 
                 medU = listU.value(int(ceil(double(listU.size())/2.0)));
                 medV = listV.value(int(ceil(double(listV.size())/2.0)));
+
+                /*  Rejecting any point in the PivData where the displacment
+                    exceeds the tolerance of the local median.
+                */
+                if (u > (medU + uTol) || u < (medU - uTol) || v > (medV + vTol) || v < (medV - vTol))
+                {
+                    pivData->setFilter(i,j,true);
+                }
             }
         }
         break;
@@ -271,6 +327,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
     int count;
     PivPointData pointData;
 
+    // Creating temporary velocity field from original PivData object
     for (i = 0; i < height; i++)
     {
         for (j = 0; j < width; j++)
@@ -284,6 +341,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
     {
         for (j = 0; j < width; j++)
         {
+            // If the current vector is flagged as erroneous
             if (pivData->filtered(i,j))
             {
                 count = 0; mxU = 0.0; mxV = 0.0;
@@ -291,6 +349,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
                 {
                     for (n = -halfN; n <= halfN; n++)
                     {
+                        // Calculate the local average from valid points
                         if (!pivData->filtered(i+m,j+n) && pivData->isValid(i+m,j+n))
                         {
                             mxU += pivData->data(i+m,j+n).u;
@@ -299,6 +358,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
                         }
                     }
                 }
+                // Assign the current vector the value of the local mean
                 if (count != 0)
                 {
                     uTemp[i*width + j] = mxU / double(count);
@@ -309,6 +369,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
     }
 
 
+    // Reassign the temporary (new) data to the original object
     for (i = 0; i < height; i++)
     {
         for (j = 0; j < width; j++)
@@ -320,6 +381,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
         }
     }
 
+    // Cleaning up
     delete [] uTemp;
     delete [] vTemp;
 }
@@ -348,6 +410,7 @@ void gaussianBlur(PivData *pivData, FilterOptions filterOptions)
     double sumU, sumV;
     PivPointData pointData;
 
+    // Creation of the kernel
     k = 0; x = 0.0;
     for (y = -double(halfN); y <= double(halfN); y = y + 1.0)
     {
@@ -372,11 +435,13 @@ void gaussianBlur(PivData *pivData, FilterOptions filterOptions)
                     sumV += pivData->data(i-k1,j-k2).v * kernel[(halfN+k1)*N+(halfN+k2)];
                 }
             }
+            // Store values to temporary arrays to avoid propogation effects
             uTemp[i*width+j] = sumU;
             vTemp[i*width+j] = sumV;
         }
     }
 
+    // Reassign temporary arrays to original PivData object
     for (i = 0; i < height; i++)
     {
         for (j = 0; j < width; j++)

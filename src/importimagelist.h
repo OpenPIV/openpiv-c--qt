@@ -2,7 +2,7 @@
 ====================================================================================
 
 File: importimagelist.h
-Description: This class inherits QListWidget and provides extra functionality (such as
+Description: These classes inherit QListWidget and provide extra functionality (such as
     pop-ups, etc.) to the base QListWidget class.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
 
@@ -33,49 +33,51 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QMenu>
 
+//!  Class handling image data
 class ImportPopUp : public QMenu
 {
     Q_OBJECT
 
-    public:
-        ImportPopUp();
-        virtual ~ImportPopUp();
+public:
+    ImportPopUp();
+    virtual ~ImportPopUp();
 
-    protected:
-        void populateMenu();
+protected:
+    void populateMenu();
 
-    protected slots:
-        void removeThoseSelected();
-        void removeThoseNotSelected();
+protected slots:
+    void removeThoseSelected();
+    void removeThoseNotSelected();
 
-    signals:
-        void removeItems(bool flag);
+signals:
+    void removeItems(bool flag);
 
-    private:
-        QAction *removeSelected;
-        QAction *removeNotSelected;
+private:
+    QAction *removeSelected;
+    QAction *removeNotSelected;
 };
 
+//!  Class handling image data
 class ImportImageList : public QListWidget
 {
     Q_OBJECT
 
-    public:
-        ImportImageList(QWidget *parent = 0);
-        virtual ~ImportImageList();
+public:
+    ImportImageList(QWidget *parent = 0);
+    virtual ~ImportImageList();
 
-    protected:
-        void mouseReleaseEvent (QMouseEvent *event);
+protected:
+    void mouseReleaseEvent (QMouseEvent *event);
 
-    protected slots:
-        void removeFiles(bool flag);
+protected slots:
+    void removeFiles(bool flag);
 
-    signals:
-        void removeSelected(QList<int> selectedPass);
+signals:
+    void removeSelected(QList<int> selectedPass);
 
-    private:
-        ImportPopUp *popUp;
-        QList<int> selected;
+private:
+    ImportPopUp *popUp;
+    QList<int> selected;
 
 };
 

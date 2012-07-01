@@ -37,31 +37,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
     Co-ordinate system (x,y) = (0,0) is located in the lower left
     of the image.
-    \param x is the horizontal dimension of type double
-    \param y is the vertical dimension of type double
-    \param u is the horizontal displacement of type double
-    \param v is the vertical displacement of type double
-    \param snr is the signal-to-noise ratio of type double
-    \param valid is a boolean defining the validity of a grid point.
-    A grid point is invalid if it is masked.
-    \param filtered is a boolean specifying if the data point has
-    been flagged during the filtering process as being erroneous.
-    \param intensity is the average gray scale of the interrogation window
-    represented by the grid point (stored as a double)
 */
 struct PivPointData
 {
+    //! Horizontal dimension in pixels
     double x;
+    //! Vertical dimension in pixels
     double y;
+    //! Horizontal displacement in pixels
     double u;
+    //! Vertical displacement in pixels
     double v;
+    //! Signal-to-noise (peak to mean) ratio
     double snr;
+    //! False if masked and true otherwise
     bool valid;
+    //! True if marked as erroneous and false otherwise
     bool filtered;
+    //! Average gray scale of the interrogation window
     double intensity;
 };
 
-//! PivData Class
+//! Class that holds PIV data
 /*!
   The PivData class hold the results of the cross-correlation analysis.  The
   data is cast to a regular grid and is made up of position and velocity, as
@@ -77,47 +74,101 @@ class PivData
           without knowledge of the size (width and height).
         */
         PivData();
-
         //! Overloaded constructor.
         /*!
           An overloaded constructor that allocates the size of the PivData()
           object upon creation.
         */
         PivData(int widthPass, int heightPass);
-
         //! Destructor.
         virtual ~PivData();
 
-        void setLists(QList<PivPointData> _data);
+        //! Takes as argument a list of PivPointData and casts it to a regular grid.
+        void setList(QList<PivPointData> _data);
+        //! Returns the list of PivPointData
+        /*!
+          This function is provided for convenience and is not the main method
+          for getting PIV data from an object.  Use data() instead.
+
+          \sa data();
+        */
         QList<PivPointData> list();
 
+        //! Returns the data at (i,j) = (row, column) = (y, x)
+        /*!
+          \sa setData();
+        */
         PivPointData data(int i, int j);
+        //! Sets the data by passing PivPointData at (i,j) = (row, column) = (y, x)
+        /*!
+          \sa data();
+        */
         void setData(int i, int j, PivPointData dataPass);
 
+        //! Returns the minimum of each member in the struct PivPointData
+        /*!
+            The minimum value for each member does not necessarily occur at the same
+            grid point.  In fact, it most likely does not.
+
+            \sa max()
+        */
         PivPointData min();
+        //! Returns the maximum of each member in the struct PivPointData
+        /*!
+            The maximum value for each member does not necessarily occur at the same
+            grid point.  In fact, it most likely does not.
+
+            \sa min()
+        */
         PivPointData max();
 
+        /*! Deletes the gridded data.  \sa isEmpty() */
         void clear();
+        /*! Returns true if the grids have been initialized with data.  \sa clear() */
         bool isEmpty();
-        int width(); // Columns
-        int height(); // Rows
+
+        /*! Returns the number of columns in the grid. \sa height() */
+        int width();
+        /*! Returns the number of rows in the grid. \sa width() */
+        int height();
+
+        //! Returns the integer index of the data within the larger dataset.
         int index();
+        //! Returns a QString of the filename of the object.
         QString name();
+        //! Returns the number of valid grid points (i.e., those which have not been masked).
         int numValid();
 
+        //! Returns true if the point (i,j) = (y,x) has not been masked.
         bool isValid(int i, int j);
+        //! Retruns true if the point (i,j) = (y,x) has been filtered.
         bool filtered(int i, int j);
+        //! Set the value of the filter flag at point (i,j) = (y,x).
         void setFilter(int i, int j, bool filterPass);
+
+        //! Takes as argument the value of the index for the object.
         void setIndex(int indexPass);
+        //! Takes a QString as argument for the filename of the object.
         void setName(QString filename);
+        //! Function to read data from an ASCII text file written by OpenPIV.
         void read(int indexPass, QString filename, int imageHeight);
 
     protected:
+        //! Assigns list data privately and fills grids
         void toGrids(QList<PivPointData> _data);
+        //! Creates dynamic grid data
         void createGrids();
+        //! Initialization function for the gridded data
         void initializeToZero();
+        //! Function to set all values in the PivPointData struct to zero
         PivPointData oneToZero();
+        //! Deletes the dynamic grid data
         void deleteGrids();
+        //! Computes min and max values
+        /*!
+          /sa max()
+          /sa min()
+          */
         void computeMax();
 
     private:

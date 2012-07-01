@@ -2,8 +2,8 @@
 ====================================================================================
 
 File: imagedata.h
-Description: Image handling class to expand the capabilities of the QImage class.
-    PIV images are now typically taken with monochrome cameras exceeding 8-bits.
+Description: These classes inherit QListWidget and provide extra functionality (such as
+    pop-ups, etc.) to the base QListWidget class.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
 
 Contributors to this code:
@@ -45,39 +45,45 @@ class ImageData
 
 public:
 
-    //! ImageData constructor.
+    //! Constructor.
     ImageData();
 
-    //! ImageData destructor.
+    //! Destructor.
     virtual ~ImageData();
 
     // Read-write functions
+    //! Function to read images.
     /*!
         Function to read images that takes the filename as an argument and returns the outcome.
 
         \param filename a QString object containing the full path of the image
         \return success of the operation
-        \sa write()
     */
     bool read(QString filename);
 
-    /*!
-        Converts buffer to a QImage for display purposes if such an object does not already exist.
-    */
+    //! Converts buffer to QImage for display.
     QImage toQImage();
 
     // Information functions
+    //! Returns the width of the image
     int width();
+    //! Returns the height of the image
     int height();
+    //! Returns the bit depth of the image
     int bitDepth();
 
+    //! Returns the gray value of the pixel at (x,y) = (j,i)
     double pixel(int i, int j);
 
+    //! Returns a pointer to the image buffer
     double* buffer();
 
 protected:
+    //! Function to handle the special case of tiff files using libtiff4
     bool readTiff(QString filename);
+    //! Allocation of the memory for the image
     void createBuf();
+    //! Convert a colour image to grayscale
     double toGray(int r, int g, int b);
 
 private:

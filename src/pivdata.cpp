@@ -1,3 +1,31 @@
+/*
+====================================================================================
+
+File: pivdata.cpp
+Description: The PivData class hold the results of the cross-correlation analysis.
+  The data is cast to a regular grid and is made up of position and velocity, as
+  well as other features such as: signal-to-noise ratio, validity, etc.
+Copyright (C) 2012  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
 #include "pivdata.h"
 #include <iostream>
 #include <QFile>
@@ -18,6 +46,7 @@ PivData::PivData(int widthPass, int heightPass)
     _height = heightPass;
     gridsCreated = false;
     maxComputed = false;
+    // If width and height are known we can create and initialize grids
     createGrids();
     initializeToZero();
     _index = -2;
@@ -30,6 +59,7 @@ PivData::~PivData()
 
 void PivData::createGrids()
 {
+    // If the grids have already been created, delete previous grids
     if (gridsCreated) deleteGrids();
     grid = new PivPointData [_width*_height + 1];
     gridsCreated = true;
@@ -37,6 +67,7 @@ void PivData::createGrids()
 
 void PivData::initializeToZero()
 {
+    // Initializing over the entire grid
     if (gridsCreated)
     {
         int i,j;
@@ -52,6 +83,7 @@ void PivData::initializeToZero()
 
 PivPointData PivData::oneToZero()
 {
+    // Initializes a single point
     PivPointData pointData;
     pointData.x = 0.0;
     pointData.y = 0.0;
@@ -66,6 +98,7 @@ PivPointData PivData::oneToZero()
 
 void PivData::deleteGrids()
 {
+    // Checks to see if grids are created before delete dynamic grid data
     if (gridsCreated)
     {
         delete [] grid;
@@ -73,7 +106,7 @@ void PivData::deleteGrids()
     }
 }
 
-void PivData::setLists(QList<PivPointData> _data)
+void PivData::setList(QList<PivPointData> _data)
 {
     _list = _data;
     toGrids(_data);
@@ -86,6 +119,7 @@ QList<PivPointData> PivData::list()
 
 int PivData::numValid()
 {
+    // Calculates the number of points which are valid (i.e., not masked)
     int i, j;
     int count = 0;
     for (i = 0; i < _height; i++)
@@ -136,6 +170,7 @@ QString PivData::name()
 
 void PivData::setName(QString filename)
 {
+    // Removes the suffix (e.g., "tif") from the end of the file
     int dotIndex = filename.length() - filename.lastIndexOf(".");
     filename.chop(dotIndex);
     _name = filename;
@@ -143,43 +178,57 @@ void PivData::setName(QString filename)
 
 void PivData::read(int indexPass, QString filename, int imageHeight)
 {
+    // Function that reads in ASCII file data
+
     QFile file;
     QString in;
     PivPointData pointData;
     QList<PivPointData> pointList;
 
-
     _index = indexPass;
 
     file.setFileName(filename);
+
+    // Currently here for debugging purposes
     std::cout << "Reading file: " << filename.toLocal8Bit().data() << std::endl;
+
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream inStream(&file);
+        in = inStream.readLine(); // Taking care of the header
         in = inStream.readLine();
         while(!(in.isNull()))
         {
+            // Reads in first column: x
             pointData.x = in.section("\t",0,0).toDouble();
+            // Reads in second column: y
             pointData.y = imageHeight - in.section("\t",1,1).toDouble();
+            // Reads in third column: u
             pointData.u = in.section("\t",2,2).toDouble();
+            // Reads in fourth column: v
             pointData.v = 0.0 - in.section("\t",3,3).toDouble();
+            // Reads in fifth column: signal-to-noise ratio
             pointData.snr = in.section("\t",4,4).toDouble();
+            // Reads in sixth column: validity of the point
             if (in.section("\t",5,5).toInt() == 1) pointData.valid = true;
             else pointData.valid = false;
+            // Reads in seventh column: if the point has been filtered or not
             if (in.section("\t",6,6).toInt() == 1) pointData.filtered = true;
             else pointData.filtered = false;
+            // Reads in the eigth column: average image intensity of the interrogation window
             pointData.intensity = in.section("\t",7,7).toDouble();
 
+            // Data point is appended to the point list
             pointList.append(pointData);
 
             in = inStream.readLine();
-
         }
         file.close();
-        std::cout << "About to call toGrids" << std::endl;
+        // Point list is sent to be gridded
         toGrids(pointList);
 
     }
+    // Do some proper debugging here at some point...
     else std::cout << "Problem reading file: " << filename.toLocal8Bit().data() << std::endl;
 }
 
@@ -195,25 +244,34 @@ void PivData::toGrids(QList<PivPointData> _data)
     QList<double> xList;
     QList<double> yList;
 
+    // First need to delete the grids if they exist
     deleteGrids();
+
+    // Loop through the list data
     for (i = 0; i < _data.size(); i++)
     {
         xVal = _data.value(i).x;
         yVal = _data.value(i).y;
         xCount = 0; yCount = 0;
+        /* Check to see how many unique values of x there are and create a list
+           of these values */
         for (j = 0; j < xList.size(); j++) if (xVal == xList.value(j)) xCount++;
         if (xCount == 0) xList.append(xVal);
+        /* Check to see how many unique values of y there are and create a list
+           of these values */
         for (j = 0; j < yList.size(); j++) if (yVal == yList.value(j)) yCount++;
         if (yCount == 0) yList.append(yVal);
     }
+    // Width is defined by the number of unique x values
     _width = xList.size();
+    // Height is defined by the number of unique y values
     _height = yList.size();
 
     xTemp = new double [_width + 1];
     yTemp = new double [_height + 1];
 
+    // Assign the memory for the grid
     createGrids();
-    std::cout << "width: " << _width << " height: " << _height << std::endl;
 
     for (i = 0; i < _height; i++)
     {
@@ -247,12 +305,14 @@ void PivData::toGrids(QList<PivPointData> _data)
                 xList.removeAt(removeX);
             }
 
-            // Putting u and v onto the grid
+            // Putting PivPointData onto the grid
             xVal = xTemp[j];
             yVal = yTemp[i];
             m = 0; found = false;
             while (m < _data.size() && !found)
             {
+                /* If there is a data point in the list that corresponds to the
+                    gridded value */
                 if (xVal == _data.value(m).x && yVal == _data.value(m).y)
                 {
                     grid[_width*i + j].u = _data.value(m).u;
@@ -265,6 +325,7 @@ void PivData::toGrids(QList<PivPointData> _data)
                     grid[_width*i + j].intensity = _data.value(m).intensity;
                     found = true;
                 }
+                // If not, make the point blank and invalid
                 else
                 {
                     grid[_width*i + j].u = 0.0;
@@ -281,8 +342,7 @@ void PivData::toGrids(QList<PivPointData> _data)
         }
     }
 
-    std::cout << "read the data entirely" << std::endl;
-
+    // Delete temporary grids
     delete [] xTemp;
     delete [] yTemp;
 }
@@ -333,33 +393,6 @@ void PivData::setData(int i, int j, PivPointData dataPass)
         grid[i*_width+j] = dataPass;
     }
 }
-
-/*-------- Velocity ----------------*/
-
-//QPointF PivData::velocity(int i, int j)
-//{
-//    QPointF _velocity;
-//    if (gridsCreated && i >= 0 && i < _height && j >= 0 && j < _width)
-//    {
-//        _velocity.setX(_u[_width*i + j]);
-//        _velocity.setY(_v[_width*i + j]);
-//    }
-//    else
-//    {
-//        _velocity.setX(0.0);
-//        _velocity.setY(0.0);
-//    }
-//    return _velocity;
-//}
-
-//void PivData::setVelocity(int i, int j, QPointF velocityPass)
-//{
-//    if (gridsCreated && i >= 0 && i < _height && j >= 0 && j < _width)
-//    {
-//        _u[i*_width+j] = velocityPass.x();
-//        _v[i*_width+j] = velocityPass.y();
-//    }
-//}
 
 /* ---------- Validity ---------*/
 bool PivData::isValid(int i, int j)
@@ -435,5 +468,3 @@ void PivData::computeMax()
         maxComputed = true;
     }
 }
-
-
