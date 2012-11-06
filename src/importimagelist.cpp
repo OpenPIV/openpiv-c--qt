@@ -2,8 +2,8 @@
 ====================================================================================
 
 File: importimagelist.cpp
-Description: This class inherits QListWidget and provides extra functionality (such as
-    pop-ups, etc.) to the base QListWidget class.
+Description: These classes inherit QListWidget and QMenu and provides extra
+    functionality (such as pop-ups, etc.) to the base QListWidget class.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
 
 Contributors to this code:

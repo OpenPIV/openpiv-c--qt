@@ -500,7 +500,6 @@ void MainWindow::filterChanged()
 
 void MainWindow::setFilterValues()
 {
-    //std::cout << "in setFilterValues\n";
     FilterOptions filterOptions;
     filterOptions = settings->filterOptions();
 

@@ -8,7 +8,6 @@
 // Processing modules
 #include "fftcrosscorrelate.h"
 
-//PivThread::PivThread(QSemaphore *freePass, QSemaphore *usedPass, QMutex *mutexPass, QVector<float> *dataVectorPass, QList<int> listPass, QObject *parent) : QThread(parent)
 PivThread::PivThread(QSemaphore *freePass, QSemaphore *usedPass, QMutex *mutexPass, QVector<PivData*> *dataVectorPass, QList<int> listPass, QObject *parent) : QThread(parent)
 {
     free = freePass;
@@ -64,7 +63,6 @@ void PivThread::initializeProcessor()
         switch(_processor)
         {
         case OpenPIV::FFTCorrelator:
-
             fftCrossCorrelate = new FFTCrossCorrelate(settings,*filedata->gridList());
             break;
         default:
@@ -85,7 +83,6 @@ int PivThread::process()
     start();
 
     return 0;
-    //emit(finished());
 }
 
 void PivThread::stopProcess()
@@ -101,7 +98,6 @@ void PivThread::run()
     while (i < filelist.size() && !abort)
     {
         free->acquire();
-        //mutex->lock();
 
         switch(_processor)
         {
@@ -117,7 +113,6 @@ void PivThread::run()
 
         dataVector->append(pivData);
 
-        //mutex->unlock();
         used->release();
         ++i;
     }

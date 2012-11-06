@@ -41,12 +41,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PivDisplay::PivDisplay(QWidget* parent) : QGraphicsView(parent)
 {
+    // Initializing the mouse
     mouseIsPressed = false;
     this->setMouseTracking(true);
     this->setCursor(Qt::OpenHandCursor);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    // Initializing dynamic objects
     image = new QImage;
     _scene = new QGraphicsScene;
     itemPaint = new ItemPaint;
@@ -55,6 +57,7 @@ PivDisplay::PivDisplay(QWidget* parent) : QGraphicsView(parent)
     viewRectF = new QRectF;
     viewRectFSet = false;
 
+    // Initializing various boolean objects to false
     currentImageCreated = false;
 
     imPaintAdded = false;
@@ -64,11 +67,13 @@ PivDisplay::PivDisplay(QWidget* parent) : QGraphicsView(parent)
     vectorsActive = false;
     vectorsDrawn = false;
 
+    // Passing the pointer to the viewer's scene to the ItemPaint object
     itemPaint->setScene(_scene);
 }
 
 PivDisplay::~PivDisplay()
 {
+    // Deleting dynamic objects
     delete image;
     delete _scene;
     delete rect;
@@ -88,12 +93,14 @@ void PivDisplay::setData(DataContainer *filedataPass)
 
 void PivDisplay::wheelEvent(QWheelEvent* event)
 {
+    // If user is rolling the wheel 'forwards' then zoom in otherwise zoom out
     if (event->delta() > 0) zoomIn();
     else zoomOut();
 }
 
 void PivDisplay::zoomIn()
 {
+    // Zooming in by a relative increment of 5%
     this->scale(1.05,1.05);
     viewRectF->setWidth(viewRectF->width()/1.05);
     viewRectF->setHeight(viewRectF->height()/1.05);
@@ -102,6 +109,7 @@ void PivDisplay::zoomIn()
 
 void PivDisplay::zoomOut()
 {
+    // Zooming out y a relative increment of 5%
     this->scale(1.0/1.05,1.0/1.05);
     viewRectF->setWidth(viewRectF->width()*1.05);
     viewRectF->setHeight(viewRectF->height()*1.05);
@@ -110,6 +118,7 @@ void PivDisplay::zoomOut()
 
 void PivDisplay::zoomFit()
 {
+    // Fitting the image to the size of the viewer window
     *viewRectF = *rectF;
     viewRectFSet = true;
     resize();
@@ -117,6 +126,7 @@ void PivDisplay::zoomFit()
 
 void PivDisplay::mousePressEvent(QMouseEvent* event)
 {
+    // Mapping the location where the mouse was pressed to point1
     point1 = mapToScene(QPoint(event->x(),event->y()));
     this->setCursor(Qt::ClosedHandCursor);
     mouseIsPressed = true;
@@ -124,6 +134,7 @@ void PivDisplay::mousePressEvent(QMouseEvent* event)
 
 void PivDisplay::mouseReleaseEvent(QMouseEvent* event)
 {
+    // Mapping the locaiton where th emouse was pressed to point2
     mouseIsPressed = false;
     point2 = mapToScene(QPoint(event->x(),event->y()));
     this->setCursor(Qt::OpenHandCursor);
@@ -135,8 +146,10 @@ void PivDisplay::mouseMoveEvent(QMouseEvent* event)
     double xCenter, yCenter;
     int xCenterView, yCenterView;
 
+    // If the mouse is pressed then a move event corresponds to a panning of the image
     if (mouseIsPressed)
     {
+        // Get the current center of the viewing window
         xCenterView = int(double(this->width() / 2.0));
         yCenterView = int(double(this->height() / 2.0));
 
@@ -147,6 +160,7 @@ void PivDisplay::mouseMoveEvent(QMouseEvent* event)
         xCenter = QPointF(this->mapToScene(QPoint(xCenterView,yCenterView))).x();
         yCenter = QPointF(this->mapToScene(QPoint(xCenterView,yCenterView))).y();
         centerPoint = QPointF(double(xCenter-dx),double(yCenter-dy));
+        // Center the image on the new centre in real time
         this->centerOn(centerPoint);
         viewRectFSet = true;
     }
@@ -164,6 +178,7 @@ void PivDisplay::resizeEvent(QResizeEvent *event)
 
 void PivDisplay::resize()
 {
+    // Always maintains the aspect ratio of the image
     this->fitInView(*viewRectF, Qt::KeepAspectRatio);
     this->centerOn(centerPoint);
 }
@@ -262,6 +277,7 @@ void PivDisplay::vectorsChanged()
 
 void PivDisplay::displayCurrent()
 {
+    // Drawing either A or B image as defined in the DataContainer object: filedata
     if (filedata->isCurrentA()) currentFileName = filedata->currentData().imageA();
     else currentFileName = filedata->currentData().imageB();
     drawLayers();
@@ -269,6 +285,7 @@ void PivDisplay::displayCurrent()
 
 void PivDisplay::drawImage(QImage imagePass)
 {
+    // ImPaint object performs the actual painting, but it is controlled and added to the scene here
     if (imPaintAdded)
     {
         imPaint->setImage(imagePass);
@@ -291,6 +308,7 @@ void PivDisplay::drawImage(QImage imagePass)
 
 void PivDisplay::drawMaskImage()
 {
+    // MaskPaint object performs the actual painting, but it is controlled and added to the scene here
     maskImage = filedata->mask();
     if (!maskImage->isNull())
     {

@@ -2,8 +2,8 @@
 ====================================================================================
 
 File: imagedata.h
-Description: These classes inherit QListWidget and provide extra functionality (such as
-    pop-ups, etc.) to the base QListWidget class.
+Description: Image handling class to expand the capabilities of the QImage class.
+    PIV images are now typically taken with monochrome cameras exceeding 8-bits.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
 
 Contributors to this code:

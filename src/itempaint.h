@@ -1,3 +1,30 @@
+/*
+====================================================================================
+
+File: itempaint.h
+Description: These classes handle the drawing of vectors and grid points in
+    addition to handling their painting in the display.
+Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
 #ifndef ITEMPAINT_H
 #define ITEMPAINT_H
 
@@ -8,22 +35,28 @@
 #include "settings.h"
 #include "pivdata.h"
 
+//! Reimplementation of QGraphicsItem to draw grid points
 class GridPoint : public QGraphicsItem
 {
+    //! Reimplemented from QGraphicsItem
     QRectF boundingRect() const;
+    //! Reimplemented from QGraphicsItem
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
 };
 
+//! Reimplementation of QGraphicsItem to draw vectors
 class Vector : public QGraphicsItem
 {
 public:
-    //Vector(qreal speedPass, qreal scalePass, QColor colourPass);
+    //! Constructor
     Vector();
 
+    //! Function used to pass parameters for the vector object
     void setVector(qreal speedPass, qreal scalePass, QColor colourPass);
 
+    //! Reimplemented from QGraphicsItem
     QRectF boundingRect() const;
+    //! Reimplemented from QGraphicsItem
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
@@ -38,41 +71,49 @@ private:
     qreal _headLength;
 };
 
+//! Class handling the drawing of grid points and vectors
 class ItemPaint : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
-        explicit ItemPaint(QObject *parent = 0);
-        virtual ~ItemPaint();
+public:
+    //! Constructor
+    explicit ItemPaint(QObject *parent = 0);
+    //! Destructor
+    virtual ~ItemPaint();
 
-        void setScene(QGraphicsScene *scenePass);
-        void drawGrid(QList<QPoint> pointList, Settings *settings);
-        void drawVectors(PivData *pivData, Settings *settings);
-        void removeVectors();
-        void removeGrid();
+    //! Function to pass a pointer to the QGraphicsScene on which to paint items
+    void setScene(QGraphicsScene *scenePass);
+    //! Handles drawing the grid points
+    void drawGrid(QList<QPoint> pointList, Settings *settings);
+    //! Handles removal of the grid
+    void removeGrid();
+    //! Handles drawing the vectors
+    void drawVectors(PivData *pivData, Settings *settings);
+    //! Handles removal of the vectors
+    void removeVectors();
 
-    signals:
-        void gridDrawn();
-        void vectorsDrawn();
+signals:
+    //! Signal emitted when the grid is drawn or updated
+    void gridDrawn();
+    //! Signal emitted when the vectors are drawn or updated
+    void vectorsDrawn();
 
-    protected:
-        void createVectorGroup(int num);
-        void createGridPointGroup(int num);
+protected:
+    //! Creates the QGraphicsItemGroup for the vectors
+    void createVectorGroup(int num);
+    //! Creates the QGraphicsItemGroup for the grid points
+    void createGridPointGroup(int num);
 
-    private:
-        QGraphicsScene *scene;
-        QGraphicsItemGroup *gridPointGroup;
-        QGraphicsItemGroup *vectorGroup;
-        bool gridPointGroupCreated;
-        bool vectorGroupCreated;
-        QList<GridPoint *> *gridPointList;
-        int currentGridSize;
-        //QList<QGraphicsItem *> *vectorList;
-        QList<Vector *> *vectorList;
+private:
+    QGraphicsScene *scene;
+    QGraphicsItemGroup *gridPointGroup;
+    QGraphicsItemGroup *vectorGroup;
+    bool gridPointGroupCreated;
+    bool vectorGroupCreated;
+    QList<GridPoint *> *gridPointList;
+    int currentGridSize;
+    QList<Vector *> *vectorList;
 };
-
-
-
 
 #endif // ITEMPAINT_H
