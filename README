@@ -25,6 +25,26 @@
 
 5. Run OpenPIV:
 
+== Note == 
+Our C++ version is currently under development, but we hope to release an Alpha version of the software soon.  
+You can access our pre-Alpha version here: https://github.com/OpenPIV/openpiv-c--qt.  
+
+
+
+== Installation on Linux ==
+
+To compile the program you will need the following libraries (make sure to get the *developer* versions):
+
+- qt4
+- fftw3
+- libtiff4
+
+In the source directory you need to run 'qmake' (or something like 'qmake-qt4', depending on how your distro works), 
+followed by 'make'. 
+
+If somebody is interested in contributing to the development, we would be more than happy to find a project.
+
+
 == Installation instructions on Mac OS X (Snow Leopard) ==
 
 1. Download and install Qt SDK from Nokia (full SDK with Qt Creator)
