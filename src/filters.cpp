@@ -276,6 +276,9 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
         {
             for (j = 0; j < width; j++)
             {
+                u = pivData->data(i,j).u;
+                v = pivData->data(i,j).v;
+
                 listU.clear();
                 listV.clear();
                 for (m = -halfN; m <= halfN; m++)

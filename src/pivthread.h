@@ -59,15 +59,21 @@ public:
         \param A QList of integers corresponding to indices on which to operate in the DataContainer object
     */
     explicit PivThread(QSemaphore *freePass, QSemaphore *usedPass, QMutex *mutexPass, QVector<PivData*> *dataVectorPass, QList<int> listPass, QObject *parent = 0);
+    //! Destructor
     virtual ~PivThread();
 
+    //! For passing a pointer to the global settings object
     void setSettings(Settings *settingsPass);
+    //! For passing a pointer to the global DataContainer object
     void setFileData(DataContainer *filedataPass);
 
+    //! Public function to start processing
     int process();
+    //! Halt the current process on this thread
     void stopProcess();
 
 protected:
+    //! Protected function to initialize the processing engine
     void initializeProcessor();
 
 private:
@@ -93,7 +99,7 @@ private:
 
     bool abort;
 
-    //Processors
+    //List the various types of processors here
     FFTCrossCorrelate *fftCrossCorrelate;
 };
 

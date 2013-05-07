@@ -7,6 +7,8 @@ OBJECTS_DIR = _build
 UI_DIR =      _build
 RCC_DIR =     _build
 
+QT += xml
+
 DEPENDPATH += . \
     src \
     ui \

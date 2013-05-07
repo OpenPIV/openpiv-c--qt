@@ -40,10 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "maskdropdown.h"
 
-#include "processing.h"
-#include "analysis.h"
-#include "datacontainer.h"
-#include "output.h"
+#include "session.h"
 
 #include "ui_mainwindow.h"
 
@@ -132,11 +129,13 @@ protected slots:
 
 private:
     bool isA;
-    Settings *settings;
 
     ImportImages *importImages;
     MaskDropDown *maskDropDown;
 
+    // Refactoring to be implemented by a session class
+    Session *session;
+    Settings *settings;
     Processing *process;
     Analysis *analysis;
     DataContainer *filedata;

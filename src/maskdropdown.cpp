@@ -33,6 +33,8 @@ MaskDropDown::MaskDropDown(QWidget *parent) : QMenu(parent)
 {
     loaded = false;
     QAction *tempAction;
+
+    //Adding actions to the drop down menu
     tempAction = new QAction("Import mask...", this);
     actionList.append(tempAction);
     tempAction = new QAction("Show grid", this);
@@ -41,8 +43,9 @@ MaskDropDown::MaskDropDown(QWidget *parent) : QMenu(parent)
     actionList.append(tempAction);
     tempAction = new QAction("Clear mask", this);
     actionList.append(tempAction);
-
     this->addActions(actionList);
+
+    // Initializing all actions to be disabled until mask is available
     actionList.value(0)->setEnabled(loaded);
     connect(actionList.value(0), SIGNAL(triggered()), this, SLOT(importTrigger()));
     actionList.value(1)->setEnabled(loaded);
@@ -58,17 +61,20 @@ MaskDropDown::~MaskDropDown()
 
 void MaskDropDown::imageLoaded()
 {
+    // Enabling the option of a mask image once a PIV image is loaded
     loaded = true;
     actionList.value(0)->setEnabled(loaded);
 }
 
 void MaskDropDown::importTrigger()
 {
+    // Signal is emitted when user clicks to import a mask
     emit(importMaskClicked());
 }
 
 void MaskDropDown::maskLoaded()
 {
+    // Enabling other options once mask image has been loaded
     actionList.value(1)->setEnabled(true);
     actionList.value(1)->setChecked(true);
     actionList.value(2)->setEnabled(true);
@@ -77,11 +83,13 @@ void MaskDropDown::maskLoaded()
 
 void MaskDropDown::gridTrigger(bool checkState)
 {
+    // Emitted when show/hide grid is toggled
     emit(gridToggled(checkState));
     actionList.value(1)->setChecked(checkState);
 }
 
 void MaskDropDown::clearTrigger()
 {
+    // Emitted when the mask is to be deleted
     emit(clearMask(false));
 }

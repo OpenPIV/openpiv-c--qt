@@ -66,6 +66,7 @@ FFTCrossCorrelate::~FFTCrossCorrelate()
 
 void FFTCrossCorrelate::prepareFFT()
 {
+    // Initializing fftw variables.  Not thread-safe.
     int n = _intLengthX * 2 * _intLengthY * 2;
 
     in = (fftw_complex*) fftw_malloc ( sizeof (fftw_complex) * n );
