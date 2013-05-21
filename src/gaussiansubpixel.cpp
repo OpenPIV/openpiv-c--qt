@@ -69,22 +69,49 @@ PivPointData gaussianSubPixel(double *cmap, int intLengthX, int intLengthY)
             }
         }
     }
-    mean = mean / double(count);
+    if (count > 0)
+    {
+        mean = mean / double(count);
+        disp.snr = max / mean;
+    }
+    else
+    {
+        mean = 0.0;
+        disp.snr = 0.0;
+    }
     // Assign the signal-to-noise (snr) value
-    disp.snr = max / mean;
+
 
     // Gaussian fitting to the peak in the correlation map
-    f0 = log(fabs(cmap[_intLengthX*2*maxI + maxJ]));
+    if (fabs(cmap[_intLengthX*2*maxI + maxJ]) > 0.0) f0 = log(fabs(cmap[_intLengthX*2*maxI + maxJ]));
+    else f0 = 0.0;
 
-    f1 = log(fabs(cmap[_intLengthX*2*(maxI-1) + maxJ]));
-    f2 = log(fabs(cmap[_intLengthX*2*(maxI+1) + maxJ]));
-    yDisp = double(_intLengthY) - (double(maxI+1) + (f1 - f2) / (2*f1 - 4*f0 + 2*f2));
+    if (fabs(cmap[_intLengthX*2*(maxI-1) + maxJ]) > 0.0) f1 = log(fabs(cmap[_intLengthX*2*(maxI-1) + maxJ]));
+    else f1 = 0.0;
+    if (fabs(cmap[_intLengthX*2*(maxI+1) + maxJ]) > 0.0) f2 = log(fabs(cmap[_intLengthX*2*(maxI+1) + maxJ]));
+    else f2 = 0.0;
+
+    if (fabs(2*f1 - 4*f0 + 2*f2) > 0.0)
+    {
+        yDisp = double(_intLengthY) - (double(maxI+1) + (f1 - f2) / (2*f1 - 4*f0 + 2*f2));
+    }
+    else
+    {
+        yDisp = 0.0;
+    }
     // Assign the vertical displacment
     disp.v = yDisp;
 
     f1 = log(fabs(cmap[_intLengthX*2*maxI + maxJ - 1]));
     f2 = log(fabs(cmap[_intLengthX*2*maxI + maxJ + 1]));
-    xDisp = double(_intLengthX) - (double(maxJ+1) + (f1 - f2) / (2*f1 - 4*f0 + 2*f2));
+    if (fabs(2*f1 - 4*f0 + 2*f2) > 0.0)
+    {
+        xDisp = double(_intLengthX) - (double(maxJ+1) + (f1 - f2) / (2*f1 - 4*f0 + 2*f2));
+    }
+    else
+    {
+        xDisp = 0.0;
+    }
     // Assign the horizontal displacement
     disp.u = xDisp;
 

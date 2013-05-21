@@ -161,8 +161,16 @@ void globalStd(PivData *pivData, FilterOptions filterOptions)
         }
     }
 
-    mxU = mxU / double(count);
-    mxV = mxV / double(count);
+    if (count > 0)
+    {
+        mxU = mxU / double(count);
+        mxV = mxV / double(count);
+    }
+    else
+    {
+        mxU = 0.0;
+        mxV = 0.0;
+    }
 
     // Next, compute the standard deviation
     count = 0;
@@ -183,8 +191,16 @@ void globalStd(PivData *pivData, FilterOptions filterOptions)
         }
     }
 
-    sxU = sqrt(sxU / double(count));
-    sxV = sqrt(sxV / double(count));
+    if (count > 0)
+    {
+        sxU = sqrt(sxU / double(count));
+        sxV = sqrt(sxV / double(count));
+    }
+    else
+    {
+        sxU = 0.0;
+        sxV = 0.0;
+    }
 
     /*  Rejecting any point in the PivData where the displacment
         is farther away than nSigma times the global standard deviation
@@ -252,8 +268,16 @@ void localDetect(PivData *pivData, FilterOptions filterOptions)
                     }
                 }
 
-                mxU = mxU / double(count);
-                mxV = mxV / double(count);
+                if (count > 0)
+                {
+                    mxU = mxU / double(count);
+                    mxV = mxV / double(count);
+                }
+                else
+                {
+                    mxU = 0.0;
+                    mxV = 0.0;
+                }
 
                 /*  Rejecting any point in the PivData where the displacment
                     exceeds the tolerance of the local mean.
@@ -362,7 +386,7 @@ void meanInterpolate(PivData *pivData, FilterOptions filterOptions)
                     }
                 }
                 // Assign the current vector the value of the local mean
-                if (count != 0)
+                if (count > 0)
                 {
                     uTemp[i*width + j] = mxU / double(count);
                     vTemp[i*width + j] = mxV / double(count);

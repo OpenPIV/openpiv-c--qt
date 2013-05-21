@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QFile>
+#include <QFileInfo>
 #include <QString>
 #include <cmath>
 #include <iostream>
@@ -84,7 +85,13 @@ void Output::outputASCII(PivData *pivData)
 
     // Filename is assigned to the pivData object based on the index of the image when the data
     // are calculated
-    filename = pivData->name();
+    QFile imageFile(pivData->name());
+    filename = _settings->outputFolder();
+    if (!(filename.endsWith("/") || filename.endsWith("\\")))
+        filename.append("/");
+    filename.append(QString(QFileInfo(imageFile.fileName()).fileName()));
+    //filename = pivData->name();
+
     filename.append(".txt");
 
     // Setting the filename from the pivData object to the QFile object
@@ -108,7 +115,8 @@ void Output::outputASCII(PivData *pivData)
                     outputString.append(QString("%1\t").arg(data.x,10,'g',10));
                     outputString.append(QString("%1\t").arg(imageHeight - data.y,10,'g',10));
                     outputString.append(QString("%1\t").arg(data.u,10,'g',10));
-                    outputString.append(QString("%1\t").arg(-data.v,10,'g',10));
+                    if (data.v != data.v) std::cout << "NaN encountered" << std::endl;
+                    outputString.append(QString("%1\t").arg(static_cast<double>(0.0-data.v),10,'g',10));
                     outputString.append(QString("%1\t").arg(data.snr,10,'g',10));
                     outputString.append("1\t");
                     if (data.filtered) outputString.append("1\t");
@@ -121,13 +129,13 @@ void Output::outputASCII(PivData *pivData)
                 {
                     outputString.append(QString("%1\t").arg(data.x,10,'g',10));
                     outputString.append(QString("%1\t").arg(imageHeight - data.y,10,'g',10));
-                    outputString.append(QString("%1\t").arg(0.0,10,'g',10));
-                    outputString.append(QString("%1\t").arg(0.0,10,'g',10));
-                    outputString.append(QString("%1\t").arg(0.0,10,'g',10));
+                    outputString.append(QString("%1\t").arg(static_cast<double>(0.0),10,'g',10));
+                    outputString.append(QString("%1\t").arg(static_cast<double>(0.0),10,'g',10));
+                    outputString.append(QString("%1\t").arg(static_cast<double>(0.0),10,'g',10));
                     outputString.append("0\t");
                     if (data.filtered) outputString.append("1\t");
                     else outputString.append("0\t");
-                    outputString.append(QString("%1").arg(0.0,10,'g',10));
+                    outputString.append(QString("%1").arg(static_cast<double>(0.0),10,'g',10));
                 }
                 // The end-of-line character may cause platform compatibility issues
                 outputString.append("\n");

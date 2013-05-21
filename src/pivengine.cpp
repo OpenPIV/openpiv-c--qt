@@ -195,7 +195,8 @@ double PivEngine::imageMean(ImageData *image, int topLeftRow, int topLeftColumn)
             count++;
         }
     }
-    mean = mean / count;
+    if (count > 0) mean = mean / count;
+    else mean = 0.0;
 
     return mean;
 }
