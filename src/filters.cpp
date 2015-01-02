@@ -434,16 +434,17 @@ void gaussianBlur(PivData *pivData, FilterOptions filterOptions)
     int halfN = floor(double(N - 1) / 2.0);
 
     double *kernel = new double [N*N+1];
-    double sumU, sumV;
+    double sumU, sumV, sumK;
     PivPointData pointData;
 
     // Creation of the kernel
-    k = 0; x = 0.0;
+    k = 0; x = 0.0; sumK = 0.0;
     for (y = -double(halfN); y <= double(halfN); y = y + 1.0)
     {
         for (x = -double(halfN); x <= double(halfN); x = x + 1.0)
         {
             kernel[k] = 0.5 / pi / radius / radius * exp(-(x*x + y*y) / 2.0 / radius / radius);
+            sumK += kernel[k];
             k++;
         }
     }
@@ -458,8 +459,8 @@ void gaussianBlur(PivData *pivData, FilterOptions filterOptions)
             {
                 for (k2 = -halfN; k2 <= halfN; k2++)
                 {
-                    sumU += pivData->data(i-k1,j-k2).u * kernel[(halfN+k1)*N+(halfN+k2)];
-                    sumV += pivData->data(i-k1,j-k2).v * kernel[(halfN+k1)*N+(halfN+k2)];
+                    sumU += pivData->data(i-k1,j-k2).u * kernel[(halfN+k1)*N+(halfN+k2)] / sumK;
+                    sumV += pivData->data(i-k1,j-k2).v * kernel[(halfN+k1)*N+(halfN+k2)] / sumK;
                 }
             }
             // Store values to temporary arrays to avoid propogation effects
