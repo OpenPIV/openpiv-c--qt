@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PIVDISPLAY_H
 #define PIVDISPLAY_H
 
-#include <QGraphicsView>
+#include <QtGui/QGraphicsView>
 #include <QStyleOptionGraphicsItem>
 
 #include "imagepaint.h"

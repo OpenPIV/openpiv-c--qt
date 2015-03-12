@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "vectorlist.h"
 #include <QHeaderView>
-#include <QTableWidget>
+#include <QtGui/QTableWidget>
 #include <iostream>
 
 VectorList::VectorList(QWidget *parent) : QTableWidget(parent)

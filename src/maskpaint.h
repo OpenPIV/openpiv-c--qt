@@ -28,8 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MASKPAINT_H
 #define MASKPAINT_H
 
-#include <QGraphicsItem>
-#include <QGraphicsView>
+#include <QtGui/QGraphicsItem>
+#include <QtGui/QGraphicsView>
 #include <QObject>
 
 class MaskPaint : public QObject, public QGraphicsItem

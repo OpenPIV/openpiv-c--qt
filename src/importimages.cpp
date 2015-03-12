@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "datacontainer.h"
 #include "ui_importimages.h"
 
-#include <QDialog>
+#include <QtGui/QDialog>
 #include <QDir>
 
 ImportImages::ImportImages(QWidget *parent) : QDialog(parent)

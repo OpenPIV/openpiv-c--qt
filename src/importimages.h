@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IMPORTIMAGES_H
 
 #include <QtGui/QDialog>
-#include <QMenu>
+#include <QtGui/QMenu>
 #include "importimagelist.h"
 #include "datacontainer.h"
 #include "ui_importimages.h"

@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IMPORTPOPUP_H
 
 #include <QObject>
-#include <QMenu>
+#include <QtGui/QMenu>
 
 class ImportPopUp : public QMenu
 {
