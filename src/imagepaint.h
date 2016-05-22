@@ -2,7 +2,7 @@
 ====================================================================================
 
 File: imagepaint.h
-Description: This function inherits QGraphicsItem and uses QPainter to draw the
+Description: This class inherits QGraphicsItem and uses QPainter to draw the
     provided QImage.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
 
@@ -29,27 +29,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IMAGEPAINT_H
 
 #include <QGraphicsItem>
-//#include <QObject>
 
-//class ImagePaint : public QObject, public QGraphicsItem
+//!  This class inherits QGraphicsItem and uses QPainter to draw the provided QImage.
+
 class ImagePaint : public QGraphicsItem
 {
-    //Q_OBJECT
+public:
+    //! Constructor
+    ImagePaint(QImage imagePass);
+    //! Destructor
+    virtual ~ImagePaint();
 
-    public:
-        ImagePaint(QImage imagePass);
-        virtual ~ImagePaint();
+    //! Receives the image to be painted
+    void setImage(QImage imagePass);
 
-        void setImage(QImage imagePass);
+    //! Reimplemented from QGraphicsItem
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    //! Reimplemented from QGraphicsItem
+    QRectF boundingRect() const;
 
-        void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-        QRectF boundingRect() const;
-
-    private:
-        QRect total;
-        QImage image;
-        QRectF viewRect;
-        //QVector<QRgb> colors;
+private:
+    QRect total;
+    QImage image;
+    QRectF viewRect;
 };
 
 #endif // IMAGEPAINT_H

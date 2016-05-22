@@ -33,7 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <tiffio.h>
 
 ImageData::ImageData()
-{   
+{
+    // Empty constructor sets creation flags to false
     bufCreated = false;
     qImageCreated = false;
     isTiff = false;
@@ -41,6 +42,7 @@ ImageData::ImageData()
 
 ImageData::~ImageData()
 {
+    // Delete any created memory
     if (bufCreated) delete [] _buffer;
     if (qImageCreated) delete qImage;
 }
@@ -77,6 +79,7 @@ bool ImageData::read(QString filename)
             {
                 for (j = 0; j < imageWidth; j++)
                 {
+                    // Making sure the image is grayscale and converting if it isn't
                     if (qImage->allGray()) _buffer[i*imageWidth + j] = double(QColor(qImage->pixel(j,i)).red());
                     else
                     {
@@ -95,7 +98,6 @@ bool ImageData::read(QString filename)
         {
             if (qImageCreated) delete qImage;
             qImageCreated = false;
-            std::cout << "failed to read image\n";
             return false;
         }
     }
@@ -103,6 +105,7 @@ bool ImageData::read(QString filename)
 
 double ImageData::toGray(int r, int g, int b)
 {
+    // Using relatively standard method to convert from colour to grayscale
     return (0.2989*double(r) + 0.5870*double(g) + 0.1140*double(b));
 }
 
@@ -131,17 +134,17 @@ bool ImageData::readTiff(QString filename)
 
         if (bits > 8)
         {
-            // Creating the 16-bit buffer and the 8-bit buffer
+            // Creating the buffer if it doesn't exist
             if (!bufCreated) createBuf();
 
             buf = new char[linesize * imageHeight];
-            bool error = false;
             for (i = 0; i < imageHeight; i++)
             {
                 // Reading the data line by line
                 TIFFReadScanline(tif, &buf[i * linesize], i, 0);
                 for (j = 0; j < imageWidth; j++)
                 {
+                    // Checking to see if the image is grayscale (spp = 1) or colour (spp = 3)
                     if (spp == 1) _buffer[i*imageWidth + j] = double(((uint16 *)buf + imageWidth*i*spp)[j*spp]);
                     else if (spp == 3)
                     {
@@ -153,23 +156,19 @@ bool ImageData::readTiff(QString filename)
                     else
                     {
                         _buffer[i*imageWidth + j] = 0.0;
-                        error = true;
                     }
                 }
             }
-            if (error) std::cout << "something weird happened\n";
             TIFFClose(tif);
             delete buf;
         }
         else
         {
-            /* Performs much the same operation as the routine when bits > 8 without creating the
-               16-bit buffer */
+            /* Performs much the same operation as the routine when bits > 8 */
 
             if (!bufCreated) createBuf();
 
             buf = new char[linesize * imageHeight];
-            bool error = false;
             for (i = 0; i < imageHeight; i++)
             {
                 TIFFReadScanline(tif, &buf[i * linesize], i, 0);
@@ -186,11 +185,10 @@ bool ImageData::readTiff(QString filename)
                     else
                     {
                         _buffer[i*imageWidth + j] = 0.0;
-                        error = true;
+//                        error = true;
                     }
                 }
             }
-            if (error) std::cout << "something weird happened\n";
             TIFFClose(tif);
             delete buf;
         }
@@ -204,7 +202,7 @@ QImage ImageData::toQImage()
 {
     /* Converts buffer to a QImage if such an object does not already exist.
        This is necessary for display purposes even though the algorithms are all
-       performed on the character buffers. */
+       performed on the image buffers. */
     int i, j;
     double value;
     int scaledValue;
@@ -240,6 +238,7 @@ QImage ImageData::toQImage()
 
 void ImageData::createBuf()
 {
+    // Allocate memory
     _buffer = new double [imageWidth * imageHeight + 1];
     bufCreated = true;
 }

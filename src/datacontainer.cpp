@@ -1,3 +1,30 @@
+/*
+====================================================================================
+
+File: datacontainer.h
+Description: Class that links together the data of a PIV realization and a container
+    class for these data: index, image filenames, PIV data filename.
+Copyright (C) 2012  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
 #include <QStringList>
 #include <QObject>
 #include <iostream>
@@ -12,6 +39,7 @@
 
 MetaData::MetaData()
 {
+    // Initializing properties of MetaData
     _index = -1;
     _imageA = "";
     _imageB = "";
@@ -43,7 +71,10 @@ void MetaData::setVectorFile(QString vectorFilePass) { _vectorFile = vectorFileP
 
 DataContainer::DataContainer(Settings *settingsPass, QObject *parent) : QObject(parent)
 {
+    // Setting local pointer to global Settings object
     settings = settingsPass;
+
+    // Initializing variables
     _currentIndex = -1;
     _isA = true;
     _currentVectors = false;
@@ -62,9 +93,13 @@ void DataContainer::append(QStringList listA, QStringList listB)
     int listLength;
     int oldListLength = _container.size();
     MetaData data;
+
+    /* Based on other functions, the lists should always be the same size.
+      However, if they have ended up of different sizes, we take the smallest. */
     if (listA.size() > listB.size()) listLength = listB.size();
     else listLength = listA.size();
 
+    // Loop over the new pair of lists appending data to the container
     for (int i = 0; i < listLength; i++)
     {
         data.setImageA(listA.value(i));
@@ -73,6 +108,7 @@ void DataContainer::append(QStringList listA, QStringList listB)
         data.setVectorFile("");
         _container.append(data);
     }
+    // Emit signal that images have been imported
     emit(imagesImported());
 }
 
@@ -108,6 +144,7 @@ void DataContainer::importMask()
 {
     QString maskName;
     QImage *tempData;
+    // Launch file dialog to get image mask file name
     maskName = QFileDialog::getOpenFileName();
     if (maskCreated) delete maskData;
     tempData = new QImage(maskName);
@@ -117,18 +154,17 @@ void DataContainer::importMask()
 
     if (!tempData->isNull())
     {
+        // Scales the mask image to the image size.  May want to change this functionality in the future.
         maskData = new QImage(tempData->scaled(imageSize, Qt::IgnoreAspectRatio));
         maskCreated = true;
+        /* If a mask is loaded, it is assumed that the user wants to use the mask so it we set this
+           in the global Settings object */
         settings->setIsMask(true);
+        // Signal emitted to say the mask image has been loaded
         emit (maskLoaded());
     }
     delete tempData;
 }
-
-//void DataContainer::setGrid(QList<QPoint> gridListPass)
-//{
-//    _gridList = gridListPass;
-//}
 
 QList<QPoint>* DataContainer::gridList()
 {
@@ -146,13 +182,16 @@ void DataContainer::setCurrentIndex(int currentIndexPass, bool isAPass)
 {
     _currentIndex = currentIndexPass;
     _isA = isAPass;
+    // Need to check if the current image pair has an associated vector file to dispaly
     if (_container.value(_currentIndex).hasVectors())
     {
+        // Deleting the current PivData object if there is one
         if (pivDataResponsible)
         {
             delete _currentPivData;
             pivDataResponsible = false;
         }
+        // Reading the vector file associated with the current image pair
         _currentPivData = new PivData;
         _currentPivData->read(_currentIndex,_container.value(_currentIndex).vectorFile(),settings->imageSize().height());
         pivDataResponsible = true;

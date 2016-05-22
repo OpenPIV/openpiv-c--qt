@@ -1,0 +1,75 @@
+* Note that these are guidelines that worked for us to install the software on various platforms.  Please do not hesitate to contact us at: if you require assistance on your specific platform.  Thanks!
+
+== Installation instructions on Ubuntu based Linux ==
+
+1. Download and install Qt4 for developers:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:
+
+
+== Installations instructions for general Linux ==
+
+1. Download and install Qt4 for developers:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:
+
+== Note == 
+Our C++ version is currently under development, but we hope to release an Alpha version of the software soon.  
+You can access our pre-Alpha version here: https://github.com/OpenPIV/openpiv-c--qt.  
+
+
+
+== Installation on Linux ==
+
+To compile the program you will need the following libraries (make sure to get the *developer* versions):
+
+- qt4
+- fftw3
+- libtiff4
+
+In the source directory you need to run 'qmake' (or something like 'qmake-qt4', depending on how your distro works), 
+followed by 'make'. 
+
+If somebody is interested in contributing to the development, we would be more than happy to find a project.
+
+
+== Installation instructions on Mac OS X (Snow Leopard) ==
+
+1. Download and install Qt SDK from Nokia (full SDK with Qt Creator)
+
+2. Download and install libtiff library. The steps are:
+
+ download and unzip the tiff-4.0.0.tar.gz
+
+./configure CPPFLAGS='-I/usr/X11/include -I/opt/local/include' LIBS='-lGL -lGLU' LDFLAGS='-L/usr/X11/lib -L/opt/local/lib'
+
+make
+
+sudo make install
+
+3. Download and install fftw3 library, follow their great instructions in INSTALL file (I had to use --disable-fortran to make it working)
+
+
+== Installation instructions for Windows ==
+
+1. Download and install Qt SDK from Nokia:
+
+2. Download and install libtiff4 for developers:
+
+3. Download and install fftw3 for developers:
+
+4. Compile OpenPIV:
+
+5. Run OpenPIV:

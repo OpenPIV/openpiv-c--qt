@@ -40,74 +40,106 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "maskdropdown.h"
 
-#include "processing.h"
-#include "analysis.h"
-#include "datacontainer.h"
-#include "output.h"
+#include "session.h"
 
 #include "ui_mainwindow.h"
+
+/*! This class inherits QMainWindow and contains functions to interact with
+    the main window.  It is from here where the user executes a majority of this
+    program's functions.
+*/
 
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
     Q_OBJECT
 
-    public:
-        MainWindow(QWidget *parent = 0);
-        ~MainWindow();
+public:
+    //! Constructor
+    MainWindow(QWidget *parent = 0);
+    //! Destructor
+    ~MainWindow();
 
-    protected:
-        // Initialization
-        void setupWindows();
-        void initialize();
-        void setupConnections();
+protected:
+    //! Setup the various windows which can be brought up using the main window
+    void setupWindows();
+    //! Initialization of the global parameters
+    void initialize();
+    //! Establish the myriad of signal and slot connections
+    void setupConnections();
 
-        void initializeProcessTab();
-        void initializeFilterTab();
-        void initializeDataQualityTab();
-        void initializeViewTab();
+    //! Initialization of the process tab in the ribbon bar
+    void initializeProcessTab();
+    //! Initialization of the filter tab in the ribbon bar
+    void initializeFilterTab();
+    //! Initialization of the data quality tab in the ribbon bar
+    void initializeDataQualityTab();
+    //! Initialization of the view tab in the ribbon bar
+    void initializeViewTab();
 
+protected slots:
+    //! Slot to launch the image import dialog
+    void launchImageImport();
 
-    protected slots:
-        void launchImageImport();
+    //! Handles a change in output folder
+    void notifyFolderChange();
+    //! Handling of a request to show an 'A' image
+    void pivAclicked(int rowSelected);
+    //! Handling of a request to show a 'B' image
+    void pivBclicked(int rowSelected);
+    //! Handling of a request to show some PIV data
+    void vectorClicked(int rowSelected);
+    //! Advances the current index forward one
+    void forwardOne();
+    //! Moves the current index back one
+    void backwardOne();
+    //! Opens the filtered data colour dialog
+    void chooseFilteredColour();
+    //! Opens the unfiltered data colour dialog
+    void chooseUnfilteredColour();
+    //! Handles redrawing the colour buttons
+    void setColourButtons();
 
-        void notifyFolderChange();
-        void pivAclicked(int rowSelected);
-        void pivBclicked(int rowSelected);
-        void vectorClicked(int rowSelected);
-        void forwardOne();
-        void backwardOne();
-        void chooseFilteredColour();
-        void chooseUnfilteredColour();
-        void setColourButtons();
+    //! Sets up the filter tab based on global Settings object
+    void setFilterTab();
+    //! Handles a change to the filter settings
+    void filterChanged();
+    //! Sets the filter tab values
+    void setFilterValues();
 
-        void setFilterTab();
-        void filterChanged();
-        void setFilterValues();
+    //! Sets up the display tab based on global Settings object
+    void setDisplayTab();
 
-        void setDisplayTab();
+    //! Sets up the 'Doing PIV' tab based on global Settings object
+    void setDoingPIV();
+    //! Sets the output parameters in the global Settings object
+    void setOutput();
+    //! Launches the folder selection dialog
+    void chooseOutputFolder();
 
-        void setDoingPIV();
-        void setOutput();
-        void chooseOutputFolder();
+    //! Handles the display options when a batch operation is finished
+    void batchDone();
 
-        void batchDone();
+    //! Sets up the data quality tab based on global Settings object
+    void setDataQualityTab();
+    //! Handles a change to the data quality settings
+    void qualityChanged();
 
-        void setDataQualityTab();
-        void qualityChanged();
+    //! Handles the (x,y) position label for the mouse within the scene
+    void updatePositionLabel(QPointF xyPoint);
 
-        void updatePositionLabel(QPointF xyPoint);
+private:
+    bool isA;
 
-    private:
-        bool isA;
-        Settings *settings;
+    ImportImages *importImages;
+    MaskDropDown *maskDropDown;
 
-        ImportImages *importImages;
-        MaskDropDown *maskDropDown;
-
-        Processing *process;
-        Analysis *analysis;
-        DataContainer *filedata;
-        Output *output;
+    // Refactoring to be implemented by a session class
+    Session *session;
+    Settings *settings;
+    Processing *process;
+    Analysis *analysis;
+    DataContainer *filedata;
+    Output *output;
 };
 
 #endif // MAINWINDOW_H

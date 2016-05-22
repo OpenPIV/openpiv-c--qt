@@ -124,6 +124,7 @@ void ImportImages::filter()
     QString str;
     fileList.clear();
 
+    // Sorting through the image list to find those with compatible image formats
     for (int i = 0; i < iterations; i++)
     {
         if (tempList.value(i).endsWith(".tif",Qt::CaseInsensitive) ||

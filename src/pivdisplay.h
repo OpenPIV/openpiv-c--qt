@@ -38,81 +38,129 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "datacontainer.h"
 #include "pivdata.h"
 
+//! This class to show the image and,eventully, the PIV data.
+/*!
+    This class inherits QGraphicsView.  The display allows for user interaction (zoom, pan)
+    with the images.  Once the velocity data are computed it also allows for layering of the
+    vectors.
+*/
+
 class PivDisplay : public QGraphicsView
 {
-    Q_OBJECT
 
-    public:
-        PivDisplay(QWidget* parent = 0);
-        virtual ~PivDisplay();
+Q_OBJECT
 
-        QPointF getPoint1();
-        QPointF getPoint2();
+public:
+    //! Constructor
+    PivDisplay(QWidget* parent = 0);
+    //! Destructor
+    virtual ~PivDisplay();
 
-        void setSettings(Settings *settingsPass);
-        void setData(DataContainer *filedataPass);
+    //! Returns the scene-mapped point of the cursor when the mouse is clicked
+    QPointF getPoint1();
+    //! Returns the scene-mapped point of the cursor when the mouse is released
+    QPointF getPoint2();
 
-    signals:
-        void mouseMoved(QPointF pointPass);
+    //! Receives a pointer to the global settings object
+    void setSettings(Settings *settingsPass);
+    //! Receives a pointer to the global data container
+    void setData(DataContainer *filedataPass);
 
-    public slots:
-        void refreshView();
-        void displayCurrent();
-        void maskToggled(bool isTrue);
-        void vectorsToggled(bool isTrue);
+signals:
+    //! Signal emitted when the mouse is moved
+    void mouseMoved(QPointF pointPass);
 
-        void zoomIn();
-        void zoomOut();
-        void zoomFit();
-        void vectorsChanged();
+public slots:
+    //! Refreshs what is currently drawn
+    void refreshView();
+    //! Displays the current image pair (selection is held in the DataContainer object)
+    void displayCurrent();
+    //! Handles showing/hiding of the mask in the display
+    void maskToggled(bool isTrue);
+    //! Handles showing/hiding of the vectors in the display
+    void vectorsToggled(bool isTrue);
 
-    protected:
-        void resize();
+    //! Provides the zoom in function by zooming in in 5% increments
+    void zoomIn();
+    //! Provides the zoom out function by zooming out in 5% increments
+    void zoomOut();
+    //! Fits the scene to the size of the display area
+    void zoomFit();
+    //! Notifies the display object of a change to the displayed vectors
+    void vectorsChanged();
 
-        void wheelEvent(QWheelEvent* event);
-        void mousePressEvent(QMouseEvent* event);
-        void mouseReleaseEvent(QMouseEvent* event);
-        void mouseMoveEvent(QMouseEvent* event);
-        void resizeEvent(QResizeEvent* event);
+protected:
+    void resize();
 
-        void drawLayers();
-        void drawMaskImage();
-        void drawImage(QImage imagePass);
+    //! Wheel event handler inherited from QGraphicsView
+    void wheelEvent(QWheelEvent* event);
+    //! Mouse press event handler inherited from QGraphicsView
+    void mousePressEvent(QMouseEvent* event);
+    //! Mouse release event handler inherited from QGraphicsView
+    void mouseReleaseEvent(QMouseEvent* event);
+    //! Mouse move event handler inherited from QGraphicsView
+    void mouseMoveEvent(QMouseEvent* event);
+    //! Resize event handler inherited from QGraphicsView
+    void resizeEvent(QResizeEvent* event);
 
-    private:
-        QPointF point1;
-        QPointF point2;
+    //! Draws the scene layer by layer
+    void drawLayers();
+    //! Draws the mask image
+    void drawMaskImage();
+    //! Draws the PIV image
+    void drawImage(QImage imagePass);
 
-        bool mouseIsPressed;
+private:
+    QPointF point1;
+    QPointF point2;
 
-        QImage *image;
+    bool mouseIsPressed;
 
-        QImage *maskImage;
+    // PIV display image
+    QImage *image;
+    // Mask display image
+    QImage *maskImage;
 
-        QGraphicsScene *_scene;
-        ImagePaint *imPaint;
-        ImagePaint *maskPaint;
-        ItemPaint *itemPaint;
-        bool imPaintAdded;
-        bool maskPaintAdded;
-        QRect *rect;
-        QRectF *rectF;
-        QRectF *viewRectF;
-        bool viewRectFSet;
-        QPointF centerPoint;
+    // The scene of the viewer
+    QGraphicsScene *_scene;
+    // The image painter for PIV images
+    ImagePaint *imPaint;
+    // The image painter for the mask image
+    ImagePaint *maskPaint;
+    // Item painter (grid points/vectors)
+    ItemPaint *itemPaint;
 
-        ImageData *currentImage;
-        QString currentFileName;
-        bool currentImageCreated;
+    bool imPaintAdded;
+    bool maskPaintAdded;
 
-        bool maskActive;
-        bool vectorsActive;
-        bool vectorsDrawn;
+    // Scene integer rectangle
+    QRect *rect;
+    // Scene float rectangle
+    QRectF *rectF;
+    // View foat rectangle
+    QRectF *viewRectF;
+    bool viewRectFSet;
+    // Central point of the viewer
+    QPointF centerPoint;
 
-        Settings *settings;
-        PivData *pivData;
+    // Image data for the current image (QImage is required for display)
+    ImageData *currentImage;
+    QString currentFileName;
+    bool currentImageCreated;
 
-        DataContainer *filedata;
+    // Boolean for if the mask is active
+    bool maskActive;
+    // Boolean for if the vectors are active
+    bool vectorsActive;
+    // Boolean for if the vectors are drawn
+    bool vectorsDrawn;
+
+    // Pointer to the global settings object
+    Settings *settings;
+    // Pointer to the displayed PivData object
+    PivData *pivData;
+    // Pointer to the global DataContainer object
+    DataContainer *filedata;
 
 };
 #endif // PIVDISPLAY_H

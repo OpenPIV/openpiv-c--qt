@@ -45,6 +45,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vectorlist.h"
 #include "imagepaint.h"
 
+// Need to come back and comment this class when the Session class is up and running properly
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);
@@ -75,8 +77,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::initialize()
 {
+    // This needs to be refactored so that the Session class
+    // handles some of the initializing of these object
+    session = new Session;
+
     settings = new Settings;
     filedata = new DataContainer(settings);
+    process = new Processing(settings,filedata);
+    analysis = new Analysis(settings,filedata);
+    output = new Output(settings,filedata);
+
+    // This should all stay
     aListWidget->setA(true);
     bListWidget->setA(false);
     aListWidget->setData(filedata);
@@ -84,9 +95,6 @@ void MainWindow::initialize()
     vectorListWidget->setData(filedata);
     pivDisplay->setSettings(settings);
     pivDisplay->setData(filedata);
-    process = new Processing(settings,filedata);
-    analysis = new Analysis(settings,filedata);
-    output = new Output(settings,filedata);
     isA = true;
 }
 
@@ -100,6 +108,10 @@ void MainWindow::setupWindows()
 
 void MainWindow::setupConnections()
 {
+    // Session
+    connect(saveSession, SIGNAL(clicked()), session, SLOT(save()));
+    connect(openSession, SIGNAL(clicked()), session, SLOT(open()));
+
     // Importing
     connect(importButton, SIGNAL(clicked()), this, SLOT(launchImageImport()));
     connect(filedata, SIGNAL(imagesImported()), aListWidget, SLOT(populate()));
@@ -500,7 +512,6 @@ void MainWindow::filterChanged()
 
 void MainWindow::setFilterValues()
 {
-    //std::cout << "in setFilterValues\n";
     FilterOptions filterOptions;
     filterOptions = settings->filterOptions();
 

@@ -2,7 +2,7 @@
 ====================================================================================
 
 File: imagelist.h
-Description: This function inherits QTableWidget and provides the interface between
+Description: This class inherits QTableWidget and provides the interface between
     the user and the image lists.  This class is typically instantiated twice for
     the 'A' images and the 'B' images.
 Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
@@ -34,41 +34,65 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "datacontainer.h"
 
+//!  Class inherited from QTableWidget to handle the display of each image list.
+/*!
+    This class inherits QTableWidget and provides the interface between
+    the user and the image lists.  This class is typically instantiated twice for
+    the 'A' images and the 'B' images.
+*/
+
 class ImageList : public QTableWidget
 {
-    Q_OBJECT
 
-    public:
-        ImageList(QWidget* parent = 0);
-        virtual ~ImageList();
+Q_OBJECT
 
-        void setData(DataContainer *filedataPass);
-        void setA(bool isAPass);
+public:
+    //! Constructor
+    ImageList(QWidget* parent = 0);
 
-    public slots:
-        void populate();
-        void highlightRow(int rowSelected);
-        void clearHighlight();
+    //! Destructor
+    virtual ~ImageList();
 
-    protected:
-        void setupConnections();
+    //! A pointer to the filedata is passed to the list upon initialization
+    /*!
+        \param Pointer to the global DataContainer object
+    */
+    void setData(DataContainer *filedataPass);
+    //! Determines if the current list is the A or B list of images
+    void setA(bool isAPass);
 
-    protected slots:
-        void rowSelect(int row, int column);
-        void rowDoubleClicked(int row, int column);
+public slots:
+    //! Populates the display list with the data in the global DataContainer object
+    void populate();
+    //! Highlights the selected row
+    void highlightRow(int rowSelected);
+    //! Clears the highligh (for example if B is selected after A was previously selected)
+    void clearHighlight();
 
-    signals:
-        void fileClicked(QString fileName, int rowSelected);
-        void fileClicked(int rowSelected);
-        void itemEntered(QTableWidgetItem* item);
+protected:
+    //! Protected function to setup the signal and slot connections
+    void setupConnections();
 
-    private:
-        bool isA;
-        DataContainer *filedata;
-        int rowHeight;
-        int rows;
-        int rowSelected;
-        int previousRow;
+protected slots:
+    //! Protected slot to select the row in the table internally
+    void rowSelect(int row, int column);
+    //! Protected slot called when a row is double clicked
+    void rowDoubleClicked(int row, int column);
+
+signals:
+    //! Signal is emitted when a row is double-clicked
+    void fileClicked(QString fileName, int rowSelected);
+    //! Signal is emitted when a row is double-clicked
+    void fileClicked(int rowSelected);
+
+private:
+    bool isA;
+    DataContainer *filedata;
+    int rowHeight;
+    int rows;
+    int rowSelected;
+    int previousRow;
+
 };
 
 #endif // IMAGELIST_H

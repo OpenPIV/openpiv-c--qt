@@ -1,3 +1,31 @@
+/*
+====================================================================================
+
+File: fftcrosscorrelate.cpp
+Description: Inheriting the PivEngine class the fast and robust FFT
+    cross-correlation using the FFTW library is implemented.
+Copyright (C) 2010  OpenPIV (http://www.openpiv.net)
+
+Contributors to this code:
+Zachary Taylor
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+====================================================================================
+*/
+
+
 #include <fftw3.h>
 #include <iostream>
 #include <fstream>
@@ -14,6 +42,8 @@ FFTCrossCorrelate::FFTCrossCorrelate(Settings *settingsPass, QList<QPoint> gridP
 {
     _intLengthX = PivEngine::intLengthX();
     _intLengthY = PivEngine::intLengthY();
+
+    // Creation and destruction of FFT objects is not thread-safe
     mutex.lock();
     prepareFFT();
     mutex.unlock();
@@ -21,6 +51,7 @@ FFTCrossCorrelate::FFTCrossCorrelate(Settings *settingsPass, QList<QPoint> gridP
 
 FFTCrossCorrelate::~FFTCrossCorrelate()
 {
+    // Destruction of FFT objects is not thread-safe
     mutex.lock();
     fftw_free(in);
     fftw_free(inRot);
@@ -35,6 +66,7 @@ FFTCrossCorrelate::~FFTCrossCorrelate()
 
 void FFTCrossCorrelate::prepareFFT()
 {
+    // Initializing fftw variables.  Not thread-safe.
     int n = _intLengthX * 2 * _intLengthY * 2;
 
     in = (fftw_complex*) fftw_malloc ( sizeof (fftw_complex) * n );
@@ -49,8 +81,10 @@ void FFTCrossCorrelate::prepareFFT()
 
 bool FFTCrossCorrelate::crossCorrelate(int topLeftRow, int topLeftColumn)
 {   
+    // Checks to see if images are available (provided through the PivEngine class)
     if (this->imagesAvailable())
     {
+        // Calling the core FFT algorithm
         fftCore(this->imageA(),this->imageB(),topLeftRow,topLeftColumn);
         return true;
     }
@@ -59,6 +93,8 @@ bool FFTCrossCorrelate::crossCorrelate(int topLeftRow, int topLeftColumn)
 
 void FFTCrossCorrelate::fftCore(ImageData *_imageA, ImageData *_imageB, int topLeftRow, int topLeftColumn)
 {
+    // Note that the execution of FFTW objects/plans is thread safe (according to FFTW) but the creation
+    // and destruction of FFTW objects/plans is not safe.
     int i, j;
     int imageI, imageJ;
     int windowI, windowJ;
@@ -69,25 +105,10 @@ void FFTCrossCorrelate::fftCore(ImageData *_imageA, ImageData *_imageB, int topL
     // Getting the average intensity of both interrogation windows
     double meanA;
     double meanB;
-//    int count = 0;
 
     int imageWidth = _imageA->width();
-//    unsigned char* aData = _imageA->buffer();
-//    unsigned char* bData = _imageB->buffer();
     double* aData = _imageA->buffer();
     double* bData = _imageB->buffer();
-
-//    for (imageI = topLeftRow; imageI < (topLeftRow + _intLengthY); imageI++)
-//    {
-//        for (imageJ = topLeftColumn; imageJ < (topLeftColumn + _intLengthX); imageJ++)
-//        {
-//            meanA = meanA + double(aData[imageWidth*imageI + imageJ]);
-//            meanB = meanB + double(bData[imageWidth*imageI + imageJ]);
-//            count++;
-//        }
-//    }
-//    meanA = meanA / count;
-//    meanB = meanB / count;
 
     meanA = this->meanImageA();
     meanB = this->meanImageB();
@@ -107,19 +128,20 @@ void FFTCrossCorrelate::fftCore(ImageData *_imageA, ImageData *_imageB, int topL
             }
             else
             {
-                //in[_intLengthX*2*windowI + windowJ][0] = double(aData[imageWidth*imageI + imageJ]) - meanA;
                 in[_intLengthX*2*windowI + windowJ][0] = aData[imageWidth*imageI + imageJ] - meanA;
                 in[_intLengthX*2*windowI + windowJ][1] = 0.0;
-                //inRot[_intLengthX*2*windowI + windowJ][0] = double(bData[imageWidth*(topLeftRow + _intLengthY - windowI - 1) + (topLeftColumn + _intLengthX - windowJ - 1)]) - meanB;
+                // Rotation of the interrogation window B
                 inRot[_intLengthX*2*windowI + windowJ][0] = bData[imageWidth*(topLeftRow + _intLengthY - windowI - 1) + (topLeftColumn + _intLengthX - windowJ - 1)] - meanB;
                 inRot[_intLengthX*2*windowI + windowJ][1] = 0.0;
             }
         }
     }
 
+    // Computing the 2D FFTs through executing the FFTW plans
     fftw_execute(goA);
     fftw_execute(goB);
 
+    // Complex conjugate multiplication
     double a, b, c, d;
     for (i = 0; i < n; i++)
     {
@@ -132,8 +154,11 @@ void FFTCrossCorrelate::fftCore(ImageData *_imageA, ImageData *_imageB, int topL
             in[i][1] = b * c + a * d;
     }
 
+    // Computing the 2D inverse FFT through executing the FFTW plan
     fftw_execute(goIfft);
 
+    // Assigning the result to the cmap object (type double) through the access
+    // function provided by the base PivEngine class
     for (i = 0; i < (2*_intLengthY); i++)
     {
         for (j = 0; j < (2*_intLengthX); j++)
