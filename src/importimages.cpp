@@ -154,7 +154,7 @@ void ImportImages::autoConfig (QStringList importList)
 {
     importList.sort();
 
-    int count, i, j, k, rows, rowsA, nameLength, sizeCount, minLength, minNumber, minIndex;
+    int count, i, j, k, rows, nameLength, sizeCount, minLength, minNumber;
     QString pass, str, str1, str2, common;
     QStringList tempList, tempA, tempB;
     QList<int> numList;
@@ -254,6 +254,7 @@ void ImportImages::autoConfig (QStringList importList)
             k = 0;
             while (k < (importList.size() / 2))
             {
+                int minIndex = -1;
                 minNumber = 100000000;
                 for (j = 0; j < rows; j++)
                 {
@@ -284,7 +285,7 @@ void ImportImages::autoConfig (QStringList importList)
             }
 
             // Now need to rank the lists
-            rowsA = tempA.size(); k = 0;
+            k = 0;
             while (!tempA.isEmpty())
             {
                 minLength = 1000000000; more = true;

@@ -94,12 +94,14 @@ void ImageList::populate()
 
 void ImageList::rowSelect(int row, int column)
 {
+    Q_UNUSED( column )
     this->selectRow(row);
     previousRow = row;
 }
 
 void ImageList::rowDoubleClicked(int row, int column)
 {
+    Q_UNUSED( column )
     this->selectRow(row);
     emit(fileClicked(this->item(row,1)->text(), row));
     emit(fileClicked(row));

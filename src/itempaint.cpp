@@ -184,6 +184,9 @@ QRectF GridPoint::boundingRect() const
 
 void GridPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED( option )
+    Q_UNUSED( widget )
+        
     // Actual painting of grid point objects
     qreal width = 15;
     qreal thick = 2;
@@ -220,6 +223,9 @@ QRectF Vector::boundingRect() const
 
 void Vector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    Q_UNUSED( option )
+    Q_UNUSED( widget )
+        
     // Actual painting of vector objects
     QPainterPath path;
 

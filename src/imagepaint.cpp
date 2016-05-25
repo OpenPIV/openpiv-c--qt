@@ -106,8 +106,10 @@ QRectF ImagePaint::boundingRect() const
     total = image.rect();
 } */
 
-void ImagePaint::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ImagePaint::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
+    Q_UNUSED( option )
+    Q_UNUSED( widget )
     painter->drawImage(viewRect,image,QRectF(total));
 }
 
