@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MASKDROPDOWN_H
 
 #include <QObject>
-#include <QMenu>
+#include <QtGui/QMenu>
 #include "pivdisplay.h"
 
 //!  Class handling the mask drop down menu based on QMenu.

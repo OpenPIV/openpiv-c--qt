@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "maskdropdown.h"
 #include "pivdisplay.h"
 
-#include <QMenu>
+#include <QtGui/QMenu>
 
 MaskDropDown::MaskDropDown(QWidget *parent) : QMenu(parent)
 {

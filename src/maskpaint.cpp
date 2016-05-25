@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "maskpaint.h"
 
-#include <QGraphicsItem>
+#include <QtGui/QGraphicsItem>
 #include <QPainter>
 
 MaskPaint::MaskPaint() : QGraphicsItem()

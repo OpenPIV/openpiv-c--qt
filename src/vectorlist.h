@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VECTORLIST_H
 #define VECTORLIST_H
 
-#include <QTableWidget>
+#include <QtGui/QTableWidget>
 #include "datacontainer.h"
 
 //! Inherits QTableWidget to provide user interface to the list of vectors.

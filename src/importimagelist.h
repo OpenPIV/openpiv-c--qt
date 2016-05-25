@@ -28,10 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IMPORTIMAGELIST_H
 #define IMPORTIMAGELIST_H
 
-#include <QListWidget>
+#include <QtGui/QListWidget>
 #include <QMouseEvent>
 #include <QObject>
-#include <QMenu>
+#include <QtGui/QMenu>
 
 //! This class inherits QMenu and provides extra functionality.
 class ImportPopUp : public QMenu
