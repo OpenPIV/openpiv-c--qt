@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IMAGEPAINT_H
 #define IMAGEPAINT_H
 
-#include <QGraphicsItem>
+#include <QtGui/QGraphicsItem>
 
 //!  This class inherits QGraphicsItem and uses QPainter to draw the provided QImage.
 

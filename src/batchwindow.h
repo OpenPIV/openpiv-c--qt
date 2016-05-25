@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BATCHWINDOW_H
 #define BATCHWINDOW_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 #include "settings.h"
 #include "ui_batchwindow.h"

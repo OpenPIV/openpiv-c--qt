@@ -28,9 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "importimagelist.h"
 #include "importimages.h"
 
-#include <QListWidget>
+#include <QtGui/QListWidget>
 #include <QMouseEvent>
-#include <QMenu>
+#include <QtGui/QMenu>
 
 ImportImageList::ImportImageList(QWidget *parent) : QListWidget(parent)
 {

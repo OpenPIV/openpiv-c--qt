@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "imagepaint.h"
 #include "imagedata.h"
 
-#include <QGraphicsView>
+#include <QtGui/QGraphicsView>
 #include <QMouseEvent>
 #include <QStyleOptionGraphicsItem>
 #include <QFileDialog>

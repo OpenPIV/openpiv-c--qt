@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "imagelist.h"
 #include "datacontainer.h"
-#include <QTableWidget>
+#include <QtGui/QTableWidget>
 #include <QHeaderView>
 
 ImageList::ImageList(QWidget* parent) : QTableWidget(parent)

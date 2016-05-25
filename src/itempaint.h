@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ITEMPAINT_H
 
 #include <QObject>
-#include <QGraphicsScene>
-#include <QGraphicsItem>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsItem>
 
 #include "settings.h"
 #include "pivdata.h"

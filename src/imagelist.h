@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IMAGELIST_H
 
 #include <QObject>
-#include <QTableWidget>
+#include <QtGui/QTableWidget>
 
 #include "datacontainer.h"
 

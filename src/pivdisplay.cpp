@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ====================================================================================
 */
 
-#include <QGraphicsView>
+#include <QtGui/QGraphicsView>
 #include <QMouseEvent>
 #include <QStyleOptionGraphicsItem>
 #include <QCoreApplication>
