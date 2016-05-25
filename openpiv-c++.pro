@@ -2,10 +2,22 @@
 TEMPLATE = app
 TARGET = openpiv-c++
 
-MOC_DIR =     _build
-OBJECTS_DIR = _build
-UI_DIR =      _build
-RCC_DIR =     _build
+CONFIG *= warn_on
+CONFIG *= silent
+
+unix {
+  MOC_DIR     = .moc
+  OBJECTS_DIR = .obj
+  UI_DIR      = .ui
+  RCC_DIR     = .rcc
+}
+
+win32 {
+  MOC_DIR     = _moc
+  OBJECTS_DIR = _obj
+  UI_DIR      = _ui
+  RCC_DIR     = _rcc
+}
 
 QT += xml
 
