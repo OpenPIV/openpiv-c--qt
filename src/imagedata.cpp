@@ -26,250 +26,118 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "imagedata.h"
-#include <QString>
-#include <QImage>
+
+// std
 #include <cmath>
 #include <iostream>
-#include <tiffio.h>
+#include <limits>
+#include <algorithm>
+
+// qt
+#include <QString>
+#include <QImage>
 
 ImageData::ImageData()
+    : buffer_( nullptr ),
+      qImage_( nullptr )
+{}
+
+ImageData::ImageData( const QSize& s )
+    : buffer_( nullptr ),
+      qImage_( nullptr ),
+      size_( s )
 {
-    // Empty constructor sets creation flags to false
-    bufCreated = false;
-    qImageCreated = false;
-    isTiff = false;
+    createBuf();
 }
 
 ImageData::~ImageData()
 {
-    // Delete any created memory
-    if (bufCreated) delete [] _buffer;
-    if (qImageCreated) delete qImage;
+    delete [] buffer_;
+    delete qImage_;
 }
 
-// Read-write functions
-
-bool ImageData::read(QString filename)
+QImage ImageData::toQImage() const
 {
-    int i, j;
-    bool check;
-    /* Checking to see if the supplied file is a tiff image or not based on the extension provided.  If
-       the image is a tiff it is read with the libtiff library, otherwise the QImage class is used. */
-    if (filename.endsWith("tif", Qt::CaseInsensitive) || filename.endsWith("tiff", Qt::CaseInsensitive))
+    // Converts buffer to a QImage if such an object does not already exist.
+    // This is necessary for display purposes even though the algorithms are all
+    // performed on the image buffers.
+    if (!qImage_)
     {
-        isTiff = true;
-        // Calls the routine that implements the functions of the libtiff library.
-        check = readTiff(filename);
-        return check;
-    }
-    else
-    {
-        isTiff = false;
-        if (qImageCreated) delete qImage;
-        qImage = new QImage(filename);
-        qImageCreated = true;
-        if (!qImage->isNull())
+        qImage_ = new QImage( size_, QImage::Format_RGB32 );
+        const size_t height = size_.height();
+        const size_t width = size_.width();
+        
+        double min = std::numeric_limits< double >::max();
+        double max = std::numeric_limits< double >::min();
+        for ( size_t i=0; i<height; ++i )
         {
-            imageHeight = qImage->height();
-            imageWidth = qImage->width();
-
-            if (!bufCreated) createBuf();
-
-            for (i = 0; i < imageHeight; i++)
+            for ( size_t j=0; j<width; ++j )
             {
-                for (j = 0; j < imageWidth; j++)
-                {
-                    // Making sure the image is grayscale and converting if it isn't
-                    if (qImage->allGray()) _buffer[i*imageWidth + j] = double(QColor(qImage->pixel(j,i)).red());
-                    else
-                    {
-                        QColor color = qImage->pixel(j,i);
-                        int r = color.red();
-                        int g = color.green();
-                        int b = color.blue();
-                        _buffer[i*imageWidth + j] = toGray(r,g,b);
-                    }
-                }
-            }
-            bits = 8;
-            return true;
-        }
-        else
-        {
-            if (qImageCreated) delete qImage;
-            qImageCreated = false;
-            return false;
-        }
-    }
-}
-
-double ImageData::toGray(int r, int g, int b)
-{
-    // Using relatively standard method to convert from colour to grayscale
-    return (0.2989*double(r) + 0.5870*double(g) + 0.1140*double(b));
-}
-
-bool ImageData::readTiff(QString filename)
-{
-    int i,j;
-    TIFF *tif;
-    uint16 spp, bpp, photo;
-    int linesize;
-    char* buf;
-
-    tif = TIFFOpen(filename.toLocal8Bit().data(),"r");
-
-    // Checking to make sure the file was opened successfully.
-    if (tif)
-    {
-        // Reading the data from the tiff file's header
-        TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &imageHeight);
-        TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &imageWidth);
-        TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp);
-        TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
-        TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photo);
-        linesize = TIFFScanlineSize(tif);
-
-        bits = bpp;
-
-        if (bits > 8)
-        {
-            // Creating the buffer if it doesn't exist
-            if (!bufCreated) createBuf();
-
-            buf = new char[linesize * imageHeight];
-            for (i = 0; i < imageHeight; i++)
-            {
-                // Reading the data line by line
-                TIFFReadScanline(tif, &buf[i * linesize], i, 0);
-                for (j = 0; j < imageWidth; j++)
-                {
-                    // Checking to see if the image is grayscale (spp = 1) or colour (spp = 3)
-                    if (spp == 1) _buffer[i*imageWidth + j] = double(((uint16 *)buf + imageWidth*i*spp)[j*spp]);
-                    else if (spp == 3)
-                    {
-                        int r = int(((uint16 *)buf + imageWidth*i*spp)[j*spp]);
-                        int g = int(((uint16 *)buf + imageWidth*i*spp)[j*spp+1]);
-                        int b = int(((uint16 *)buf + imageWidth*i*spp)[j*spp+2]);
-                        _buffer[i*imageWidth + j] = toGray(r,g,b);
-                    }
-                    else
-                    {
-                        _buffer[i*imageWidth + j] = 0.0;
-                    }
-                }
-            }
-            TIFFClose(tif);
-            delete buf;
-        }
-        else
-        {
-            /* Performs much the same operation as the routine when bits > 8 */
-
-            if (!bufCreated) createBuf();
-
-            buf = new char[linesize * imageHeight];
-            for (i = 0; i < imageHeight; i++)
-            {
-                TIFFReadScanline(tif, &buf[i * linesize], i, 0);
-                for (j = 0; j < imageWidth; j++)
-                {
-                    if (spp == 1) _buffer[i*imageWidth + j] = double(((uint8 *)buf + imageWidth*i*spp)[j*spp]);
-                    else if (spp == 3)
-                    {
-                        int r = int(((uint8 *)buf + imageWidth*i*spp)[j*spp]);
-                        int g = int(((uint8 *)buf + imageWidth*i*spp)[j*spp+1]);
-                        int b = int(((uint8 *)buf + imageWidth*i*spp)[j*spp+2]);
-                        _buffer[i*imageWidth + j] = toGray(r,g,b);
-                    }
-                    else
-                    {
-                        _buffer[i*imageWidth + j] = 0.0;
-//                        error = true;
-                    }
-                }
-            }
-            TIFFClose(tif);
-            delete buf;
-        }
-
-        return true;
-    }
-    else return false;
-}
-
-QImage ImageData::toQImage()
-{
-    /* Converts buffer to a QImage if such an object does not already exist.
-       This is necessary for display purposes even though the algorithms are all
-       performed on the image buffers. */
-    int i, j;
-    double value;
-    int scaledValue;
-
-    if (!qImageCreated || qImage->isNull())
-    {
-        if (qImageCreated) delete qImage;
-        qImage = new QImage(imageWidth,imageHeight,QImage::Format_ARGB32);
-        qImageCreated = true;
-
-        double min = 1000000.0; double max = -1000000.0;
-        for (i = 0; i < imageHeight; i++)
-        {
-            for (j = 0; j < imageWidth; j++)
-            {
-                if (_buffer[i*imageWidth + j] > max) max = _buffer[i*imageWidth + j];
-                if (_buffer[i*imageWidth + j] < min) min = _buffer[i*imageWidth + j];
+                max = std::max( buffer_[ i*width + j ], max );
+                min = std::min( buffer_[ i*width + j ], min );
             }
         }
 
-        for (i = 0; i < imageHeight; i++)
+        for ( size_t i=0; i<height; ++i )
         {
-            for (j = 0; j < imageWidth; j++)
+            QRgb* line = (QRgb*)(qImage_->scanLine( i ));
+            for ( size_t j=0; j<width; ++j )
             {
-                value = _buffer[i*imageWidth + j];
-                scaledValue = int(ceil((value - min) / (max - min) * 255));
-                qImage->setPixel(j,i,qRgb(scaledValue, scaledValue, scaledValue));
+                double value = buffer_[ i*width + j ];
+                int scaledValue = int( ceil((value - min) / (max - min) * 255));
+                *(line + j) = qRgb(scaledValue, scaledValue, scaledValue);
             }
         }
     }
-    return *qImage;
+    
+    return *qImage_;
 }
 
 void ImageData::createBuf()
 {
     // Allocate memory
-    _buffer = new double [imageWidth * imageHeight + 1];
-    bufCreated = true;
+    delete [] buffer_;
+    buffer_ = new double[ width() * height() ];
 }
 
-// Information functions
+const double* ImageData::buffer() const
+{
+    return buffer_;
+}
+
 double* ImageData::buffer()
 {
-    return _buffer;
+    return buffer_;
 }
 
-// Returns the image width
-int ImageData::width()
+const double* ImageData::linebuffer( int row ) const
 {
-    return imageWidth;
+    if ( row < 0 || row >= size_.height() )
+        throw ImageDataException( "row out of limits" );
+
+    return buffer_ + ( row*width() );
 }
 
-// Returns the image height
-int ImageData::height()
+double* ImageData::linebuffer( int row )
 {
-    return imageHeight;
+    return const_cast< ImageData* >( this )->linebuffer( row );
 }
 
-// Returns the image bit depth
-int ImageData::bitDepth()
+int ImageData::width() const
 {
-    return bits;
+    return size_.width();
+}
+
+int ImageData::height() const
+{
+    return size_.height();
 }
 
 // Returns the gray value at (x,y) = (i,j)
-double ImageData::pixel(int i, int j)
+double ImageData::pixel(int i, int j) const
 {
-    if (bufCreated) return _buffer[i*imageWidth + j];
-    else return -1.0;
+    if (buffer_)
+        return buffer_[i*size_.width() + j];
+    else
+        return -1.0;
 }

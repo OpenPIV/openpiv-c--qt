@@ -1,12 +1,7 @@
-!macx:!win32 {
-    LIBS += -ltiff
-} 
+
+LIBS *= -ltiffxx -ltiff
 
 macx {
-    LIBS += -L/opt/local/lib -ltiff
-    INCLUDEPATH += /opt/local/include
-}
-
-win32 {
-    LIBS += -ltiff
+    LIBS *= -L/opt/local/lib
+    INCLUDEPATH *= /opt/local/include
 }

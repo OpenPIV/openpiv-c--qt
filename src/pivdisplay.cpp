@@ -199,10 +199,10 @@ void PivDisplay::drawLayers()
     if (currentImageCreated) delete currentImage;
     currentImage = new ImageData;
     currentImageCreated = true;
-    if (currentImage->read(currentFileName))
-    {
-        this->drawImage(currentImage->toQImage());
-    }
+    // if (currentImage->read(currentFileName))
+    // {
+    //     this->drawImage(currentImage->toQImage());
+    // }
 
     // Next layer is mask image and grid
     if (maskActive)

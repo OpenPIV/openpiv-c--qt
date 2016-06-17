@@ -25,12 +25,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ====================================================================================
 */
 
-#ifndef IMAGEDATA_H
-#define IMAGEDATA_H
+#pragma once
 
+// std
+#include <stdexcept>
+
+// qt
 #include <QString>
 #include <QImage>
 #include <QPixmap>
+#include <QSize>
+
+class ImageDataException : public std::runtime_error
+{
+public:
+    ImageDataException( const std::string& what )
+        : std::runtime_error( what )
+    {}
+};
+
 
 //!  Class handling image data
 /*!
@@ -42,58 +55,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 class ImageData
 {
-
 public:
-
+    typedef double PixelType;
+    
     //! Constructor.
     ImageData();
+    ImageData( const QSize& );
 
     //! Destructor.
     virtual ~ImageData();
 
-    // Read-write functions
-    //! Function to read images.
-    /*!
-        Function to read images that takes the filename as an argument and returns the outcome.
-
-        \param filename a QString object containing the full path of the image
-        \return success of the operation
-    */
-    bool read(QString filename);
-
     //! Converts buffer to QImage for display.
-    QImage toQImage();
+    QImage toQImage() const;
 
     // Information functions
     //! Returns the width of the image
-    int width();
+    int width() const;
     //! Returns the height of the image
-    int height();
+    int height() const;
+
+    QSize size() const;
+    
     //! Returns the bit depth of the image
-    int bitDepth();
+    int bitDepth() const;
 
     //! Returns the gray value of the pixel at (x,y) = (j,i)
-    double pixel(int i, int j);
+    double pixel(int i, int j) const;
 
     //! Returns a pointer to the image buffer
+    const double* buffer() const;
     double* buffer();
 
-protected:
-    //! Function to handle the special case of tiff files using libtiff4
-    bool readTiff(QString filename);
+    //! Returns a pointer to the start of a line
+    const double* linebuffer( int row ) const;
+    double* linebuffer( int row );
+
+private:
     //! Allocation of the memory for the image
     void createBuf();
+
     //! Convert a colour image to grayscale
     double toGray(int r, int g, int b);
 
-private:
-    double *_buffer;
-    int imageWidth, imageHeight;
-    bool bufCreated, qImageCreated;
-    bool isTiff;
-    int bits;
-    QImage *qImage;
-    bool windowCreated;
+    double *buffer_;
+    mutable QImage *qImage_;
+    QSize size_;
 };
-
-#endif // IMAGEDATA_H

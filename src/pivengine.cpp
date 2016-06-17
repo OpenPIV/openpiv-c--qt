@@ -158,13 +158,13 @@ void PivEngine::loadImages()
     _imageA = new ImageData;
     _imageB = new ImageData;
 
-    if (_imageA->read(_data.imageA()) && _imageB->read(_data.imageB())) imagesCreated = true;
-    else
-    {
-        delete _imageA;
-        delete _imageB;
-        imagesCreated = false;
-    }
+    // if (_imageA->read(_data.imageA()) && _imageB->read(_data.imageB())) imagesCreated = true;
+    // else
+    // {
+    //     delete _imageA;
+    //     delete _imageB;
+    //     imagesCreated = false;
+    // }
 }
 
 bool PivEngine::crossCorrelate(int topLeftRow, int topLeftColumn)
