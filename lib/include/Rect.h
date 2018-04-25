@@ -53,6 +53,22 @@ public:
     inline Size::type height() const { return size_.height(); }
     inline Size::type area() const { return size_.area(); }
 
+    /// is this rectangle wholly within \a r1
+    inline const bool within( const Rect& r1 ) const
+    {
+        return
+            bottomLeft()[0] >= r1.bottomLeft()[0] &&
+            bottomLeft()[1] >= r1.bottomLeft()[1] &&
+            topRight()[0] <= r1.topRight()[0] &&
+            topRight()[1] <= r1.topRight()[1];
+    }
+
+    /// is \a r1 wholly contained within this rectangle
+    inline const bool contains( const Rect& r1 ) const
+    {
+        return r1.within( *this );
+    }
+
 private:
     Int2DPoint bottomLeft_;
     Size size_;

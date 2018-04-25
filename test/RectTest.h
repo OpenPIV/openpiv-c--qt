@@ -45,6 +45,28 @@ TEST(RectTest, CornerTest)
     ASSERT_EQ(r.topRight(),    Int2DPoint(15,15));
 }
 
+TEST(RectTest, WithinTest)
+{
+    Rect r(Int2DPoint(5,5), Size(10,10));
+    ASSERT_TRUE( r.within( Rect( Int2DPoint(5,5), Size(10,10))) );
+    ASSERT_TRUE( r.within( Rect( Int2DPoint(0,0), Size(20,20))) );
+    ASSERT_FALSE( r.within( Rect( Int2DPoint(6,0), Size(8,8))) );
+    ASSERT_FALSE( r.within( Rect( Int2DPoint(0,6), Size(8,8))) );
+    ASSERT_FALSE( r.within( Rect( Int2DPoint(0,0), Size(10,20))) );
+    ASSERT_FALSE( r.within( Rect( Int2DPoint(0,0), Size(20,10))) );
+}
+
+TEST(RectTest, ContainsTest)
+{
+    Rect r(Int2DPoint(5,5), Size(10,10));
+    ASSERT_TRUE( r.contains( Rect( Int2DPoint(5,5), Size(10,10))) );
+    ASSERT_TRUE( r.contains( Rect( Int2DPoint(6,6), Size(8,8))) );
+    ASSERT_FALSE( r.contains( Rect( Int2DPoint(4,6), Size(8,8))) );
+    ASSERT_FALSE( r.contains( Rect( Int2DPoint(6,4), Size(8,8))) );
+    ASSERT_FALSE( r.contains( Rect( Int2DPoint(6,6), Size(8,10))) );
+    ASSERT_FALSE( r.contains( Rect( Int2DPoint(6,6), Size(10,8))) );
+}
+
 TEST(RectTest, OStreamTest)
 {
     std::stringstream ss;
