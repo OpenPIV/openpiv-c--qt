@@ -1,3 +1,8 @@
+
+g++ -o test main.cpp -std=c++14 -I ../lib/include/ -L/usr/lib -lgtest -lpthread
+
+
+
 * Note that these are guidelines that worked for us to install the
   software on various platforms.  Please do not hesitate to contact us
   at: if you require assistance on your specific platform.  Thanks!
