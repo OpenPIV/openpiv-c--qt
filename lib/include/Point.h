@@ -46,11 +46,11 @@ public:
     inline bool operator==(const Point& rhs) const { return data_ == rhs.data_; }
     inline bool operator!=(const Point& rhs) const { return !operator==(rhs); }
 
-    inline const T& operator[](size_t i) const { return data_[i]; }
-    inline T& operator[](size_t i) { return data_[i]; }
+    constexpr inline const T& operator[](size_t i) const { return data_[i]; }
+    constexpr inline T& operator[](size_t i) { return data_[i]; }
 
     // return underlying data
-    inline const DataType& data() const { return data_; }
+    constexpr inline const DataType& data() const { return data_; }
 
 private:
     DataType data_ {};

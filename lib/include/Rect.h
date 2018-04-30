@@ -21,6 +21,12 @@ public:
           size_( size )
     {}
 
+    /// construct a rect from size with default origin
+    static Rect fromSize( const Size& s )
+    {
+        return Rect( Int2DPoint(), s );
+    }
+
     Rect& operator=( const Rect& ) = default;
     Rect& operator=( Rect&& ) = default;
     inline bool operator==(const Rect& rhs) const

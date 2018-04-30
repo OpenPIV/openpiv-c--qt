@@ -28,6 +28,11 @@ TEST(RectTest, EqualityTest)
     ASSERT_NE( Rect(Int2DPoint(5,5), Size(1,10)), Rect(Int2DPoint(5,5), Size(10,10)) );
 }
 
+TEST(RectTest, FromSizeTest)
+{
+    ASSERT_EQ( Rect::fromSize(Size(10,10)), Rect(Int2DPoint(0,0), Size(10,10)) );
+}
+
 TEST(RectTest, CopyTest)
 {
     Rect r1(Int2DPoint(5,5), Size(10,10));

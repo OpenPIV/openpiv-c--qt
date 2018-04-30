@@ -3,11 +3,13 @@
 
 // std
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <typeinfo>
 #include <vector>
 
 // local
+#include "Size.h"
 #include "Util.h"
 
 /// basic 2-dimensional image; data is stored as a
@@ -53,7 +55,7 @@ public:
             *TI = *SI;
     }
 
-    // assignment
+    /// assignment
     Image& operator=(const Image& rhs)
     {
         width_ = rhs.width();
@@ -62,6 +64,7 @@ public:
         return *this;
     }
 
+    /// move assignment
     Image& operator=(Image&& rhs)
     {
         data_   = std::move(rhs.data_);
@@ -71,27 +74,45 @@ public:
         return *this;
     }
 
-    // equality
-    inline bool operator==(const Image& rhs)
+    /// equality
+    inline bool operator==(const Image& rhs) const
     {
         return
             width_ == rhs.width_ &&
-            height_ == rhs.height &&
+            height_ == rhs.height_ &&
             data_ == rhs.data_;
     }
-    inline bool operator!=(const Image& rhs) { return !operator==(rhs); }
+    inline bool operator!=(const Image& rhs) const { return !operator==(rhs); }
 
-    inline const T& operator[](size_t i) const { return data_[i]; }
-    inline T& operator[](size_t i) { return data_[i]; }
+    /// pixel accessor
+    constexpr inline T& operator[](size_t i) { return data_[i]; }
+    constexpr inline const T& operator[](size_t i) const { return const_cast<Image*>(this)->operator[](i); }
 
-    inline const T& operator[]( const UInt2DPoint& xy ) const { return data_[xy[1]*width_ + xy[0]]; }
-    inline T& operator[]( const UInt2DPoint& xy ) { return data_[xy[1]*width_ + xy[0]]; }
+    /// pixel accessor by point
+    constexpr inline T& operator[]( const UInt2DPoint& xy ) { return data_[xy[1]*width_ + xy[0]]; }
+    constexpr inline const T& operator[]( const UInt2DPoint& xy ) const
+    {
+        return const_cast<Image*>(this)->operator[](xy);
+    }
 
-    // return underlying data
-    inline const DataType& data() const { return data_; }
-    inline const uint32_t width() const { return width_; }
-    inline const uint32_t height() const { return height_; }
-    inline const uint32_t pixel_count() const { return width_ * height_; }
+    /// raw data accessor
+    constexpr inline T* data() { return &data_[0]; }
+    constexpr inline const T* data() const { return const_cast<Image*>(this)->data(); }
+
+    /// raw data by line
+    constexpr inline T* line( size_t i )
+    {
+        if (i<=height_)
+            return &data_[i*width_];
+
+        Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
+    }
+    constexpr inline const T* line( size_t i ) const { return const_cast<const Image*>(this)->line(i); }
+
+    /// geometry accessors
+    constexpr inline const uint32_t width() const { return width_; }
+    constexpr inline const uint32_t height() const { return height_; }
+    constexpr inline const uint32_t pixel_count() const { return width_ * height_; }
 
 private:
     uint32_t width_;
