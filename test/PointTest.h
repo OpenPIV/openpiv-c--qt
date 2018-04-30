@@ -32,7 +32,7 @@ TEST(PointTest, ModifyTest)
 
 TEST(PointTest, ConvertTest1)
 {
-    Double2DPoint p{ 1, 2 };
+    Double2DPoint p{ 1.0, 2.0 };
 
     ASSERT_EQ(p[0], 1);
     ASSERT_EQ(p[1], 2);

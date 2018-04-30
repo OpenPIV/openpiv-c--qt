@@ -106,6 +106,7 @@ public:
             return &data_[i*width_];
 
         Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
+        return nullptr;
     }
     constexpr inline const T* line( size_t i ) const { return const_cast<const Image*>(this)->line(i); }
 

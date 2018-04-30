@@ -61,7 +61,7 @@ template < typename T, size_t N >
 std::ostream& operator<<( std::ostream& os, const Point<T, N>& p )
 {
     os << "(";
-    for( auto i=0; i<N; ++i)
+    for( size_t i=0; i<N; ++i)
         os << (i==0?"":",") << p[i];
     os << ")";
 

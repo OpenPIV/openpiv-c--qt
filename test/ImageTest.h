@@ -101,6 +101,6 @@ TEST(ImageTest, EqualityTest)
     ASSERT_EQ( im1, im2 );
 
     // modify a pixel
-    im2[ UInt2DPoint( 100, 50 ) ] = 100;
+    im2[ UInt2DPoint( 100u, 50u ) ] = 100;
     ASSERT_NE( im1, im2 );
 }

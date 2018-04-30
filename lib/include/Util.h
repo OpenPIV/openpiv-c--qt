@@ -37,8 +37,21 @@ struct are_all_convertible {
 };
 
 template <typename To, typename From>
-struct are_all_convertible<To,From> {
+struct are_all_convertible<To, From> {
     constexpr static bool value = std::is_convertible<From,To>::value;
+};
+
+/// pair of helpers to determine if all types Ts are equal to T
+template <typename TypeA, typename TypeB, typename... R>
+struct are_all_equal {
+    constexpr static bool value =
+        std::is_same<TypeA, TypeB>::value &&
+        are_all_convertible<TypeA, R...>::value;
+};
+
+template <typename TypeA, typename TypeB>
+struct are_all_equal<TypeA, TypeB> {
+    constexpr static bool value = std::is_same<TypeA, TypeB>::value;
 };
 
 /// helpers to convert std::array<T, N> to std::array<U, N>
