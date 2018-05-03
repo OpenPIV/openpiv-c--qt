@@ -171,7 +171,7 @@ void PivDisplay::mouseMoveEvent(QMouseEvent* event)
     emit(mouseMoved(point1));
 }
 
-void PivDisplay::resizeEvent(QResizeEvent *event)
+void PivDisplay::resizeEvent(QResizeEvent*)
 {
     resize();
 }
