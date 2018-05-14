@@ -4,9 +4,10 @@
 
 // to be tested
 #include "PointTest.h"
-#include "ImageTest.h"
 #include "SizeTest.h"
 #include "RectTest.h"
+#include "ImageTest.h"
+#include "ImageViewTest.h"
 
 int main(int argc, char *argv[])
 {

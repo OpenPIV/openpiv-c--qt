@@ -43,11 +43,17 @@ TEST(RectTest, CopyTest)
 
 TEST(RectTest, CornerTest)
 {
-    Rect r(Int2DPoint(5,5), Size(10,10));
-    ASSERT_EQ(r.bottomLeft(),  Int2DPoint(5,5));
-    ASSERT_EQ(r.bottomRight(), Int2DPoint(15,5));
-    ASSERT_EQ(r.topLeft(),     Int2DPoint(5,15));
-    ASSERT_EQ(r.topRight(),    Int2DPoint(15,15));
+    Rect r1(Int2DPoint(5,5), Size(10,10));
+    ASSERT_EQ(r1.bottomLeft(),  Int2DPoint(5,5));
+    ASSERT_EQ(r1.bottomRight(), Int2DPoint(15,5));
+    ASSERT_EQ(r1.topLeft(),     Int2DPoint(5,15));
+    ASSERT_EQ(r1.topRight(),    Int2DPoint(15,15));
+
+    Rect r2(Int2DPoint(), Size(10,10));
+    ASSERT_EQ(r2.bottomLeft(),  Int2DPoint(0,0));
+    ASSERT_EQ(r2.bottomRight(), Int2DPoint(10,0));
+    ASSERT_EQ(r2.topLeft(),     Int2DPoint(0,10));
+    ASSERT_EQ(r2.topRight(),    Int2DPoint(10,10));
 }
 
 TEST(RectTest, WithinTest)

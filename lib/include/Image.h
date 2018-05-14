@@ -9,13 +9,14 @@
 #include <vector>
 
 // local
+#include "ImageInterface.h"
 #include "Size.h"
 #include "Util.h"
 
 /// basic 2-dimensional image; data is stored as a
 /// contiguous array of type T
 template < typename T >
-class Image
+class Image : public ImageInterface< Image, T >
 {
 public:
     using type = T;
@@ -108,7 +109,7 @@ public:
         Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
         return nullptr;
     }
-    constexpr inline const T* line( size_t i ) const { return const_cast<const Image*>(this)->line(i); }
+    constexpr inline const T* line( size_t i ) const { return const_cast<Image*>(this)->line(i); }
 
     /// geometry accessors
     constexpr inline const uint32_t width() const { return width_; }

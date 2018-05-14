@@ -17,12 +17,12 @@ Image< T >& fill( Image< T >& im, T value )
     return im;
 }
 
-template < typename T, typename R >
-R pixel_sum_impl( const Image< T >& im )
+template < template<typename> class ImageT, typename ContainedT, typename R >
+R pixel_sum_impl( const ImageInterface< ImageT, ContainedT >& im )
 {
     R result = 0;
-    const T* p = im.data();
-    const T* e = im.data() + im.pixel_count();
+    const ContainedT* p = im.data();
+    const ContainedT* e = im.data() + im.pixel_count();
     while ( p < e )
     {
         result += *p++;
@@ -32,16 +32,16 @@ R pixel_sum_impl( const Image< T >& im )
 }
 
 /// find the sum of all pixels
-template < typename T >
-typename std::enable_if<std::is_integral<T>::value, int64_t>::type
-pixel_sum( const Image< T >& im )
+template < template<typename> class ImageT, typename ContainedT >
+typename std::enable_if<std::is_integral<ContainedT>::value, int64_t>::type
+pixel_sum( const ImageInterface< ImageT, ContainedT >& im )
 {
-    return pixel_sum_impl<T, int64_t>(im);
+    return pixel_sum_impl<ImageT, ContainedT, int64_t>(im);
 }
 
-template < typename T >
-typename std::enable_if<!std::is_integral<T>::value, double>::type
-pixel_sum( const Image< T >& im )
+template < template<typename> class ImageT, typename ContainedT >
+typename std::enable_if<!std::is_integral<ContainedT>::value, double>::type
+pixel_sum( const ImageInterface< ImageT, ContainedT >& im )
 {
-    return pixel_sum_impl<T, double>(im);
+    return pixel_sum_impl<ImageT, ContainedT, double>(im);
 }

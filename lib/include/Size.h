@@ -10,7 +10,7 @@
 class Size
 {
 public:
-    using type = int32_t;
+    using type = uint32_t;
 
     Size() = default;
     Size( const Size& ) = default;

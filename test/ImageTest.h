@@ -7,17 +7,12 @@
 #include <string>
 #include <tuple>
 
+// local
+#include "TestUtils.h"
+
 // to be tested
 #include "Image.h"
 #include "ImageUtils.h"
-
-std::tuple< UInt8Image, uint8_t > createAndFill( Size s, uint8_t v )
-{
-    UInt8Image result(s.width(), s.height());
-    fill( result, v );
-
-    return std::make_tuple( result, v );
-}
 
 TEST(ImageTest, IntTest)
 {
