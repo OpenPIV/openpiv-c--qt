@@ -58,11 +58,14 @@ public:
             Thrower<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
         Int2DPoint bl{ r_.bottomLeft() };
-        size_t y = bl[1];
+        UInt2DPoint::type y = bl[1];
         while ( i > r_.width() )
-            ++y; i-= r_.width();
+        {
+            ++y;
+            i-= r_.width();
+        }
 
-        size_t x = i + bl[0];
+        UInt2DPoint::type x = i + bl[0];
         return im_[ UInt2DPoint(x, y) ];
     }
     inline const T& operator[]( const UInt2DPoint& xy ) const

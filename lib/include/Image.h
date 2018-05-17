@@ -42,18 +42,18 @@ public:
     {}
 
     /// conversion from another similar image; hideously expensive!
-    template < typename U,
-               typename = typename std::enable_if<std::is_convertible<U, T>::value>::type >
-    explicit Image( const Image< U >& p )
+    template < template<typename> class ImageT,
+               typename ContainedT,
+               typename = typename std::enable_if<
+                   std::is_convertible<ContainedT, T>::value>::type >
+    explicit Image( const ImageInterface< ImageT, ContainedT >& p )
         : width_( p.width() )
         , height_( p.height() )
-        , data_( p.data().size() )
+        , data_( p.pixel_count() )
     {
         // no alternative but to iterate
-        typename DataType::iterator TI = std::begin( data_ );
-        typename DataType::const_iterator SI = std::cbegin( p.data() );
-        while ( TI != std::end(data_) )
-            *TI = *SI;
+        for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
+            this->operator[](i) = p[i];
     }
 
     /// assignment
@@ -103,11 +103,10 @@ public:
     /// raw data by line
     constexpr inline T* line( size_t i )
     {
-        if (i<=height_)
-            return &data_[i*width_];
+        if (i>height_)
+            Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
 
-        Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
-        return nullptr;
+        return &data_[i*width_];
     }
     constexpr inline const T* line( size_t i ) const { return const_cast<Image*>(this)->line(i); }
 

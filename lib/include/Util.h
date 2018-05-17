@@ -2,9 +2,12 @@
 #pragma once
 
 // std
+#include <limits>
 #include <sstream>
 #include <type_traits>
 #include <utility>
+
+
 
 /// wrapper to allow using stringstream to construct an
 /// exception message; throw \ta E on destruction.
@@ -28,6 +31,33 @@ public:
     std::stringstream ss;
 };
 
+/// allow safe conversion from unsigned to signed
+template <typename To, typename From>
+constexpr
+typename std::enable_if<
+    std::is_signed<To>::value && std::is_unsigned<From>::value && (sizeof(To) > sizeof(From)),
+    To
+    >::type
+checked_unsigned_conversion(const From& v)
+{
+    return static_cast<To>(v);
+}
+
+/// allow safe conversion from unsigned to signed
+template <typename To, typename From>
+constexpr
+typename std::enable_if<
+    std::is_signed<To>::value && std::is_unsigned<From>::value && (sizeof(To) == sizeof(From)),
+    To
+    >::type
+checked_unsigned_conversion(const From& v)
+{
+    if (v>std::numeric_limits<To>::max())
+        Thrower<std::out_of_range>() << "unable to convert " << v << " to " << typeid(To).name() << " as value would be truncated";
+
+    return static_cast<To>(v);
+}
+
 /// pair of helpers to determine if all types Ts are convertible to T
 template <typename To, typename From, typename... R>
 struct are_all_convertible {
@@ -46,7 +76,7 @@ template <typename TypeA, typename TypeB, typename... R>
 struct are_all_equal {
     constexpr static bool value =
         std::is_same<TypeA, TypeB>::value &&
-        are_all_convertible<TypeA, R...>::value;
+        are_all_equal<TypeA, R...>::value;
 };
 
 template <typename TypeA, typename TypeB>

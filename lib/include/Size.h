@@ -26,9 +26,9 @@ public:
     inline bool operator==(const Size& rhs) const { return data_ == rhs.data_; }
     inline bool operator!=(const Size& rhs) const { return !operator==(rhs); }
 
-    inline type width() const { return data_[0]; }
-    inline type height() const { return data_[1]; }
-    inline type area() const { return data_[0] * data_[1]; }
+    constexpr inline type width() const { return data_[0]; }
+    constexpr inline type height() const { return data_[1]; }
+    constexpr inline type area() const { return data_[0] * data_[1]; }
 
 private:
     std::array<type, 2> data_ {};

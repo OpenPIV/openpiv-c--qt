@@ -27,14 +27,14 @@ public:
     template < typename... Ts,
                typename = typename std::enable_if<N == sizeof...(Ts), void>::type,
                typename = typename std::enable_if<are_all_convertible<T, Ts...>::value>::type >
-    Point( Ts&&... v )
+    constexpr Point( Ts&&... v )
         : data_( DataType{ v... } )
     {}
 
     /// conversion from another similar point
     template < typename U,
                typename = typename std::enable_if<std::is_convertible<U, T>::value>::type >
-    Point( const Point< U, N >& p )
+    constexpr Point( const Point< U, N >& p )
         : data_( convert_array_to< T >(p.data()) )
     {}
 
@@ -43,8 +43,8 @@ public:
     Point& operator=(Point&& rhs) = default;
 
     // equality
-    inline bool operator==(const Point& rhs) const { return data_ == rhs.data_; }
-    inline bool operator!=(const Point& rhs) const { return !operator==(rhs); }
+    constexpr inline bool operator==(const Point& rhs) const { return data_ == rhs.data_; }
+    constexpr inline bool operator!=(const Point& rhs) const { return !operator==(rhs); }
 
     constexpr inline const T& operator[](size_t i) const { return data_[i]; }
     constexpr inline T& operator[](size_t i) { return data_[i]; }

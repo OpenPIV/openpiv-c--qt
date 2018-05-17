@@ -62,6 +62,20 @@ TEST(ImageTest, MoveTest)
     ASSERT_EQ( result, true );
 }
 
+TEST(ImageTest, ConvertTest)
+{
+    UInt8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+
+    DoubleImage im2{ im };
+
+    bool result = true;
+    for ( uint32_t i=0; i<im.pixel_count(); ++i )
+        result &= (im2[i] == v);
+
+    ASSERT_EQ( result, true );
+}
+
 TEST(ImageTest, LineOutOfBoundsTest)
 {
     UInt8Image im; uint8_t v;

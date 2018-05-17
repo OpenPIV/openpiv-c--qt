@@ -115,6 +115,18 @@ TEST(ImageViewTest, ViewTest)
     ASSERT_EQ( pixel_sum(im), pixel_sum(iv) );
 }
 
+TEST(ImageViewTest, ImageFromImageViewTest)
+{
+    UInt8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 1);
+
+    auto iv = createImageView( im, Rect::fromSize(Size(100, 50)) );
+    DoubleImage im2{ iv };
+    ASSERT_EQ( im2.width(), iv.width() );
+    ASSERT_EQ( im2.height(), iv.height() );
+    ASSERT_EQ( pixel_sum(im2), 5000 );
+}
+
 TEST(ImageViewTest, OutOfBoundsTest)
 {
     UInt8Image im; uint8_t v;

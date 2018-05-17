@@ -7,6 +7,7 @@ template < template<typename> class ImageT, typename ContainedT >
 class ImageInterface
 {
 public:
+    using ContainedType = ContainedT;
     using DerivedType = ImageT<ContainedT>;
 
     inline const DerivedType* derived() const { return static_cast<const DerivedType*>( this ); }

@@ -8,6 +8,7 @@
 #include "RectTest.h"
 #include "ImageTest.h"
 #include "ImageViewTest.h"
+#include "UtilTest.h"
 
 int main(int argc, char *argv[])
 {
