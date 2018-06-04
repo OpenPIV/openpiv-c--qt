@@ -1,5 +1,5 @@
 
-g++ -o test main.cpp -std=c++14 -I ../lib/include/ -L/usr/lib -lgtest -lpthread
+clang++-5.0 -o test main.cpp -std=c++17 -I ../lib/include/ -L/usr/lib -lgtest -lpthread
 
 
 
@@ -26,14 +26,14 @@ Installations instructions for general Linux
  * Download and install libtiff4 for developers:
  * Download and install fftw3 for developers:
 2. Compile OpenPIV:
- * in the source directory you need to run 'qmake' (or something like 'qmake-qt4', depending on how your distro works), followed by 'make'. 
+ * in the source directory you need to run 'qmake' (or something like 'qmake-qt4', depending on how your distro works), followed by 'make'.
 3. Run OpenPIV
 
 Note
 ----
 
-Our C++ version is currently under development, but we hope to release an Alpha version of the software soon.  
-You can access our pre-Alpha version here: https://github.com/OpenPIV/openpiv-c--qt.  
+Our C++ version is currently under development, but we hope to release an Alpha version of the software soon.
+You can access our pre-Alpha version here: https://github.com/OpenPIV/openpiv-c--qt.
 
 If somebody is interested in contributing to the development, we would be more than happy to find a project.
 

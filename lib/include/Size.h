@@ -4,7 +4,7 @@
 // std
 #include <array>
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>
 
 /// basic 2D integer size
 class Size
@@ -35,8 +35,4 @@ private:
 };
 
 /// ostream operator
-std::ostream& operator<<( std::ostream& os, const Size& r )
-{
-    os << "[" << r.width() << "," << r.height() << "]";
-    return os;
-}
+std::ostream& operator<<( std::ostream& os, const Size& r );

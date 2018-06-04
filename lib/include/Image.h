@@ -6,10 +6,13 @@
 #include <exception>
 #include <iostream>
 #include <typeinfo>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 // local
 #include "ImageInterface.h"
+#include "PixelTypes.h"
 #include "Size.h"
 #include "Util.h"
 
@@ -44,7 +47,7 @@ public:
     /// conversion from another similar image; hideously expensive!
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename = typename std::enable_if<
+               typename E = typename std::enable_if<
                    std::is_convertible<ContainedT, T>::value>::type >
     explicit Image( const ImageInterface< ImageT, ContainedT >& p )
         : width_( p.width() )
@@ -75,6 +78,20 @@ public:
         return *this;
     }
 
+    /// conversion assignment
+    template < template<typename> class ImageT,
+               typename ContainedT,
+               typename E = typename std::enable_if<
+                   std::is_convertible<ContainedT, T>::value>::type >
+    Image& operator=( const ImageT<ContainedT>& p )
+    {
+        Image im{ p };
+        swap(im);
+
+        return *this;
+    }
+
+
     /// equality
     inline bool operator==(const Image& rhs) const
     {
@@ -104,7 +121,7 @@ public:
     constexpr inline T* line( size_t i )
     {
         if (i>height_)
-            Thrower<std::out_of_range>() << "line out of range (" << i << ", max is: " << height_ << ")";
+            Thrower<std::range_error>() << "line out of range (" << i << ", max is: " << height_ << ")";
 
         return &data_[i*width_];
     }
@@ -115,11 +132,26 @@ public:
     constexpr inline const uint32_t height() const { return height_; }
     constexpr inline const uint32_t pixel_count() const { return width_ * height_; }
 
+    /// swap
+    void swap( Image& rhs )
+    {
+        std::swap( width_, rhs.width_ );
+        std::swap( height_, rhs.height_ );
+        std::swap( data_, rhs.data_ );
+    }
+
 private:
     uint32_t width_;
     uint32_t height_;
     DataType data_;
 };
+
+
+template <typename PixelT>
+void swap( Image<PixelT>& lhs, Image<PixelT>& rhs )
+{
+    lhs.swap(rhs);
+}
 
 /// ostream operator
 template < typename T >
@@ -132,7 +164,8 @@ std::ostream& operator<<( std::ostream& os, const Image<T>& p )
 
 
 /// standard image types
-using UInt8Image  = Image< uint8_t >;
-using UInt16Image = Image< uint16_t >;
-using Int32Image  = Image< int32_t >;
-using DoubleImage = Image< double >;
+using G8Image  = Image< G8 >;
+using G16Image = Image< G16 >;
+using DoubleImage = Image< GF >;
+using RGBA8Image = Image< RGBA8 >;
+using RGBA16Image = Image< RGBA16 >;

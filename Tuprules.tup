@@ -1,0 +1,9 @@
+CXX = clang++-5.0
+CXXFLAGS += -Wall -Werror
+CXXFLAGS += -g
+CXXFLAGS += -std=c++17
+
+OPENPIV_LIB_BASE = openpivcore
+OPENPIV_LIB_NAME = $(TUP_CWD)/lib/lib$(OPENPIV_LIB_BASE).so
+OPENPIV_INCLUDE = -I$(TUP_CWD)/lib/include
+OPENPIV_LIB = -L$(TUP_CWD)/lib -l$(OPENPIV_LIB_BASE)

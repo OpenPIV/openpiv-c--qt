@@ -1,6 +1,12 @@
 
 #pragma once
 
+// std
+#include <iosfwd>
+
+// local
+#include "Point.h"
+
 /// basic 2-dimensional image interface; designed to
 /// be inherited using CRTP
 template < template<typename> class ImageT, typename ContainedT >

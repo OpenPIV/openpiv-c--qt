@@ -9,6 +9,8 @@
 #include "ImageTest.h"
 #include "ImageViewTest.h"
 #include "UtilTest.h"
+#include "ImageLoaderTest.h"
+#include "PixelTypesTest.h"
 
 int main(int argc, char *argv[])
 {

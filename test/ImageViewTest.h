@@ -16,7 +16,7 @@
 
 TEST(ImageViewTest, BasicConstructionTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -27,7 +27,7 @@ TEST(ImageViewTest, BasicConstructionTest)
 
 TEST(ImageViewTest, CopyTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -44,7 +44,7 @@ TEST(ImageViewTest, CopyTest)
 
 TEST(ImageViewTest, MoveTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -62,7 +62,7 @@ TEST(ImageViewTest, MoveTest)
 
 TEST(ImageViewTest, EqualityTest1)
 {
-    UInt8Image im;
+    G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -72,7 +72,7 @@ TEST(ImageViewTest, EqualityTest1)
 
 TEST(ImageViewTest, EqualityTest2)
 {
-    UInt8Image im;
+    G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 101)) );
@@ -82,7 +82,7 @@ TEST(ImageViewTest, EqualityTest2)
 
 TEST(ImageViewTest, EqualityTest3)
 {
-    UInt8Image im;
+    G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im, Rect( {1, 0}, {100, 100}) );
@@ -92,9 +92,9 @@ TEST(ImageViewTest, EqualityTest3)
 
 TEST(ImageViewTest, EqualityTest4)
 {
-    UInt8Image im;
+    G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
-    UInt8Image im2;
+    G8Image im2;
     std::tie( im2, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv1 = createImageView( im,  Rect( {0, 0}, {100, 100}) );
@@ -104,7 +104,7 @@ TEST(ImageViewTest, EqualityTest4)
 
 TEST(ImageViewTest, ViewTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -117,7 +117,7 @@ TEST(ImageViewTest, ViewTest)
 
 TEST(ImageViewTest, ImageFromImageViewTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 1);
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 50)) );
@@ -129,9 +129,9 @@ TEST(ImageViewTest, ImageFromImageViewTest)
 
 TEST(ImageViewTest, OutOfBoundsTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
-    ASSERT_DEATH( createImageView( im, Rect::fromSize(Size(250, 250)) ),
-                  "image view .* not contained within image .*" );
+    _ASSERT_DEATH( createImageView( im, Rect::fromSize(Size(250, 250)) ), std::out_of_range, "not contained within image" );
 }
+

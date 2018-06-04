@@ -30,15 +30,7 @@ TEST(PointTest, ModifyTest)
     ASSERT_EQ(p[1], 4);
 }
 
-TEST(PointTest, ConvertTest1)
-{
-    Double2DPoint p{ 1.0, 2.0 };
-
-    ASSERT_EQ(p[0], 1);
-    ASSERT_EQ(p[1], 2);
-}
-
-TEST(PointTest, ConvertTest2)
+TEST(PointTest, ConvertTest)
 {
     Int2DPoint ip{ 1, 2 };
     Double2DPoint dp{ ip };
@@ -47,7 +39,24 @@ TEST(PointTest, ConvertTest2)
     ASSERT_EQ(dp[1], 2);
 }
 
-TEST(PointTest, AssignmentTest1)
+TEST(PointTest, CopyConstructorTest)
+{
+    Int2DPoint p1{ 1, 2 };
+    Int2DPoint p2{ p1 };
+
+    ASSERT_EQ(p2[0], 1);
+    ASSERT_EQ(p2[1], 2);
+}
+
+TEST(PointTest, MoveConstructorTest)
+{
+    Int2DPoint p2{ Int2DPoint{ 1, 2 } };
+
+    ASSERT_EQ(p2[0], 1);
+    ASSERT_EQ(p2[1], 2);
+}
+
+TEST(PointTest, AssignmentTest)
 {
     Int2DPoint p1{ 1, 2 };
     Int2DPoint p2;
@@ -57,10 +66,10 @@ TEST(PointTest, AssignmentTest1)
     ASSERT_EQ(p2[1], 2);
 }
 
-TEST(PointTest, AssignmentTest2)
+TEST(PointTest, MoveAssignmentTest)
 {
     Int2DPoint p1{};
-    p1 = std::move( Int2DPoint{ 1, 2 } );
+    p1 = Int2DPoint{ 1, 2 };
 
     ASSERT_EQ(p1[0], 1);
     ASSERT_EQ(p1[1], 2);

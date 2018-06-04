@@ -16,14 +16,14 @@
 
 TEST(ImageTest, IntTest)
 {
-    UInt8Image im( 200, 100 );
+    G8Image im( 200, 100 );
     ASSERT_EQ( im.width(), 200 );
     ASSERT_EQ( im.height(), 100 );
 }
 
 TEST(ImageTest, FillTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
@@ -34,10 +34,10 @@ TEST(ImageTest, FillTest)
 
 TEST(ImageTest, CopyTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
 
-    UInt8Image im2{ im };
+    G8Image im2{ im };
     ASSERT_EQ(im.width(), im2.width());
     ASSERT_EQ(im.height(), im2.height());
 
@@ -50,10 +50,10 @@ TEST(ImageTest, CopyTest)
 
 TEST(ImageTest, MoveTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
 
-    UInt8Image im2{ std::move(im) };
+    G8Image im2{ std::move(im) };
 
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
@@ -64,7 +64,7 @@ TEST(ImageTest, MoveTest)
 
 TEST(ImageTest, ConvertTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
 
     DoubleImage im2{ im };
@@ -78,20 +78,20 @@ TEST(ImageTest, ConvertTest)
 
 TEST(ImageTest, LineOutOfBoundsTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
 
-    ASSERT_DEATH( im.line(101), "line out of range.*" );
+    _ASSERT_DEATH( im.line(101), std::range_error, "line out of range" );
 }
 
 TEST(ImageTest, LineTest)
 {
-    UInt8Image im; uint8_t v;
+    G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 2, 2 ), 0);
     int64_t sum1 = pixel_sum(im) / im.pixel_count();
     ASSERT_EQ(sum1, 0);
 
-    uint8_t* p = im.line(1);
+    G8* p = im.line(1);
     for ( size_t i=0; i<im.width(); ++i )
         *p++ = 128;
 
@@ -101,10 +101,10 @@ TEST(ImageTest, LineTest)
 
 TEST(ImageTest, EqualityTest)
 {
-    UInt8Image im1;
+    G8Image im1;
     std::tie( im1, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
 
-    UInt8Image im2;
+    G8Image im2;
     std::tie( im2, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
 
     ASSERT_EQ( im1, im2 );

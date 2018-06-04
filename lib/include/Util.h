@@ -3,10 +3,10 @@
 
 // std
 #include <limits>
+#include <istream>
 #include <sstream>
 #include <type_traits>
 #include <utility>
-
 
 
 /// wrapper to allow using stringstream to construct an
@@ -16,7 +16,7 @@ class Thrower
 {
 public:
     Thrower() = default;
-    ~Thrower()
+    ~Thrower() noexcept(false)
     {
         throw E(ss.str());
     }
@@ -29,6 +29,33 @@ public:
     }
 
     std::stringstream ss;
+};
+
+/// simple RAII for std::istream multi-char peek
+class Peeker
+{
+public:
+    Peeker( std::istream& is )
+        : is_( is )
+    {
+        pos_ = is.tellg();
+        // this will only work if we can read and rewind
+        if ( pos_ == -1 || !is.good() )
+            Thrower<std::runtime_error>() << "input stream doesn't support input position indicator";
+
+        success_ = true;
+    }
+
+    ~Peeker()
+    {
+        if ( success_ )
+            is_.seekg(pos_);
+    }
+
+private:
+    std::istream& is_;
+    std::istream::pos_type pos_ {-1};
+    bool success_ {false};
 };
 
 /// allow safe conversion from unsigned to signed
@@ -53,7 +80,7 @@ typename std::enable_if<
 checked_unsigned_conversion(const From& v)
 {
     if (v>std::numeric_limits<To>::max())
-        Thrower<std::out_of_range>() << "unable to convert " << v << " to " << typeid(To).name() << " as value would be truncated";
+        Thrower<std::range_error>() << "unable to convert " << v << " to " << typeid(To).name() << " as value would be truncated";
 
     return static_cast<To>(v);
 }

@@ -9,10 +9,23 @@
 #include "Image.h"
 #include "ImageUtils.h"
 
-static std::tuple< UInt8Image, uint8_t > createAndFill( Size s, uint8_t v )
+static std::tuple< G8Image, G8 > createAndFill( Size s, G8 v )
 {
-    UInt8Image result(s.width(), s.height());
+    G8Image result(s.width(), s.height());
     fill( result, v );
 
     return std::make_tuple( result, v );
 }
+
+#define _ASSERT_DEATH( p, ExceptionT, s )                               \
+    {                                                                   \
+        bool caught{false};                                             \
+        try {                                                           \
+            p;                                                          \
+        }                                                               \
+        catch(ExceptionT& e)                                            \
+        {                                                               \
+            caught = std::string( e.what() ).find( s ) != std::string::npos; \
+        }                                                               \
+        ASSERT_TRUE(caught);                                            \
+    }

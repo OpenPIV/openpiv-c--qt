@@ -8,6 +8,9 @@
 #include <sstream>
 #include <string>
 
+// local
+#include "TestUtils.h"
+
 // to be tested
 #include "Util.h"
 
@@ -15,7 +18,7 @@ TEST(UtilTest, ThrowerTest)
 {
     auto l = [](){ Thrower<std::runtime_error>() << "die!"; };
 
-    ASSERT_DEATH( l(), "die!" );
+    _ASSERT_DEATH( l(), std::runtime_error, "die!" );
 }
 
 TEST(UtilTest, CheckedUnsignedConversionSameSizeWithinRange)
@@ -30,7 +33,7 @@ TEST(UtilTest, CheckedUnsignedConversionSameSizeOutwithRange)
 {
     uint32_t u{ std::numeric_limits<uint32_t>::max() };
 
-    ASSERT_DEATH(checked_unsigned_conversion<int32_t>(u), "unable to convert.*");
+    _ASSERT_DEATH(checked_unsigned_conversion<int32_t>(u), std::range_error, "unable to convert");
 }
 
 TEST(UtilTest, CheckedUnsignedConversionLargerSize)
@@ -67,7 +70,7 @@ TEST(UtilTest, AreAllEqualFalse)
 
 TEST(UtilTest, ConvertArray)
 {
-    std::array<int, 4> i{1, 2, 3, 4};
+    std::array<int, 4> i{ {1, 2, 3, 4} };
     auto d{ convert_array_to< double >(i) };
 
     bool result = true;

@@ -1,0 +1,11 @@
+include_rules
+
+TIFFLIB_INCLUDE = -I/usr/include
+TIFFLIB_LIB = -L/usr/lib -ltiffxx
+
+OPENPIV_LIBNAME = openpivcore
+OPENPIV_LIB = -L$(TUP_CWD) -l$(OPENPIV_LIBNAME)
+
+: foreach src/*.cpp |> $(CXX) -c %f -o %o -fPIC $(CXXFLAGS) $(OPENPIV_INCLUDE) $(TIFFLIB_INCLUDE) |> %B.o
+: *.o |> $(CXX) -o %o %f -shared $(TIFFLIB_LIB) |> lib$(OPENPIV_LIB_BASE).so
+
