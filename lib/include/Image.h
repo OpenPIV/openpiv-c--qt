@@ -22,7 +22,7 @@ template < typename T >
 class Image : public ImageInterface< Image, T >
 {
 public:
-    using type = T;
+    using PixelType = T;
     using DataType = typename std::vector<T>;
 
     // ctor

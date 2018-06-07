@@ -26,6 +26,15 @@ std::shared_ptr< ImageLoader > ImageLoader::findLoader( std::istream& s )
     return std::shared_ptr< ImageLoader >();
 }
 
+std::shared_ptr< ImageLoader > ImageLoader::findLoader( const std::string& n )
+{
+    for ( auto& loader: loaders() )
+        if ( loader->name() == n )
+            return loader;
+
+    return std::shared_ptr< ImageLoader >();
+}
+
 bool ImageLoader::registerLoader( std::shared_ptr<ImageLoader> loader )
 {
     if ( !loader )

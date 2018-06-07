@@ -3,13 +3,16 @@
 
 #include "ImageLoader.h"
 
-/// loader of TIFF images with support for bit depths
+/// loader of PNM images with support for bit depths
 /// over 8-bits per channel; will sniff the input data for
-/// TIFF of 0x49 49 2a 00 or 0x4d 4d 00 2a
-class TIFFImageLoader : public ImageLoader
+/// P[1-6] header.
+///
+/// Treats contained data as linear i.e. not a "true" PNM
+/// image as no gamma correction is applied
+class PNMImageLoader : public ImageLoader
 {
 public:
-    virtual ~TIFFImageLoader();
+    virtual ~PNMImageLoader();
 
     virtual bool canLoad( std::istream& ) const override;
     virtual bool canSave() const override;

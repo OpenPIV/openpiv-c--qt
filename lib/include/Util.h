@@ -8,7 +8,6 @@
 #include <type_traits>
 #include <utility>
 
-
 /// wrapper to allow using stringstream to construct an
 /// exception message; throw \ta E on destruction.
 template < typename E >

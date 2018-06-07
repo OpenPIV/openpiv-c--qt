@@ -30,14 +30,24 @@ public:
     /// \return true if this loader can load the data fuond in \a stream
     virtual bool canLoad( std::istream& ) const = 0;
 
+    /// \return true if this loader can save data
+    virtual bool canSave() const = 0;
+
     /// Load the image from \a stream
-    /// \return true if success, false otherwise; may throw
-    /// ImageLoaderException if there is a serious issue
+    /// may throw ImageLoaderException if there is a serious issue
     virtual void load( std::istream&, G16Image& ) const = 0;
     virtual void load( std::istream&, DoubleImage& ) const = 0;
     virtual void load( std::istream&, RGBA16Image& ) const = 0;
 
-    /// return the name of this loader
+    /// Save the image to \a stream
+    /// may throw ImageLoaderException if there is a serious issue
+    virtual void save( std::ostream&, const G16Image& ) const = 0;
+    virtual void save( std::ostream&, const DoubleImage& ) const = 0;
+    virtual void save( std::ostream&, const RGBA16Image& ) const = 0;
+
+    /// return the name of this loader: MIME type
+    /// \todo: change to have a list of supported
+    /// MIME types
     virtual std::string name() const = 0;
 
     /// return the priority of this loader
@@ -47,6 +57,9 @@ public:
     /// then this image is unhandled; the image loader returned is owned
     /// by ImageLoader
     static std::shared_ptr< ImageLoader > findLoader( std::istream& );
+
+    /// find a loader by name for saving/forced loading
+    static std::shared_ptr< ImageLoader > findLoader( const std::string& );
 
     /// register a loader; done this way to avoid the provider knowing
     /// anything about the allocation/ownership of the loader.

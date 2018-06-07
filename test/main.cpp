@@ -11,6 +11,7 @@
 #include "UtilTest.h"
 #include "ImageLoaderTest.h"
 #include "PixelTypesTest.h"
+#include "ImageStatsTest.h"
 
 int main(int argc, char *argv[])
 {

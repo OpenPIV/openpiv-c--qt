@@ -1,6 +1,6 @@
 CXX = clang++-5.0
 CXXFLAGS += -Wall -Werror
-CXXFLAGS += -g
+CXXFLAGS += -g -O3
 CXXFLAGS += -std=c++17
 
 OPENPIV_LIB_BASE = openpivcore

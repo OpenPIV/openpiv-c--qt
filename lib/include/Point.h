@@ -28,7 +28,7 @@ public:
                typename = typename std::enable_if<N == sizeof...(Ts), void>::type,
                typename = typename std::enable_if<are_all_convertible<T, Ts...>::value>::type >
     constexpr Point( Ts&&... v )
-        : data_( DataType{ {v...} } )
+        : data_( DataType{ {static_cast<T>(v)...} } )
     {}
 
     /// conversion from another similar point

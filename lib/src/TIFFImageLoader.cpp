@@ -43,6 +43,11 @@ bool TIFFImageLoader::canLoad( std::istream& is ) const
     return false;
 }
 
+bool TIFFImageLoader::canSave() const
+{
+    return false;
+}
+
 enum class PlanarConfig : uint16_t {
     CONTIG   = 1,
     SEPARATE = 2
@@ -207,9 +212,24 @@ void TIFFImageLoader::load( std::istream& is, RGBA16Image& im ) const
     load_(is, im);
 }
 
+void TIFFImageLoader::save( std::ostream&, const G16Image& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
+void TIFFImageLoader::save( std::ostream&, const DoubleImage& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
+void TIFFImageLoader::save( std::ostream&, const RGBA16Image& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
 std::string TIFFImageLoader::name() const
 {
-    return "TIFF image loader";
+    return "image/tiff";
 }
 
 int TIFFImageLoader::priority() const

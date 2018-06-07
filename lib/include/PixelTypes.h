@@ -14,6 +14,8 @@
 template < typename T >
 struct RGBA
 {
+    using Type = T;
+
     RGBA() = default;
     RGBA(const RGBA&) = default;
     RGBA(RGBA&&) = default;
@@ -62,6 +64,8 @@ rgbtogrey( const RGBA<From>& rgb )
 template < typename T >
 struct YUVA
 {
+    using Type = T;
+
     YUVA() = default;
     YUVA(const YUVA&) = default;
     YUVA(YUVA&&) = default;
@@ -93,6 +97,8 @@ using YUVA32 = YUVA<uint32_t>;
 template < typename T >
 struct G
 {
+    using Type = T;
+
     G() = default;
     G(const G&) = default;
     G(G&&) = default;
