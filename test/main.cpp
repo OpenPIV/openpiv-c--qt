@@ -12,6 +12,7 @@
 #include "ImageLoaderTest.h"
 #include "PixelTypesTest.h"
 #include "ImageStatsTest.h"
+#include "ImageExpressionTest.h"
 
 int main(int argc, char *argv[])
 {

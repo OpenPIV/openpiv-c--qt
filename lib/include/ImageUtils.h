@@ -8,11 +8,13 @@
 #include "Image.h"
 
 /// fill an image with a constant value
-template < typename T >
-Image< T >& fill( Image< T >& im, T value )
+template < template<typename> class ImageT, typename ContainedT >
+ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >& im, ContainedT value )
 {
-    Image< T > filled( im.width(), im.height(), value );
-    im = std::move( filled );
+    ContainedT* p = im.data();
+    const ContainedT* e = im.data() + im.pixel_count();
+    while ( p < e )
+        *p++ = value;
 
     return im;
 }

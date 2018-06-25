@@ -26,7 +26,7 @@ TEST(ImageStatsTest, FindImageRangeMaxTest)
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
     G8 min, max;
-    im[UInt2DPoint{ 50, 50 }] = 255;
+    im[Point2<uint32_t>{ 50, 50 }] = 255;
     std::tie( min, max ) = findImageRange( im );
     ASSERT_EQ(min, 0);
     ASSERT_EQ(max, 255);
@@ -38,7 +38,7 @@ TEST(ImageStatsTest, FindImageRangeMinTest)
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 255);
 
     G8 min, max;
-    im[UInt2DPoint{ 50, 50 }] = 0;
+    im[Point2<uint32_t>{ 50, 50 }] = 0;
     std::tie( min, max ) = findImageRange( im );
     ASSERT_EQ(min, 0);
     ASSERT_EQ(max, 255);
@@ -50,8 +50,8 @@ TEST(ImageStatsTest, FindImageRangeMinMaxTest)
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
 
     G8 min, max;
-    im[UInt2DPoint{ 50, 50 }] = 0;
-    im[UInt2DPoint{ 150, 150 }] = 255;
+    im[Point2<uint32_t>{ 50, 50 }] = 0;
+    im[Point2<uint32_t>{ 150, 150 }] = 255;
     std::tie( min, max ) = findImageRange( im );
     ASSERT_EQ(min, 0);
     ASSERT_EQ(max, 255);

@@ -98,6 +98,8 @@ template < typename T >
 struct G
 {
     using Type = T;
+    constexpr static T max() { return std::numeric_limits<T>::max(); }
+    constexpr static T min() { return std::numeric_limits<T>::min(); }
 
     G() = default;
     G(const G&) = default;
@@ -130,5 +132,23 @@ using G8  = G<uint8_t>;
 using G16 = G<uint16_t>;
 using G32 = G<uint32_t>;
 using GF  = G<double>;
+
+inline G8  operator ""_g8 ( unsigned long long v ) { return G8( v ); }
+inline G16 operator ""_g16( unsigned long long v ) { return G16( v ); }
+inline G32 operator ""_g32( unsigned long long v ) { return G32( v ); }
+inline GF  operator ""_gf ( long double v )        { return GF( v ); }
+
+template <typename T>
+struct is_pixeltype : std::false_type {};
+
+template <typename T>
+struct is_pixeltype<G<T>> : std::true_type {};
+
+template <typename T>
+struct is_pixeltype<RGBA<T>> : std::true_type {};
+
+template <typename T>
+struct is_pixeltype<YUVA<T>> : std::true_type {};
+
 
 #pragma pack(pop)

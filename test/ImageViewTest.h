@@ -25,6 +25,33 @@ TEST(ImageViewTest, BasicConstructionTest)
     ASSERT_EQ(iv.pixel_count(), 10000);
 }
 
+TEST(ImageViewTest, ResizeTest)
+{
+    G8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
+
+    iv.resize(150, 150);
+    ASSERT_EQ(iv.width(), 150);
+    ASSERT_EQ(iv.height(), 150);
+    ASSERT_EQ(iv.pixel_count(), 150*150);
+
+    bool result = true;
+    for ( uint32_t i=0; i<iv.pixel_count(); ++i )
+        result &= (iv[i] == v);
+
+    ASSERT_EQ( result, true );
+}
+
+TEST(ImageViewTest, ResizeFailureTest)
+{
+    G8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
+
+    _ASSERT_DEATH( iv.resize(300, 300), std::out_of_range, "not contained within image" );
+}
+
 TEST(ImageViewTest, CopyTest)
 {
     G8Image im; uint8_t v;
@@ -111,7 +138,7 @@ TEST(ImageViewTest, ViewTest)
     ASSERT_TRUE( pixel_sum(im) == 0 );
     ASSERT_TRUE( pixel_sum(iv) == 0 );
 
-    im[UInt2DPoint()] = 255;
+    im[Point2<uint32_t>()] = 255;
     ASSERT_EQ( pixel_sum(im), pixel_sum(iv) );
 }
 
@@ -132,6 +159,9 @@ TEST(ImageViewTest, OutOfBoundsTest)
     G8Image im; uint8_t v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
 
-    _ASSERT_DEATH( createImageView( im, Rect::fromSize(Size(250, 250)) ), std::out_of_range, "not contained within image" );
+    _ASSERT_DEATH(
+        createImageView( im,
+                         Rect::fromSize(Size(250, 250)) ),
+        std::out_of_range, "not contained within image" );
 }
 

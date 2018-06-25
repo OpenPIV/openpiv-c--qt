@@ -10,7 +10,7 @@
 #include "Util.h"
 
 /// basic n-dimensional point
-template < typename T, size_t N >
+template < size_t N, typename T >
 class Point
 {
 public:
@@ -34,7 +34,7 @@ public:
     /// conversion from another similar point
     template < typename U,
                typename = typename std::enable_if<std::is_convertible<U, T>::value>::type >
-    constexpr Point( const Point< U, N >& p )
+    constexpr Point( const Point< N, U >& p )
         : data_( convert_array_to< T >(p.data()) )
     {}
 
@@ -58,7 +58,7 @@ private:
 
 /// ostream operator
 template < typename T, size_t N >
-std::ostream& operator<<( std::ostream& os, const Point<T, N>& p )
+std::ostream& operator<<( std::ostream& os, const Point<N, T>& p )
 {
     os << "(";
     for( size_t i=0; i<N; ++i)
@@ -69,12 +69,8 @@ std::ostream& operator<<( std::ostream& os, const Point<T, N>& p )
 }
 
 
-/// specialization for integer
-using Int2DPoint = Point< int32_t, 2 >;
-using Int3DPoint = Point< int32_t, 3 >;
-using UInt2DPoint = Point< uint32_t, 2 >;
-using UInt3DPoint = Point< uint32_t, 3 >;
-
-/// specialization for doubles
-using Double2DPoint = Point< double, 2 >;
-using Double3DPoint = Point< double, 3 >;
+/// specialization for common dimensions
+template < typename T >
+using Point2 = Point< 2, T >;
+template < typename T >
+using Point3 = Point< 3, T >;

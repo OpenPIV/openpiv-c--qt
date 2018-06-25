@@ -11,18 +11,18 @@
 
 TEST(PointTest, IntTest)
 {
-    Int2DPoint p;
-    ASSERT_EQ(p[0], Int2DPoint::type());
-    ASSERT_EQ(p[1], Int2DPoint::type());
+    Point2<uint32_t> p;
+    ASSERT_EQ(p[0], Point2<uint32_t>::type());
+    ASSERT_EQ(p[1], Point2<uint32_t>::type());
 
-    p = Int2DPoint(1,2);
+    p = Point2<uint32_t>(1,2);
     ASSERT_EQ(p[0], 1);
     ASSERT_EQ(p[1], 2);
 }
 
 TEST(PointTest, ModifyTest)
 {
-    Int2DPoint p{ 1, 2 };
+    Point2<uint32_t> p{ 1, 2 };
     p[0] = 3;
     p[1] = 4;
 
@@ -32,8 +32,8 @@ TEST(PointTest, ModifyTest)
 
 TEST(PointTest, ConvertTest)
 {
-    Int2DPoint ip{ 1, 2 };
-    Double2DPoint dp{ ip };
+    Point2<int32_t> ip{ 1, 2 };
+    Point2<double> dp{ ip };
 
     ASSERT_EQ(dp[0], 1);
     ASSERT_EQ(dp[1], 2);
@@ -41,8 +41,8 @@ TEST(PointTest, ConvertTest)
 
 TEST(PointTest, CopyConstructorTest)
 {
-    Int2DPoint p1{ 1, 2 };
-    Int2DPoint p2{ p1 };
+    Point2<uint32_t> p1{ 1, 2 };
+    Point2<uint32_t> p2{ p1 };
 
     ASSERT_EQ(p2[0], 1);
     ASSERT_EQ(p2[1], 2);
@@ -50,7 +50,7 @@ TEST(PointTest, CopyConstructorTest)
 
 TEST(PointTest, MoveConstructorTest)
 {
-    Int2DPoint p2{ Int2DPoint{ 1, 2 } };
+    Point2<uint32_t> p2{ Point2<uint32_t>{ 1, 2 } };
 
     ASSERT_EQ(p2[0], 1);
     ASSERT_EQ(p2[1], 2);
@@ -58,8 +58,8 @@ TEST(PointTest, MoveConstructorTest)
 
 TEST(PointTest, AssignmentTest)
 {
-    Int2DPoint p1{ 1, 2 };
-    Int2DPoint p2;
+    Point2<uint32_t> p1{ 1, 2 };
+    Point2<uint32_t> p2;
     p2 = p1;
 
     ASSERT_EQ(p2[0], 1);
@@ -68,8 +68,8 @@ TEST(PointTest, AssignmentTest)
 
 TEST(PointTest, MoveAssignmentTest)
 {
-    Int2DPoint p1{};
-    p1 = Int2DPoint{ 1, 2 };
+    Point2<uint32_t> p1{};
+    p1 = Point2<uint32_t>{ 1, 2 };
 
     ASSERT_EQ(p1[0], 1);
     ASSERT_EQ(p1[1], 2);
@@ -77,9 +77,9 @@ TEST(PointTest, MoveAssignmentTest)
 
 TEST(PointTest, EqualityTest)
 {
-    Int2DPoint p1{ 1, 2 };
-    Int2DPoint p2{ 3, 4 };
-    Int2DPoint p3{ 1, 2 };
+    Point2<uint32_t> p1{ 1, 2 };
+    Point2<uint32_t> p2{ 3, 4 };
+    Point2<uint32_t> p3{ 1, 2 };
 
     ASSERT_EQ( p1 != p2, true );
     ASSERT_EQ( p1 == p3, true );
@@ -88,7 +88,7 @@ TEST(PointTest, EqualityTest)
 TEST(PointTest, OStreamTest)
 {
     std::stringstream ss;
-    Int2DPoint p1{ 1, 2 };
+    Point2<uint32_t> p1{ 1, 2 };
     ss << p1;
 
     ASSERT_EQ( ss.str(), std::string("(1,2)") );

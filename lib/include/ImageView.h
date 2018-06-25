@@ -21,6 +21,7 @@ class ImageView : public ImageInterface< ImageView, T >
 {
 public:
     using type = T;
+    using PixelType = typename Image<T>::PixelType;
     using DataType = typename Image<T>::DataType;
 
     // ctor
@@ -36,6 +37,21 @@ public:
         if ( !imageRect.contains( r ) )
             Thrower<std::out_of_range>()
                 << "image view (" << r << ") not contained within image (" << imageRect << ")";
+    }
+
+    /// resize the image view; this may throw as the resized
+    /// view would exceed the bounds of the source image; this
+    /// will adjust the size of the viewed area but not the
+    /// bottom-left coordinate
+    void resize( uint32_t w, uint32_t h )
+    {
+        Rect newRect{ r_.bottomLeft(), Size{ w, h } };
+        Rect imageRect{ Rect::fromSize( Size(im_.width(), im_.height())) };
+        if ( !imageRect.contains( newRect ) )
+            Thrower<std::out_of_range>()
+                << "resize: image view (" << newRect << ") not contained within image (" << imageRect << ")";
+
+        r_ = newRect;
     }
 
     // assignment
@@ -57,18 +73,18 @@ public:
         if ( i > r_.area() )
             Thrower<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
-        Int2DPoint bl{ r_.bottomLeft() };
-        UInt2DPoint::type y = bl[1];
+        Point2<int32_t> bl{ r_.bottomLeft() };
+        auto y = bl[1];
         while ( i > r_.width() )
         {
             ++y;
             i-= r_.width();
         }
 
-        UInt2DPoint::type x = i + bl[0];
-        return im_[ UInt2DPoint(x, y) ];
+        auto x = i + bl[0];
+        return im_[ Point2<uint32_t>(x, y) ];
     }
-    inline const T& operator[]( const UInt2DPoint& xy ) const
+    inline const T& operator[]( const Point2<uint32_t>& xy ) const
     {
         return this->operator[](xy[1]*r_.width() + xy[0]);
     }

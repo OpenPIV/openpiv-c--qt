@@ -22,11 +22,16 @@ template < typename T >
 class Image : public ImageInterface< Image, T >
 {
 public:
+    using type = T;
     using PixelType = T;
     using DataType = typename std::vector<T>;
 
     // ctor
-    Image() = default;
+    Image()
+        : width_( 0 )
+        , height_( 0 )
+        {}
+
     Image( const Image& ) = default;
     Image( Image&& ) = default;
 
@@ -57,6 +62,15 @@ public:
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
             this->operator[](i) = p[i];
+    }
+
+    /// resize the image; this is destructive and any data contained
+    /// after a re-size should be considered invalid
+    void resize( uint32_t w, uint32_t h )
+    {
+        width_ = w;
+        height_ = h;
+        data_.resize( pixel_count() );
     }
 
     /// assignment
@@ -91,6 +105,9 @@ public:
         return *this;
     }
 
+    // import operator= from ImageInterface
+    using ImageInterface< Image, T >::operator=;
+
 
     /// equality
     inline bool operator==(const Image& rhs) const
@@ -107,8 +124,8 @@ public:
     constexpr inline const T& operator[](size_t i) const { return const_cast<Image*>(this)->operator[](i); }
 
     /// pixel accessor by point
-    constexpr inline T& operator[]( const UInt2DPoint& xy ) { return data_[xy[1]*width_ + xy[0]]; }
-    constexpr inline const T& operator[]( const UInt2DPoint& xy ) const
+    constexpr inline T& operator[]( const Point2<uint32_t>& xy ) { return data_[xy[1]*width_ + xy[0]]; }
+    constexpr inline const T& operator[]( const Point2<uint32_t>& xy ) const
     {
         return const_cast<Image*>(this)->operator[](xy);
     }

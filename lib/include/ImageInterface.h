@@ -3,8 +3,10 @@
 
 // std
 #include <iosfwd>
+#include <type_traits>
 
 // local
+#include "ImageExpression.h"
 #include "Point.h"
 
 /// basic 2-dimensional image interface; designed to
@@ -40,11 +42,11 @@ public:
     }
 
     /// pixel accessor by point
-    constexpr inline ContainedT& operator[]( const UInt2DPoint& xy )
+    constexpr inline ContainedT& operator[]( const Point2<uint32_t>& xy )
     {
         return derived()->operator[](xy);
     }
-    constexpr inline const ContainedT& operator[]( const UInt2DPoint& xy ) const
+    constexpr inline const ContainedT& operator[]( const Point2<uint32_t>& xy ) const
     {
         return derived()->operator[](xy);
     }
@@ -73,6 +75,28 @@ public:
     constexpr inline const uint32_t width() const { return derived()->width(); }
     constexpr inline const uint32_t height() const { return derived()->height(); }
     constexpr inline const uint32_t pixel_count() const { return derived()->pixel_count(); }
+
+    /// apply an operation to all pixels
+    template <typename Op>
+    DerivedType& apply( Op op )
+    {
+        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+            operator[](i) = op(operator[](i));
+
+        return *derived();
+    }
+
+    // image expression assignment/evaluation
+    template <typename Op, typename LeftExpr, typename RightExpr>
+    DerivedType& operator=(const ImageExpression<Op, LeftExpr, RightExpr>& e)
+    {
+        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+        {
+            operator[](i) = e[i];
+        }
+
+        return *derived();
+    }
 };
 
 /// ostream operator
@@ -83,3 +107,4 @@ std::ostream& operator<<( std::ostream& os, const ImageInterface<ImageT, Contain
 
     return os;
 }
+
