@@ -5,6 +5,28 @@
 // to be tested
 #include "PixelTypes.h"
 
+TEST(PixelTypesTest, GSizeTest)
+{
+    ASSERT_EQ( sizeof(G8), sizeof(uint8_t) );
+    ASSERT_EQ( sizeof(G16), sizeof(uint16_t) );
+    ASSERT_EQ( sizeof(G32), sizeof(uint32_t) );
+    ASSERT_EQ( sizeof(GF), sizeof(double) );
+}
+
+TEST(PixelTypesTest, RGBASizeTest)
+{
+    ASSERT_EQ( sizeof(RGBA8), 4*sizeof(uint8_t) );
+    ASSERT_EQ( sizeof(RGBA16), 4*sizeof(uint16_t) );
+    ASSERT_EQ( sizeof(RGBA32), 4*sizeof(uint32_t) );
+}
+
+TEST(PixelTypesTest, YUVASizeTest)
+{
+    ASSERT_EQ( sizeof(YUVA8), 4*sizeof(uint8_t) );
+    ASSERT_EQ( sizeof(YUVA16), 4*sizeof(uint16_t) );
+    ASSERT_EQ( sizeof(YUVA32), 4*sizeof(uint32_t) );
+}
+
 TEST(PixelTypesTest, RGBATest)
 {
     ASSERT_EQ( RGBA8( 0, 0, 0, 0 ), RGBA8() );

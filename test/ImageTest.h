@@ -173,7 +173,7 @@ TEST(ImageTest, ScaleTest)
     G16 scale{ (max-min)==0 ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
-    im.apply( [&min, &scale](auto v){return scale*(v-min);} );
+    im.apply( [min, scale](auto v){return scale*(v-min);} );
 
     std::tie(min, max) = findImageRange( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
@@ -185,4 +185,44 @@ TEST(ImageTest, ScaleTest)
 
     std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
     writer->save( os, im );
+}
+
+TEST(ImageTest, PNMLoadSaveTest)
+{
+    std::ifstream is("A_00001_a.tif", std::ios::binary);
+    ASSERT_TRUE(is.is_open());
+
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    ASSERT_TRUE(!!loader);
+
+    G16Image im;
+    loader->load( is, im );
+
+    // write data
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    ASSERT_TRUE(!!writer);
+    ASSERT_EQ(writer->name(), "image/x-portable-anymap");
+
+    {
+        std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
+        writer->save( os, im );
+    }
+
+    // re-read data, from PNM
+    is = std::ifstream("A_00001_a.pgm", std::ios::binary);
+    ASSERT_TRUE(is.is_open());
+
+    loader = ImageLoader::findLoader(is);
+    ASSERT_TRUE(!!loader);
+
+    G16Image reloaded;
+    loader->load( is, reloaded );
+
+    {
+        std::ofstream os( "reloaded.pgm", std::ios_base::trunc | std::ios_base::out );
+        writer->save( os, reloaded );
+    }
+
+    // and check the two images are equal
+    ASSERT_EQ( im, reloaded );
 }

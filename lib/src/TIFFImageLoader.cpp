@@ -162,7 +162,7 @@ RGBA16Image copy<RGBA16, PlanarConfig::CONTIG, SampleFormat::UINT, 3, 8>(TIFF* t
 }
 
 template <typename PixelT>
-void load_( std::istream& is, Image<PixelT>& im )
+static void load_( std::istream& is, Image<PixelT>& im )
 {
     std::unique_ptr<TIFF, decltype(&TIFFClose)> tiff( TIFFStreamOpen( "sbTIFF", &is ), &TIFFClose );
 

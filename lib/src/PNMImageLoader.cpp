@@ -12,15 +12,20 @@
 #include "Util.h"
 
 
-template <int> uint16_t stobe( uint16_t v );
-template <> inline uint16_t stobe<__ORDER_BIG_ENDIAN__>( uint16_t v )
+template <int> constexpr uint16_t stobe( uint16_t v );
+template <> inline constexpr uint16_t stobe<__ORDER_BIG_ENDIAN__>( uint16_t v )
 {
     return v;
 }
 
-template <> inline uint16_t stobe<__ORDER_LITTLE_ENDIAN__>( uint16_t v )
+template <> inline constexpr uint16_t stobe<__ORDER_LITTLE_ENDIAN__>( uint16_t v )
 {
     return (v>>8) | (v<<8);
+}
+
+template <int E> inline constexpr uint16_t betos( uint16_t v )
+{
+    return stobe<E>(v);
 }
 
 
@@ -29,12 +34,24 @@ static const bool registeredloader = ImageLoader::registerLoader< PNMImageLoader
 PNMImageLoader::~PNMImageLoader()
 {}
 
-/// check if \a b contains "P4", "P5" or "P6"
+/// extract header info along with a flag to
+/// indicate if the header is valid
+std::tuple<bool, uint8_t> getHeaderInfo( char* b )
+{
+    bool result = b[0] == 'P';
+    uint8_t type = b[1];
+    result &= '5' <= type && type <= '6';
+
+    return std::tuple<bool, uint8_t>{ result, type - '0' };
+}
+
+/// check if \a b contains "P5" or "P6"; ignore binary pbm images
 bool isSupported( char* b )
 {
-    return
-        b[0] == 'P' &&
-        b[1] - '4' <= 2;
+    bool result;
+    std::tie( result, std::ignore ) = getHeaderInfo( b );
+
+    return result;
 }
 
 bool PNMImageLoader::canLoad( std::istream& is ) const
@@ -66,100 +83,184 @@ template < typename PixelT, uint16_t SampleN, uint16_t BitsPerSample >
 Image<PixelT> copy(std::istream& is, uint32_t width, uint32_t height);
 
 // 8-bit greyscale to 16-bit greyscale
-// template <>
-// G16Image copy<G16, 1, 8>(std::istream& is, uint32_t width, uint32_t height)
-// {
-//     G16Image im(width, height, 0);
+template <>
+G16Image copy<G16, 1, 8>(std::istream& is, uint32_t width, uint32_t height)
+{
+    G16Image im(width, height, 0);
 
-//     // copy per line
-//     std::vector<uint8_t> buffer(width);
-//     uint32_t h = 0;
-//     while ( !is.eof() && h<height )
-//     {
-//         is.read( &buffer[0], width );
-//         uint8_t* src = &buffer[0];
-//         G16* dest = im.line(h);
-//         for ( uint32_t w=0; w<width; ++w )
-//             *dest++ = *src++;
+    // copy per line
+    std::vector<char> buffer(width);
+    uint32_t h = 0;
+    while ( !is.eof() && h<height )
+    {
+        is.read( &buffer[0], width );
+        uint8_t* srcp = reinterpret_cast<uint8_t*>(&buffer[0]);
+        G16* destp = im.line(h);
+        for ( uint32_t w=0; w<width; ++w )
+            *destp++ = *srcp++;
 
-//         p += lineLength;
-//         ++lineCount;
-//     }
+        ++h;
+    }
+
+    return im;
+}
+
+// 16-bit greyscale to 16-bit greyscale
+template <>
+G16Image copy<G16, 1, 16>(std::istream& is, uint32_t width, uint32_t height)
+{
+    G16Image im(width, height, 0);
+
+    // copy per line
+    const size_t bytesPerLine = width * sizeof(G16);
+    std::vector<char> buffer(bytesPerLine);
+    uint32_t h = 0;
+    while ( !is.eof() && h<height )
+    {
+        is.read( &buffer[0], bytesPerLine );
+        uint16_t* srcp = reinterpret_cast<uint16_t*>(&buffer[0]);
+        G16* destp = im.line(h);
+        for ( uint32_t w=0; w<width; ++w )
+            *destp++ = betos<__BYTE_ORDER__>( *srcp++ );
+
+        ++h;
+    }
 
 
-//     // allocate line buffer
-//     size_t bytesPerLine = TIFFScanlineSize( tiff );
-//     std::vector<G8> buf(bytesPerLine);
+    return im;
+}
 
-//     // copy the data
-//     for (size_t h=0; h<height; ++h)
-//     {
-//         // Reading the data line by line; source and destination match so just memcpy
-//         TIFFReadScanline(tiff, &buf[0], h, 0);
-//         G16* destp = im.line(h);
-//         G8* srcp = &buf[0];
-//         for ( size_t w=0; w<width; ++w )
-//             *destp++ = *srcp++;
-//     }
+// 8-bit RGB to 16-bit RGBA
+template <>
+RGBA16Image copy<RGBA16, 3, 8>(std::istream& is, uint32_t width, uint32_t height)
+{
+    RGBA16Image im(width, height, 0);
 
-//     return im;
-// }
+    // copy per line
+    const size_t bytesPerLine = 3 * width;
+    std::vector<char> buffer( bytesPerLine );
+    uint32_t h = 0;
+    while ( !is.eof() && h<height )
+    {
+        is.read( &buffer[0], bytesPerLine );
+        RGBA16* destp = im.line(h);
+        char* srcp = &buffer[0];
+        for ( size_t w=0; w<width; ++w )
+        {
+            destp->r = *srcp++;
+            destp->g = *srcp++;
+            destp->b = *srcp++;
+            ++destp;
+        }
 
-// template <typename PixelT>
-// void load_( std::istream& is, Image<PixelT>& im )
-// {
-//     // PPM header is very simple:
-//     // P6
-//     // # CREATOR: GIMP PNM Filter Version 1.1
-//     // 1920 1080
-//     // 255
-//     char buffer[ 1024 ];
-//     is.getline( &buffer[0], sizeof( buffer ) );
-//     if ( !isSupported(buffer) )
-//         Thrower<ImageLoaderException>() << "image type not supported: " << std::string( buffer, 2 );
+        ++h;
+    }
 
-//     bool haveBitDepth{ false };
-//     bool haveDimensions{ false };
-//     uint32_t width{};
-//     uint32_t height{};
-//     uint16_t depth{};
-//     while ( !haveBitDepth || !haveDimensions )
-//     {
-//         s.getline( &buffer[0], sizeof( buffer ) );
+    return im;
+}
 
-//         if ( buffer[0] == '#' )
-//             continue;
+// 16-bit RGB to 16-bit RGBA
+template <>
+RGBA16Image copy<RGBA16, 3, 16>(std::istream& is, uint32_t width, uint32_t height)
+{
+    RGBA16Image im(width, height, 0);
 
-//         if ( !haveDimensions && sscanf( &buffer[0], "%d %d", &width, &height ) == 2 )
-//         {
-//             haveDimensions = true;
-//             continue;
-//         }
+    // copy per line
+    const size_t bytesPerLine = 3 * width * sizeof(G16);
+    std::vector<char> buffer( bytesPerLine );
+    uint32_t h = 0;
+    while ( !is.eof() && h<height )
+    {
+        is.read( &buffer[0], bytesPerLine );
+        RGBA16* destp = im.line(h);
+        uint16_t* srcp = reinterpret_cast<uint16_t*>(&buffer[0]);
+        for ( size_t w=0; w<width; ++w )
+        {
+            destp->r = betos<__BYTE_ORDER__>(*srcp++);
+            destp->g = betos<__BYTE_ORDER__>(*srcp++);
+            destp->b = betos<__BYTE_ORDER__>(*srcp++);
+            ++destp;
+        }
 
-//         if ( !haveBitDepth && sscanf( &buffer[0], "%d", &depth ) == 1 )
-//         {
-//             haveBitDepth = true;
-//             continue;
-//         }
-//     }
+        ++h;
+    }
 
-//     return result;
+    return im;
+}
 
-// }
+
+// support chomping comment lines
+struct Comment {};
+Comment comment() { return {}; }
+std::istream& operator>>( std::istream& is, const Comment& )
+{
+    if ( is.peek() == '#' )
+        is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
+
+    return is;
+}
+
+template <typename PixelT>
+static void load_( std::istream& is, Image<PixelT>& im )
+{
+    // PPM header is very simple:
+    // P6
+    // # CREATOR: GIMP PNM Filter Version 1.1
+    // 1920 1080
+    // 255
+    char buffer[ 1024 ];
+    is.getline( &buffer[0], sizeof( buffer ) );
+
+    bool isValid;
+    uint8_t type;
+    std::tie( isValid, type ) = getHeaderInfo( buffer );
+
+    if ( !isValid )
+        Thrower<ImageLoaderException>() << "image type not supported: " << std::string( buffer, 2 );
+
+    // get dimensions & depth
+    uint32_t width{};
+    uint32_t height{};
+    uint16_t depth{};
+
+    is >> comment() >> width >> comment() >> height >> comment() >> depth;
+    // ensure we chomp any remaining whitespace to EOL
+    is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
+
+    std::cout << "PNM" << std::to_string(type) << "[" << width << ", " << height << "], " << depth << "\n";
+
+    // get image data
+    if ( type == 5 )
+    {
+        // binary greyscale
+        if ( depth > 255 )
+            im = copy<G16, 1, 16>( is, width, height );
+        else
+            im = copy<G16, 1, 8>( is, width, height );
+    }
+    else
+    {
+        // binary RGB
+        if ( depth > 255 )
+            im = copy<RGBA16, 3, 16>( is, width, height );
+        else
+            im = copy<RGBA16, 3, 8>( is, width, height );
+    }
+}
 
 void PNMImageLoader::load( std::istream& is, G16Image& im ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": loading data nyi";
+    load_(is, im);
 }
 
 void PNMImageLoader::load( std::istream& is, DoubleImage& im ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": loading data nyi";
+    load_(is, im);
 }
 
 void PNMImageLoader::load( std::istream& is, RGBA16Image& im ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": loading data nyi";
+    load_(is, im);
 }
 
 void PNMImageLoader::save( std::ostream& os, const G16Image& im ) const

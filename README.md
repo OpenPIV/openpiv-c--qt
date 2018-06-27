@@ -7,7 +7,7 @@ the implementation depends on a modern C++17 compliant compiler.
 Build
 -----
 
-Building currently uses TUP (https://github.com/gittup/tup); a cross-platform rules
+Building currently uses TUP (https://github.com/gittup/tup): a cross-platform rules
 based build system. TUP has been chosen for it's speed and simplicity.
 
 Dependencies
@@ -22,7 +22,8 @@ TODO
 
 * logging
 * core
-  * read PNM files
+  * load/save PNM files - done
+  * iostream ops for ImageLoaders
   * shared memory -> Image allocator support
   * utilities
     * split RGB to 4xgreyscale
@@ -38,6 +39,8 @@ TODO
 * data output
   * ASCII/CSV
   * gnuplot/pyplot?
+  * tecplot
 * GUI
   * Qt?
-  * HTML5?
+  * websockets/HTML5?
+  * webassembly + JS/HTML5?

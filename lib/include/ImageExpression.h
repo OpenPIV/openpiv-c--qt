@@ -198,9 +198,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator+(const LE& le, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ re } };
+    return { LEWrapped{ le }, REWrapped{ re } };
 }
 
 template <
@@ -213,9 +211,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator+(const LE& le, T&& v)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
 }
 
 template <
@@ -228,9 +224,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator+(T&& v, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ std::forward<T>(v) },
-        REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
 }
 
 ///
@@ -246,9 +240,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator-(const LE& le, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ re } };
+    return { LEWrapped{ le }, REWrapped{ re } };
 }
 
 template <
@@ -261,9 +253,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator-(const LE& le, T&& v)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
 }
 
 template <
@@ -276,9 +266,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator-(T&& v, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ std::forward<T>(v) },
-        REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
 }
 
 ///
@@ -294,9 +282,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator/(const LE& le, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ re } };
+    return { LEWrapped{ le }, REWrapped{ re } };
 }
 
 template <
@@ -309,9 +295,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator/(const LE& le, T&& v)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
 }
 
 template <
@@ -324,9 +308,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator/(T&& v, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ std::forward<T>(v) },
-        REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
 }
 
 ///
@@ -342,9 +324,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator*(const LE& le, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ re } };
+    return { LEWrapped{ le }, REWrapped{ re } };
 }
 
 template <
@@ -357,9 +337,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator*(const LE& le, T&& v)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
 }
 
 template <
@@ -372,9 +350,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator*(T&& v, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ std::forward<T>(v) },
-        REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
 }
 
 ///
@@ -390,9 +366,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator%(const LE& le, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ re } };
+    return { LEWrapped{ le }, REWrapped{ re } };
 }
 
 template <
@@ -405,9 +379,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator%(const LE& le, T&& v)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ le },
-        REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
 }
 
 template <
@@ -420,7 +392,5 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator%(T&& v, const RE& re)
 {
-    return ImageExpression<Op, LEWrapped, REWrapped>{
-        LEWrapped{ std::forward<T>(v) },
-        REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
 }
