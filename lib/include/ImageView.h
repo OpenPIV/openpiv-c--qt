@@ -3,6 +3,7 @@
 
 // std
 #include <exception>
+#include <iterator>
 #include <sstream>
 #include <string>
 
@@ -74,14 +75,8 @@ public:
             Thrower<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
         Point2<int32_t> bl{ r_.bottomLeft() };
-        auto y = bl[1];
-        while ( i > r_.width() )
-        {
-            ++y;
-            i-= r_.width();
-        }
-
-        auto x = i + bl[0];
+        auto x = bl[0] + i % r_.width();
+        auto y = bl[1] + i / r_.width();
         return im_[ Point2<uint32_t>(x, y) ];
     }
     inline const T& operator[]( const Point2<uint32_t>& xy ) const
@@ -89,11 +84,42 @@ public:
         return this->operator[](xy[1]*r_.width() + xy[0]);
     }
 
-    inline const T* data() const { return line(0); }
     inline const T* line(size_t i) const { return im_.line(r_.bottomLeft()[1] + i) + r_.bottomLeft()[0]; }
     inline const uint32_t width() const { return r_.width(); }
     inline const uint32_t height() const { return r_.height(); }
+    inline const Size size() const { return r_.size(); }
     inline const uint32_t pixel_count() const { return r_.area(); }
+
+    class const_iterator : public std::iterator< std::bidirectional_iterator_tag, PixelType >
+    {
+    public:
+        using IndexT = Rect::PointT::type;
+
+        explicit const_iterator( ImageView iv, IndexT i = 0 ) : iv_( iv ), i_( i ) {}
+        const_iterator& operator++() { ++i_; return *this; }
+        const_iterator operator++(int) { const_iterator result = *this; operator++(); return result; }
+        const_iterator& operator--() { --i_; return *this; }
+        const_iterator operator--(int) { const_iterator result = *this; operator--(); return result; }
+        bool operator==(const const_iterator& rhs) const { return iv_ == rhs.iv_ && i_ == rhs.i_; }
+        bool operator!=(const const_iterator& rhs) const { return !operator==(rhs); }
+        const PixelType& operator*() const
+        {
+            if ( i_ < 0 || i_ >= iv_.pixel_count() )
+                Thrower< std::out_of_range >()
+                    << "attempting to dereference out of range iterator: "
+                    << i_ << ", " << iv_.pixel_count();
+
+            return iv_[ Point2<uint32_t>{i_ % iv_.width(), i_ / iv_.width()} ];
+        }
+
+    private:
+        ImageView<T> iv_;
+        IndexT i_ = {};
+    };
+
+    /// iterators
+    const_iterator begin() const { return const_iterator( *this ); }
+    const_iterator end() const { return const_iterator( *this, pixel_count() ); }
 
 private:
     const Image<T>& im_;

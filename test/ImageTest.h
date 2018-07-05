@@ -5,6 +5,7 @@
 // std
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -14,9 +15,11 @@
 
 // to be tested
 #include "Image.h"
-#include "ImageUtils.h"
-#include "ImageStats.h"
 #include "ImageLoader.h"
+#include "ImageStats.h"
+#include "ImageUtils.h"
+#include "ImageView.h"
+#include "Util.h"
 
 
 TEST(ImageTest, IntTest)
@@ -200,9 +203,6 @@ TEST(ImageTest, PNMLoadSaveTest)
 
     // write data
     std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
-    ASSERT_TRUE(!!writer);
-    ASSERT_EQ(writer->name(), "image/x-portable-anymap");
-
     {
         std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
         writer->save( os, im );
@@ -225,4 +225,73 @@ TEST(ImageTest, PNMLoadSaveTest)
 
     // and check the two images are equal
     ASSERT_EQ( im, reloaded );
+}
+
+TEST(ImageTest, RGBASplitTest)
+{
+    RGBA16Image im{ 200, 200, RGBA16{100, 200, 300, 400} };
+    auto [ r, g, b, a ] = split_to_channels(im);
+
+    {
+        auto [ min, max ] = findImageRange( r );
+        ASSERT_EQ( min, max );
+        ASSERT_EQ( min, 100 );
+    }
+
+    {
+        auto [ min, max ] = findImageRange( g );
+        ASSERT_EQ( min, max );
+        ASSERT_EQ( min, 200 );
+    }
+
+    {
+        auto [ min, max ] = findImageRange( b );
+        ASSERT_EQ( min, max );
+        ASSERT_EQ( min, 300 );
+    }
+
+    {
+        auto [ min, max ] = findImageRange( a );
+        ASSERT_EQ( min, max );
+        ASSERT_EQ( min, 400 );
+    }
+}
+
+TEST(ImageTest, RGBAJoinTest)
+{
+    std::ifstream is("test-mono.tiff", std::ios::binary);
+    ASSERT_TRUE(is.is_open());
+
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    ASSERT_TRUE(!!loader);
+
+    G16Image im;
+    loader->load( is, im );
+
+    G16 min, max, scale;
+    std::tie(min, max) = findImageRange( im );
+    scale = (max-min)==0 ? G16::max() : G16::max()/(max-min);
+    im.apply( [min, scale](auto v){return scale*(v-min);} );
+    std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
+
+    Size outputSize = im.size() - Size(40, 40);
+    ImageView< G16 > r{ im, Rect{ { 0,  0}, outputSize } };
+    ImageView< G16 > g{ im, Rect{ {10, 10}, outputSize } };
+    ImageView< G16 > b{ im, Rect{ {20, 20}, outputSize } };
+    ImageView< G16 > a{ im, Rect{ {30, 30}, outputSize } };
+
+    RGBA16Image rgba = join_from_channels( r, g, b, a);
+
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::fstream os( "test-rgbjoin.ppm", std::ios_base::trunc | std::ios_base::out );
+    writer->save( os, rgba );
+}
+
+TEST(ImageTest, IteratorTest)
+{
+    G16Image im{ 100, 100 };
+    std::iota( std::begin( im ), std::end( im ), 0 );
+
+    for ( auto h : make_range(0).length(im.height()) )
+        ASSERT_EQ( *im.line(h), h*100 );
 }

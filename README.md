@@ -26,7 +26,11 @@ TODO
   * iostream ops for ImageLoaders
   * shared memory -> Image allocator support
   * utilities
-    * split RGB to 4xgreyscale
+    * split RGB to 4xgreyscale - done
+    * join 4xgreyscale to RGB - done
+  * add ImageInterface data iterators - done
+  * remove data() method from ImageInterface, ImageView - done
+  * allow ImageView to be non-const
 * algorithms
   * normalize
   * FFT

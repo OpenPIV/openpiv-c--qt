@@ -21,6 +21,30 @@ TEST(UtilTest, ThrowerTest)
     _ASSERT_DEATH( l(), std::runtime_error, "die!" );
 }
 
+TEST(UtilTest, RangeFromToTest)
+{
+    std::vector<int> expected{ 1, 2, 3, 4, 5 };
+    ASSERT_EQ( expected, make_range( 1 ).to( 5 ) );
+}
+
+TEST(UtilTest, RangeFromToNegativeTest)
+{
+    std::vector<int> expected{ -3, -2, -1, 0, 1 };
+    ASSERT_EQ( expected, make_range( -3 ).to( 1 ) );
+}
+
+TEST(UtilTest, RangeFromToBackwardsTest)
+{
+    std::vector<int> expected{ 5, 4, 3, 2, 1 };
+    ASSERT_EQ( expected, make_range( 5 ).to( 1 ) );
+}
+
+TEST(UtilTest, RangeFromLengthTest)
+{
+    std::vector<int> expected{ 1, 2, 3, 4, 5 };
+    ASSERT_EQ( expected, make_range( 1 ).length( 5 ) );
+}
+
 TEST(UtilTest, CheckedUnsignedConversionSameSizeWithinRange)
 {
     int32_t i{ 32 };

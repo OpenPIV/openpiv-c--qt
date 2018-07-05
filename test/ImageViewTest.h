@@ -65,7 +65,6 @@ TEST(ImageViewTest, CopyTest)
 
     // compare pointers not values as we want to check we're getting
     // same underlying data from im
-    ASSERT_EQ(iv1.data(), iv2.data());
     ASSERT_EQ(iv1.line(0), iv2.line(0));
 }
 
@@ -83,11 +82,10 @@ TEST(ImageViewTest, MoveTest)
 
     // compare pointers not values as we want to check we're getting
     // same underlying data from im
-    ASSERT_EQ(iv1.data(), iv2.data());
     ASSERT_EQ(iv1.line(0), iv2.line(0));
 }
 
-TEST(ImageViewTest, EqualityTest1)
+TEST(ImageViewTest, EqualityTest)
 {
     G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
@@ -97,7 +95,7 @@ TEST(ImageViewTest, EqualityTest1)
     ASSERT_TRUE(iv1 == iv2);
 }
 
-TEST(ImageViewTest, EqualityTest2)
+TEST(ImageViewTest, SizeInequalityTest)
 {
     G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
@@ -107,7 +105,7 @@ TEST(ImageViewTest, EqualityTest2)
     ASSERT_TRUE(iv1 != iv2);
 }
 
-TEST(ImageViewTest, EqualityTest3)
+TEST(ImageViewTest, OriginInequalityTest)
 {
     G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
@@ -117,7 +115,7 @@ TEST(ImageViewTest, EqualityTest3)
     ASSERT_TRUE(iv1 != iv2);
 }
 
-TEST(ImageViewTest, EqualityTest4)
+TEST(ImageViewTest, ImageInequalityTest)
 {
     G8Image im;
     std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
@@ -140,6 +138,26 @@ TEST(ImageViewTest, ViewTest)
 
     im[Point2<uint32_t>()] = 255;
     ASSERT_EQ( pixel_sum(im), pixel_sum(iv) );
+}
+
+TEST(ImageViewTest, OffsetTest)
+{
+    G8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    im[ Point2<uint32_t>{20, 20} ] = 255;
+
+    auto iv = createImageView( im, Rect( {20, 20}, {100, 100} ) );
+    ASSERT_EQ( iv[ Point2<uint32_t>(0, 0) ], im[ Point2<uint32_t>(20, 20) ] );
+}
+
+TEST(ImageViewTest, LineTest)
+{
+    G8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    im[ Point2<uint32_t>{20, 20} ] = 255;
+
+    auto iv = createImageView( im, Rect( {10, 10}, {100, 100} ) );
+    ASSERT_EQ( *(iv.line(10) + 10), *(im.line(20) + 20) );
 }
 
 TEST(ImageViewTest, ImageFromImageViewTest)

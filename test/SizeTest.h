@@ -9,6 +9,9 @@
 // to be tested
 #include "Size.h"
 
+// local
+#include "TestUtils.h"
+
 TEST(SizeTest, DefaultTest)
 {
     Size s;
@@ -61,6 +64,30 @@ TEST(SizeTest, EqualityTest)
 
     ASSERT_EQ(s1, Size(10, 20));
     ASSERT_NE(s1, Size(20, 10));
+}
+
+TEST(SizeTest, AddTest)
+{
+    Size s1(10, 20);
+    Size s2(20, 10);
+
+    ASSERT_EQ(s1 + s2, Size(30, 30));
+    s1 += s2;
+    ASSERT_EQ(s1, Size(30, 30));
+}
+
+TEST(SizeTest, SubtractTest)
+{
+    Size s1(10, 20);
+    Size s2(10, 20);
+
+    ASSERT_EQ(s1 - s2, Size(0, 0));
+    s1 -= s2;
+    ASSERT_EQ(s1, Size(0, 0));
+
+    _ASSERT_DEATH(
+        s1 -= s2,
+        std::out_of_range, "sizes cannot be negative" );
 }
 
 TEST(SizeTest, OStreamTest)

@@ -25,6 +25,10 @@ public:
     using type = T;
     using PixelType = T;
     using DataType = typename std::vector<T>;
+    using iterator = typename DataType::iterator;
+    using const_iterator = typename DataType::const_iterator;
+    using reverse_iterator = typename DataType::reverse_iterator;
+    using const_reverse_iterator = typename DataType::const_reverse_iterator;
 
     // ctor
     Image()
@@ -120,34 +124,45 @@ public:
     inline bool operator!=(const Image& rhs) const { return !operator==(rhs); }
 
     /// pixel accessor
-    constexpr inline T& operator[](size_t i) { return data_[i]; }
-    constexpr inline const T& operator[](size_t i) const { return const_cast<Image*>(this)->operator[](i); }
+    inline T& operator[](size_t i) { return data_[i]; }
+    inline const T& operator[](size_t i) const { return const_cast<Image*>(this)->operator[](i); }
 
     /// pixel accessor by point
-    constexpr inline T& operator[]( const Point2<uint32_t>& xy ) { return data_[xy[1]*width_ + xy[0]]; }
-    constexpr inline const T& operator[]( const Point2<uint32_t>& xy ) const
+    inline T& operator[]( const Point2<uint32_t>& xy ) { return data_[xy[1]*width_ + xy[0]]; }
+    inline const T& operator[]( const Point2<uint32_t>& xy ) const
     {
         return const_cast<Image*>(this)->operator[](xy);
     }
 
     /// raw data accessor
-    constexpr inline T* data() { return &data_[0]; }
-    constexpr inline const T* data() const { return const_cast<Image*>(this)->data(); }
+    inline T* data() { return &data_[0]; }
+    inline const T* data() const { return const_cast<Image*>(this)->data(); }
 
     /// raw data by line
-    constexpr inline T* line( size_t i )
+    inline T* line( size_t i )
     {
         if (i>height_)
             Thrower<std::range_error>() << "line out of range (" << i << ", max is: " << height_ << ")";
 
         return &data_[i*width_];
     }
-    constexpr inline const T* line( size_t i ) const { return const_cast<Image*>(this)->line(i); }
+    inline const T* line( size_t i ) const { return const_cast<Image*>(this)->line(i); }
+
+    /// iterators
+    iterator begin() { return std::begin( data_ ); }
+    iterator end() { return std::end( data_ ); }
+    const_iterator begin() const { return std::begin( data_ ); }
+    const_iterator end() const { return std::end( data_ ); }
+    reverse_iterator rbegin() { return std::rbegin( data_ ); }
+    reverse_iterator rend() { return std::rend( data_ ); }
+    const_reverse_iterator rbegin() const { return std::rbegin( data_ ); }
+    const_reverse_iterator rend() const { return std::rend( data_ ); }
 
     /// geometry accessors
-    constexpr inline const uint32_t width() const { return width_; }
-    constexpr inline const uint32_t height() const { return height_; }
-    constexpr inline const uint32_t pixel_count() const { return width_ * height_; }
+    inline const uint32_t width() const { return width_; }
+    inline const uint32_t height() const { return height_; }
+    inline const Size size() const { return Size( width_, height_ ); }
+    inline const uint32_t pixel_count() const { return width_ * height_; }
 
     /// swap
     void swap( Image& rhs )

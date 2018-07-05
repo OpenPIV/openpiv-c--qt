@@ -14,10 +14,13 @@
 class Rect
 {
 public:
+    using PointT = Point2<int32_t>;
+    using SizeT = Size;
+
     Rect() = default;
     Rect( const Rect& ) = default;
     Rect( Rect&& ) = default;
-    Rect( const Point2<int32_t>& bl, const Size& size )
+    Rect( const PointT& bl, const Size& size )
         : bottomLeft_( bl ),
           size_( size )
     {}
@@ -25,7 +28,7 @@ public:
     /// construct a rect from size with default origin
     static Rect fromSize( const Size& s )
     {
-        return Rect( Point2<int32_t>(), s );
+        return Rect( PointT(), s );
     }
 
     Rect& operator=( const Rect& ) = default;
@@ -38,21 +41,21 @@ public:
     }
     constexpr inline bool operator!=(const Rect& rhs) const { return !operator==(rhs); }
 
-    constexpr inline Point2<int32_t> bottomLeft() const
+    constexpr inline PointT bottomLeft() const
     {
         return bottomLeft_;
     }
-    constexpr inline Point2<int32_t> topLeft() const
+    constexpr inline PointT topLeft() const
     {
-        return Point2<int32_t>( bottomLeft_[0], bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
+        return PointT( bottomLeft_[0], bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
     }
-    constexpr inline Point2<int32_t> bottomRight() const
+    constexpr inline PointT bottomRight() const
     {
-        return Point2<int32_t>( bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()), bottomLeft_[1] );
+        return PointT( bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()), bottomLeft_[1] );
     }
-    constexpr inline Point2<int32_t> topRight() const
+    constexpr inline PointT topRight() const
     {
-        return Point2<int32_t>(
+        return PointT(
             bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()),
             bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
     }
@@ -79,7 +82,7 @@ public:
     }
 
 private:
-    Point2<int32_t> bottomLeft_;
+    PointT bottomLeft_;
     Size size_;
 };
 

@@ -8,6 +8,7 @@
 // local
 #include "ImageExpression.h"
 #include "Point.h"
+#include "Size.h"
 
 /// basic 2-dimensional image interface; designed to
 /// be inherited using CRTP
@@ -51,16 +52,6 @@ public:
         return derived()->operator[](xy);
     }
 
-    /// raw data accessor
-    constexpr inline ContainedT* data()
-    {
-        return derived()->data();
-    }
-    constexpr inline const ContainedT* data() const
-    {
-        return derived()->data();
-    }
-
     /// raw data by line
     constexpr inline ContainedT* line( size_t i )
     {
@@ -72,9 +63,10 @@ public:
     }
 
     /// geometry accessors
-    constexpr inline const uint32_t width() const { return derived()->width(); }
-    constexpr inline const uint32_t height() const { return derived()->height(); }
-    constexpr inline const uint32_t pixel_count() const { return derived()->pixel_count(); }
+    inline const uint32_t width() const { return derived()->width(); }
+    inline const uint32_t height() const { return derived()->height(); }
+    inline const Size size() const { return derived()->size(); }
+    inline const uint32_t pixel_count() const { return derived()->pixel_count(); }
 
     /// apply an operation to all pixels
     template <typename Op>
@@ -97,6 +89,12 @@ public:
 
         return *derived();
     }
+
+    /// iterators
+    auto begin() const { return derived()->begin(); }
+    auto begin() { return derived()->begin(); }
+    auto end() const { return derived()->end(); }
+    auto end() { return derived()->end(); }
 };
 
 /// ostream operator
