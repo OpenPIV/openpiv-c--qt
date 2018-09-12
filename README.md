@@ -14,7 +14,8 @@ Dependencies
 ------------
 
 * C++17 compiler e.g. clang++-5.0
-* libtiff
+* libtiff (http://libtiff.org/)
+* Catch2 (https://github.com/catchorg/Catch2)
 
 
 TODO
@@ -23,18 +24,24 @@ TODO
 * logging
 * core
   * load/save PNM files - done
+    * save double images - done
   * iostream ops for ImageLoaders
   * shared memory -> Image allocator support
   * utilities
     * split RGB to 4xgreyscale - done
     * join 4xgreyscale to RGB - done
+    * split complex to planes
+    * create complex from planes
   * add ImageInterface data iterators - done
   * remove data() method from ImageInterface, ImageView - done
   * allow ImageView to be non-const
 * algorithms
+  * transpose - done
   * normalize
   * FFT
-  * correlation
+    * spectral correlation
+    * optimize
+  * direct correlation
   * peak detection
 * processing framework
   * grid generator

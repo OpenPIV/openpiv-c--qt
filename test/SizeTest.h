@@ -1,8 +1,9 @@
 
-// gtest
-#include "gtest/gtest.h"
+// catch
+#include "catch.hpp"
 
 // std
+#include <stdexcept>
 #include <sstream>
 #include <string>
 
@@ -12,89 +13,119 @@
 // local
 #include "TestUtils.h"
 
-TEST(SizeTest, DefaultTest)
+using namespace Catch;
+
+TEST_CASE("SizeTest - DefaultTest")
 {
     Size s;
-    ASSERT_EQ(s.width(), 0);
-    ASSERT_EQ(s.height(), 0);
-    ASSERT_EQ(s.area(), 0);
+    REQUIRE(s.width() == 0);
+    REQUIRE(s.height() == 0);
+    REQUIRE(s.area() == 0);
 }
 
-TEST(SizeTest, BasicTest)
+TEST_CASE("SizeTest - BasicTest")
 {
     Size s(10, 20);
 
-    ASSERT_EQ(s.width(), 10);
-    ASSERT_EQ(s.height(), 20);
-    ASSERT_EQ(s.area(), 200);
+    REQUIRE(s.width() == 10);
+    REQUIRE(s.height() == 20);
+    REQUIRE(s.area() == 200);
 }
 
-TEST(SizeTest, CopyTest)
+TEST_CASE("SizeTest - CopyTest")
 {
     Size s1(10, 20);
     Size s2(s1);
 
-    ASSERT_EQ(s2.width(), 10);
-    ASSERT_EQ(s2.height(), 20);
+    REQUIRE(s2.width() == 10);
+    REQUIRE(s2.height() == 20);
 }
 
-TEST(SizeTest, AssignTest)
+TEST_CASE("SizeTest - AssignTest")
 {
     Size s1(10, 20);
     Size s2(40, 50);
 
     s2=s1;
 
-    ASSERT_EQ(s2.width(), 10);
-    ASSERT_EQ(s2.height(), 20);
+    REQUIRE(s2.width() == 10);
+    REQUIRE(s2.height() == 20);
 }
 
-TEST(SizeTest, MoveTest)
+TEST_CASE("SizeTest - MoveTest")
 {
     Size s1(10, 20);
     Size s2(std::move(s1));
 
-    ASSERT_EQ(s2.width(), 10);
-    ASSERT_EQ(s2.height(), 20);
+    REQUIRE(s2.width() == 10);
+    REQUIRE(s2.height() == 20);
 }
 
-TEST(SizeTest, EqualityTest)
+TEST_CASE("SizeTest - EqualityTest")
 {
     Size s1(10, 20);
 
-    ASSERT_EQ(s1, Size(10, 20));
-    ASSERT_NE(s1, Size(20, 10));
+    REQUIRE(s1 == Size(10, 20));
+    REQUIRE(s1 != Size(20, 10));
 }
 
-TEST(SizeTest, AddTest)
+TEST_CASE("SizeTest - AddTest")
 {
     Size s1(10, 20);
     Size s2(20, 10);
 
-    ASSERT_EQ(s1 + s2, Size(30, 30));
+    REQUIRE(s1 + s2 == Size(30, 30));
     s1 += s2;
-    ASSERT_EQ(s1, Size(30, 30));
+    REQUIRE(s1 == Size(30, 30));
 }
 
-TEST(SizeTest, SubtractTest)
+TEST_CASE("SizeTest - SubtractTest")
 {
     Size s1(10, 20);
     Size s2(10, 20);
 
-    ASSERT_EQ(s1 - s2, Size(0, 0));
+    REQUIRE(s1 - s2 == Size(0, 0));
     s1 -= s2;
-    ASSERT_EQ(s1, Size(0, 0));
+    REQUIRE(s1 == Size(0, 0));
 
-    _ASSERT_DEATH(
-        s1 -= s2,
-        std::out_of_range, "sizes cannot be negative" );
+    _REQUIRE_THROWS_MATCHES( s1 -= s2, std::out_of_range, Contains( "sizes cannot be negative" ) );
 }
 
-TEST(SizeTest, OStreamTest)
+TEST_CASE("SizeTest - MaximalTest")
+{
+    Size s(10, 20);
+
+    REQUIRE(maximal_size(s) == Size(20, 20));
+}
+
+TEST_CASE("SizeTest - MinimalTest")
+{
+    Size s(10, 20);
+
+    REQUIRE(minimal_size(s) == Size(10, 10));
+}
+
+TEST_CASE("SizeTest - TransposeTest")
+{
+    Size s(10, 20);
+
+    REQUIRE(transpose(s) == Size(20, 10));
+}
+
+TEST_CASE("SizeTest - ComponentsTest")
+{
+    Size s(10, 20);
+    const auto [w, h] = s.components();
+
+    REQUIRE(w == 10);
+    REQUIRE(h == 20);
+}
+
+TEST_CASE("SizeTest - OStreamTest")
 {
     std::stringstream ss;
     Size s1(10, 20);
     ss << s1;
 
-    ASSERT_EQ( ss.str(), "[10,20]" );
+    REQUIRE( ss.str() == "[10,20]" );
 }

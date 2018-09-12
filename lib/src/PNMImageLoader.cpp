@@ -9,6 +9,7 @@
 
 // local
 #include "Image.h"
+#include "ImageStats.h"
 #include "Util.h"
 
 
@@ -253,7 +254,7 @@ void PNMImageLoader::load( std::istream& is, G16Image& im ) const
     load_(is, im);
 }
 
-void PNMImageLoader::load( std::istream& is, DoubleImage& im ) const
+void PNMImageLoader::load( std::istream& is, GFImage& im ) const
 {
     load_(is, im);
 }
@@ -263,7 +264,8 @@ void PNMImageLoader::load( std::istream& is, RGBA16Image& im ) const
     load_(is, im);
 }
 
-void PNMImageLoader::save( std::ostream& os, const G16Image& im ) const
+template < template <typename> class ImageT >
+void save_( std::ostream& os, const ImageInterface< ImageT, G16 >& im )
 {
     os << "P5\n"
        << "# created by PNMImageLoader\n"
@@ -289,12 +291,62 @@ void PNMImageLoader::save( std::ostream& os, const G16Image& im ) const
     os.flush();
 }
 
-void PNMImageLoader::save( std::ostream& os, const DoubleImage& im ) const
+void PNMImageLoader::save( std::ostream& os, const G16Image& im ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save DoubleImage";
+    save_( os, im );
 }
 
-void PNMImageLoader::save( std::ostream& os, const RGBA16Image& im ) const
+void PNMImageLoader::save( std::ostream& os, const G16ImageView& im ) const
+{
+    save_( os, im );
+}
+
+template < template <typename> class ImageT >
+void save_( std::ostream& os, const ImageInterface< ImageT, GF >& im )
+{
+    auto [min, max] = findImageRange( im );
+    auto range = max - min;
+    if ( max == min )
+    {
+        // single valued image; range should be 1
+        range = 1.0;
+    }
+
+    // scale the image and write as 16-bit file
+    os << "P5\n"
+       << "# created by PNMImageLoader\n"
+       << im.width() << " " << im.height() << "\n"
+       << "65535\n";
+
+    const size_t bytesPerLine{ im.width() * sizeof(G16Image::PixelType) };
+
+    std::vector<G16> buffer( im.width() );
+    for ( uint32_t h=0; h<im.height(); ++h )
+    {
+        G16* bp = &buffer[0];
+        const GF* ip = im.line(h);
+        for ( uint32_t w=0; w<im.width(); ++w )
+            *bp++ = stobe<__BYTE_ORDER__>( static_cast< uint16_t >( G16::max() * ((*ip++ - min)/range) ) );
+
+        os.write( reinterpret_cast<const char*>( &buffer[0] ), bytesPerLine );
+    }
+
+    os.flush();
+}
+
+void PNMImageLoader::save( std::ostream& os, const GFImage& im ) const
+{
+    save_( os, im );
+}
+
+void PNMImageLoader::save( std::ostream& os, const GFImageView& im ) const
+{
+    save_( os, im );
+}
+
+
+template < template <typename> class ImageT >
+void save_( std::ostream& os, const ImageInterface< ImageT, RGBA16 >& im )
 {
     os << "P6\n"
        << "# created by PNMImageLoader\n"
@@ -322,6 +374,16 @@ void PNMImageLoader::save( std::ostream& os, const RGBA16Image& im ) const
     }
 
     os.flush();
+}
+
+void PNMImageLoader::save( std::ostream& os, const RGBA16Image& im ) const
+{
+    save_( os, im );
+}
+
+void PNMImageLoader::save( std::ostream& os, const RGBA16ImageView& im ) const
+{
+    save_( os, im );
 }
 
 std::string PNMImageLoader::name() const

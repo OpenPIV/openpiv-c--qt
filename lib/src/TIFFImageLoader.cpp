@@ -202,7 +202,7 @@ void TIFFImageLoader::load( std::istream& is, G16Image& im ) const
     load_(is, im);
 }
 
-void TIFFImageLoader::load( std::istream& is, DoubleImage& im ) const
+void TIFFImageLoader::load( std::istream& is, GFImage& im ) const
 {
     load_(is, im);
 }
@@ -217,12 +217,27 @@ void TIFFImageLoader::save( std::ostream&, const G16Image& ) const
     Thrower<ImageLoaderException>() << name() << ": cannot save data";
 }
 
-void TIFFImageLoader::save( std::ostream&, const DoubleImage& ) const
+void TIFFImageLoader::save( std::ostream&, const G16ImageView& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
+void TIFFImageLoader::save( std::ostream&, const GFImage& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
+void TIFFImageLoader::save( std::ostream&, const GFImageView& ) const
 {
     Thrower<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const RGBA16Image& ) const
+{
+    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+}
+
+void TIFFImageLoader::save( std::ostream&, const RGBA16ImageView& ) const
 {
     Thrower<ImageLoaderException>() << name() << ": cannot save data";
 }

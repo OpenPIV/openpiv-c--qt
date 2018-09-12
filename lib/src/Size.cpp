@@ -42,3 +42,19 @@ Size operator-(const Size& lhs, const Size& rhs)
     return Size(lhs)-=rhs;
 }
 
+Size maximal_size( const Size& s )
+{
+    auto d{ std::max( s.width(), s.height() ) };
+    return { d, d };
+}
+
+Size minimal_size( const Size& s )
+{
+    auto d{ std::min( s.width(), s.height() ) };
+    return { d, d };
+}
+
+Size transpose( const Size& s )
+{
+    return { s.height(), s.width() };
+}

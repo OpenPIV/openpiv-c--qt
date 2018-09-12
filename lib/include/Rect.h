@@ -87,7 +87,7 @@ private:
 };
 
 /// ostream operator
-std::ostream& operator<<( std::ostream& os, const Rect& r )
+inline std::ostream& operator<<( std::ostream& os, const Rect& r )
 {
     os << r.bottomLeft() << " -> " << r.size();
     return os;

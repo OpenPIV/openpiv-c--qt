@@ -33,7 +33,7 @@ public:
         : t_(std::move(t))
     {}
 
-    constexpr T operator[](size_t) const
+    inline constexpr T operator[](size_t) const
     {
         return t_;
     }
@@ -59,7 +59,7 @@ public:
         : im_(im)
     {}
 
-    constexpr ContainedT operator[](size_t i) const
+    inline constexpr ContainedT operator[](size_t i) const
     {
         return im_[i];
     }
@@ -69,10 +69,10 @@ private:
 };
 
 
-/// template expression to construct chains of operations to perform
-/// on a per-pixel level for images; \ta Op is always passed
-/// as a template parameter to allow full expansion without
-/// indirection
+/// template expression to construct chains of binary operations
+/// to perform on a per-pixel level for images;
+/// \ta Op is always passed as a template parameter to allow
+/// full expansion without indirection
 template <typename Op, typename LeftExpr, typename RightExpr>
 class ImageExpression
 {
@@ -105,7 +105,55 @@ private:
     RightExpr re_;
 };
 
+
+/// template expression to construct chains of unary operations
+/// to perform on a per-pixel level for images;
+/// \ta Op is always passed as a template parameter to allow
+/// full expansion without indirection
+template <typename Op, typename Expr>
+class UnaryImageExpression
+{
+public:
+    using type = typename Expr::type;
+
+    UnaryImageExpression() = delete;
+    UnaryImageExpression(const UnaryImageExpression&) = default;
+    UnaryImageExpression& operator=(const UnaryImageExpression&) = default;
+    UnaryImageExpression(UnaryImageExpression&&) = default;
+    UnaryImageExpression& operator=(UnaryImageExpression&&) = default;
+
+    template < typename E >
+    UnaryImageExpression(E&& expr)
+        : expr_(std::forward<E>(expr))
+    {}
+
+    inline const Expr& expr() const { return expr_; }
+
+    inline auto operator[](size_t index) const ->
+        decltype( Op::apply(this->expr()[index]) )
+    {
+        return Op::apply(expr()[index]);
+    }
+
+private:
+    Expr expr_;
+};
+
 // fundamental pixel operators
+template <typename T>
+struct conjugate_op
+{};
+
+
+template <typename T>
+struct conjugate_op< Complex<T> >
+{
+    static Complex<T> apply(const Complex<T>& v)
+    {
+        return v.conj();
+    }
+};
+
 template <typename T>
 struct plus_op
 {
@@ -121,6 +169,11 @@ struct minus_op
     static T apply(const T& lhs, const T& rhs)
     {
         return lhs - rhs;
+    }
+
+    static T apply(const T& lhs)
+    {
+        return T{-1} * lhs;
     }
 };
 
@@ -183,6 +236,13 @@ struct is_ie_inputtype<ConstImageExpressionNode<T>> : std::true_type
 {
     using type = T;
     using node_type = ConstImageExpressionNode<T>;
+};
+
+template <typename T, typename OP>
+struct is_ie_inputtype<UnaryImageExpression<OP, T>> : std::true_type
+{
+    using type = T;
+    using node_type = UnaryImageExpression<OP, T>;
 };
 
 ///
@@ -267,6 +327,13 @@ ImageExpression<Op, LEWrapped, REWrapped>
 operator-(T&& v, const RE& re)
 {
     return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+}
+
+template < typename ValueT >
+UnaryImageExpression<conjugate_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
+conj(const Image<Complex<ValueT>>& im)
+{
+    return { im };
 }
 
 ///

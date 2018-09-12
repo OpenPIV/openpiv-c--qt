@@ -5,8 +5,9 @@
 #include <array>
 #include <cstdint>
 #include <iosfwd>
+#include <tuple>
 
-/// basic 2D integer size
+/// basic 2D integer size i.e. (width, height)
 class Size
 {
 public:
@@ -31,6 +32,7 @@ public:
     constexpr inline type height() const { return data_[1]; }
     constexpr inline type& height() { return data_[1]; }
     constexpr inline type area() const { return data_[0] * data_[1]; }
+    constexpr inline std::tuple<uint32_t, uint32_t> components() const { return std::make_tuple( data_[0], data_[1] ); }
 
     Size& operator+=( const Size& rhs );
     Size& operator-=( const Size& rhs );
@@ -42,5 +44,16 @@ private:
 /// ostream operator
 std::ostream& operator<<( std::ostream& os, const Size& r );
 
+// basic arithmetic operators
 Size operator+(const Size& lhs, const Size& rhs);
 Size operator-(const Size& lhs, const Size& rhs);
+
+/// find maximal dimension i.e. (1, 2) -> (2, 2)
+Size maximal_size( const Size& s );
+
+/// find minimal dimension i.e. (1, 2) -> (1, 1)
+Size minimal_size( const Size& s );
+
+/// transpose a size i.e. (1, 2) -> (2, 1)
+Size transpose( const Size& s );
+

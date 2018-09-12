@@ -10,6 +10,7 @@
 
 // local
 #include "Image.h"
+#include "ImageView.h"
 
 class ImageLoaderException : public std::runtime_error
 {
@@ -36,14 +37,17 @@ public:
     /// Load the image from \a stream
     /// may throw ImageLoaderException if there is a serious issue
     virtual void load( std::istream&, G16Image& ) const = 0;
-    virtual void load( std::istream&, DoubleImage& ) const = 0;
+    virtual void load( std::istream&, GFImage& ) const = 0;
     virtual void load( std::istream&, RGBA16Image& ) const = 0;
 
     /// Save the image to \a stream
     /// may throw ImageLoaderException if there is a serious issue
     virtual void save( std::ostream&, const G16Image& ) const = 0;
-    virtual void save( std::ostream&, const DoubleImage& ) const = 0;
+    virtual void save( std::ostream&, const GFImage& ) const = 0;
     virtual void save( std::ostream&, const RGBA16Image& ) const = 0;
+    virtual void save( std::ostream&, const G16ImageView& ) const = 0;
+    virtual void save( std::ostream&, const GFImageView& ) const = 0;
+    virtual void save( std::ostream&, const RGBA16ImageView& ) const = 0;
 
     /// return the name of this loader: MIME type
     /// \todo: change to have a list of supported

@@ -140,3 +140,11 @@ std::ostream& operator<<( std::ostream& os, const ImageView<T>& p )
 
     return os;
 }
+
+/// standard image view types
+using G8ImageView     = ImageView< G8 >;
+using G16ImageView    = ImageView< G16 >;
+using GFImageView     = ImageView< GF >;
+using RGBA8ImageView  = ImageView< RGBA8 >;
+using RGBA16ImageView = ImageView< RGBA16 >;
+using CFImageView     = ImageView< CF >;

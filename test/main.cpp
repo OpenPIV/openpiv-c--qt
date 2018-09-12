@@ -1,6 +1,7 @@
 
-// gtest
-#include "gtest/gtest.h"
+// catch
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
 // to be tested
 #include "PointTest.h"
@@ -13,9 +14,4 @@
 #include "PixelTypesTest.h"
 #include "ImageStatsTest.h"
 #include "ImageExpressionTest.h"
-
-int main(int argc, char *argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#include "ImageAlgosTest.h"

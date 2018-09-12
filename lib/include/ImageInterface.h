@@ -55,11 +55,11 @@ public:
     /// raw data by line
     constexpr inline ContainedT* line( size_t i )
     {
-        return derived()->line();
+        return derived()->line( i );
     }
     constexpr inline const ContainedT* line( size_t i ) const
     {
-        return derived()->line();
+        return derived()->line( i );
     }
 
     /// geometry accessors
@@ -73,7 +73,7 @@ public:
     DerivedType& apply( Op op )
     {
         for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
-            operator[](i) = op(operator[](i));
+            operator[](i) = op(i, operator[](i));
 
         return *derived();
     }

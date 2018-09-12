@@ -19,6 +19,19 @@ ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >
     return im;
 }
 
+/// fill an image with a constant value
+template < typename GeneratorT,
+           template<typename> class ImageT,
+           typename ContainedT>
+ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >& im, GeneratorT g )
+{
+    for ( uint32_t h=0; h<im.height(); ++h )
+        for ( uint32_t w=0; w<im.width(); ++w )
+            im[ {w, h} ] = g( w, h );
+
+    return im;
+}
+
 template < template<typename> class ImageT, typename ContainedT, typename R >
 R pixel_sum_impl( const ImageInterface< ImageT, ContainedT >& im )
 {
@@ -115,4 +128,127 @@ join_from_channels( const ImageInterface< ImageT, G<T>>& r_im,
     }
 
     return rgba_im;
+}
+
+/// split a Complex image into (real, imag) images
+template < template<typename> class ImageT,
+           typename T,
+           typename ReturnImageT = Image<G<T>>,
+           typename R = std::tuple< ReturnImageT, ReturnImageT >>
+R
+split_to_channels( const ImageInterface< ImageT, Complex<T> >& c )
+{
+    Image<G<T>> real_im( c.width(), c.height() );
+    Image<G<T>> imag_im( c.width(), c.height() );
+
+    auto r = std::begin( real_im );
+    auto i = std::begin( imag_im );
+
+    auto p = std::cbegin( c );
+    auto e = std::cend( c );
+    while ( p != e )
+    {
+        *r++ = p->real;
+        *i++ = p->imag;
+        ++p;
+    }
+
+    return std::make_tuple( real_im, imag_im );
+}
+
+/// join two images into a Complex image
+template < template<typename> class ImageT,
+           typename T,
+           typename ReturnImageT = Image<Complex<T>> >
+ReturnImageT
+join_from_channels( const ImageInterface< ImageT, G<T>>& real_im,
+                    const ImageInterface< ImageT, G<T>>& imag_im )
+{
+    if ( real_im.size() != imag_im.size() )
+        Thrower<std::runtime_error>() << "source images must have matching dimensions";
+
+    Image<Complex<T>> c_im( real_im.width(), real_im.height() );
+
+    auto c = std::begin( c_im );
+
+    auto r = std::cbegin( real_im );
+    auto e = std::cend( real_im );
+    auto i = std::cbegin( imag_im );
+
+    while ( r != e )
+    {
+        c->real = *r++;
+        c->imag = *i++;
+        ++c;
+    }
+
+    return c_im;
+}
+
+/// transpose an image i.e. rows <-> columns; maps
+/// from \a in to \out out; the dimensions of
+/// \a in and \a out must be transposed as a
+/// pre-condition.
+///
+/// \returns a reference to \a out.
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT = ImageInterface< ImageT, ContainedT> >
+ReturnT& transpose( const ImageInterface< ImageT, ContainedT >& in, ImageInterface< ImageT, ContainedT >& out )
+{
+    if ( !(in.width() == out.height() && in.height() == out.width() ) )
+        Thrower<std::runtime_error>() << "input and output must have transposed dimensions: "
+                                      << in.size() << ", " << out.size();
+
+    // get pointers to all result lines
+    std::vector<ContainedT*> olines( out.height(), nullptr );
+    for ( uint32_t h=0; h<out.height(); ++h )
+        olines[h] = out.line(h);
+
+    for ( uint32_t h=0; h<in.height(); ++h )
+    {
+        const ContainedT* p = in.line(h);
+        for ( uint32_t w=0; w<in.width(); ++w )
+            *olines[w]++ = *p++;
+    }
+
+    return out;
+}
+
+/// transpose an image i.e. rows <-> columns; \returns a new transposed image
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT = Image< ContainedT > >
+ReturnT transpose( const ImageInterface< ImageT, ContainedT >& im )
+{
+    ReturnT result( im.height(), im.width() );
+    transpose( im, result );
+
+    return result;
+}
+
+/// swap quadrants of an even dimensioned image i.e.
+/// - quadrant 1 <-> quadrant 3
+/// - quadrant 2 <-> quadrant 4
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT = ImageInterface< ImageT, ContainedT > >
+ReturnT& swap_quadrants( ImageInterface< ImageT, ContainedT >& in )
+{
+    const auto [width, height] = in.size().components();
+
+    for ( uint32_t h=0; h<height; ++h )
+    {
+        ContainedT* i = in.line( h );
+        ContainedT* o = in.line( (h + height/2) % height );
+
+        for ( uint32_t w=0; w<width/2; ++w )
+        {
+            ContainedT tmp = i[w];
+            i[w] = o[ (w + width/2) % width ];
+            o[ (w + width/2) % width ] = tmp;
+        }
+    }
+
+    return in;
 }

@@ -1,67 +1,107 @@
 
-// gtest
-#include "gtest/gtest.h"
+// catch
+#include "catch.hpp"
 
 // to be tested
 #include "PixelTypes.h"
 
-TEST(PixelTypesTest, GSizeTest)
+TEST_CASE("PixelTypesTest - GSizeTest")
 {
-    ASSERT_EQ( sizeof(G8), sizeof(uint8_t) );
-    ASSERT_EQ( sizeof(G16), sizeof(uint16_t) );
-    ASSERT_EQ( sizeof(G32), sizeof(uint32_t) );
-    ASSERT_EQ( sizeof(GF), sizeof(double) );
+    REQUIRE( sizeof(G8) == sizeof(uint8_t) );
+    REQUIRE( sizeof(G16) == sizeof(uint16_t) );
+    REQUIRE( sizeof(G32) == sizeof(uint32_t) );
+    REQUIRE( sizeof(GF) == sizeof(double) );
 }
 
-TEST(PixelTypesTest, RGBASizeTest)
+TEST_CASE("PixelTypesTest - RGBASizeTest")
 {
-    ASSERT_EQ( sizeof(RGBA8), 4*sizeof(uint8_t) );
-    ASSERT_EQ( sizeof(RGBA16), 4*sizeof(uint16_t) );
-    ASSERT_EQ( sizeof(RGBA32), 4*sizeof(uint32_t) );
+    REQUIRE( sizeof(RGBA8) == 4*sizeof(uint8_t) );
+    REQUIRE( sizeof(RGBA16) == 4*sizeof(uint16_t) );
+    REQUIRE( sizeof(RGBA32) == 4*sizeof(uint32_t) );
 }
 
-TEST(PixelTypesTest, YUVASizeTest)
+TEST_CASE("PixelTypesTest - YUVASizeTest")
 {
-    ASSERT_EQ( sizeof(YUVA8), 4*sizeof(uint8_t) );
-    ASSERT_EQ( sizeof(YUVA16), 4*sizeof(uint16_t) );
-    ASSERT_EQ( sizeof(YUVA32), 4*sizeof(uint32_t) );
+    REQUIRE( sizeof(YUVA8) == 4*sizeof(uint8_t) );
+    REQUIRE( sizeof(YUVA16) == 4*sizeof(uint16_t) );
+    REQUIRE( sizeof(YUVA32) == 4*sizeof(uint32_t) );
 }
 
-TEST(PixelTypesTest, RGBATest)
+TEST_CASE("PixelTypesTest - ComplexSizeTest")
 {
-    ASSERT_EQ( RGBA8( 0, 0, 0, 0 ), RGBA8() );
-    ASSERT_EQ( RGBA8( 128 ), RGBA8( 128, 128, 128, 255) );
-    ASSERT_NE( RGBA8( 128 ), RGBA8( 128, 128, 128, 0) );
+    REQUIRE( sizeof(CF) == 2*sizeof(double) );
 }
 
-TEST(PixelTypesTest, RGBACopyTest)
+TEST_CASE("PixelTypesTest - IsPixelTypeTest")
+{
+    REQUIRE( is_pixeltype<RGBA<uint16_t>>::value );
+    REQUIRE( is_pixeltype<YUVA<uint16_t>>::value );
+    REQUIRE( is_pixeltype<G<uint16_t>>::value );
+    REQUIRE( is_pixeltype<Complex<uint16_t>>::value );
+    REQUIRE( !is_pixeltype<uint16_t>::value );
+}
+
+TEST_CASE("PixelTypesTest - PixelConversionTest")
+{
+    REQUIRE( (std::is_convertible< G<double>, RGBA<double> >::value) );
+    REQUIRE( (std::is_convertible< RGBA<double>, G<double> >::value) );
+    REQUIRE( (std::is_convertible< G<double>, Complex<double> >::value) );
+    REQUIRE( (std::is_convertible< Complex<double>, G<double> >::value) );
+}
+
+TEST_CASE("PixelTypesTest - RGBATest")
+{
+    REQUIRE( RGBA8( 0, 0, 0, 0 ) == RGBA8() );
+    REQUIRE( RGBA8( 128 ) == RGBA8( 128, 128, 128, 255) );
+    REQUIRE( RGBA8( 128 ) != RGBA8( 128, 128, 128, 0) );
+}
+
+TEST_CASE("PixelTypesTest - RGBACopyTest")
 {
     RGBA8 a( 128 );
     RGBA8 b( a );
-    ASSERT_EQ( a, b );
+    REQUIRE( a == b );
 }
 
-TEST(PixelTypesTest, RGBAMoveTest)
+TEST_CASE("PixelTypesTest - RGBAMoveTest")
 {
     RGBA8 a( 128 );
     RGBA8 b( std::move( a ) );
-    ASSERT_EQ( RGBA8( 128 ), b );
+    REQUIRE( RGBA8( 128 ) == b );
 }
 
-TEST(PixelTypesTest, RGBAAssignTest)
+TEST_CASE("PixelTypesTest - RGBAAssignTest")
 {
     RGBA8 a( 128 );
     RGBA8 b;
     b = a;
-    ASSERT_EQ( a, b );
+    REQUIRE( a == b );
 }
 
-TEST(PixelTypesTest, RGBAMoveAssignTest)
+TEST_CASE("PixelTypesTest - RGBAMoveAssignTest")
 {
     RGBA8 a( 128 );
     RGBA8 b;
     b = std::move( a );
-    ASSERT_EQ( RGBA8( 128 ), b );
+    REQUIRE( RGBA8( 128 ) == b );
 }
 
+TEST_CASE("PixelTypesTest - ComplexConjugateTest")
+{
+    CF a{ 1,  1 };
+    CF b{ 1, -1 };
+    REQUIRE( a.conj() == b );
+}
 
+TEST_CASE("PixelTypesTest - ComplexToGreyscaleTest")
+{
+    {
+        CF c{ 1,  0 };
+        REQUIRE( GF{ c } == GF{ 1 } );
+    }
+
+    {
+        CF c{ 0,  1 };
+        REQUIRE( GF{ c } == GF{ 1 } );
+    }
+}

@@ -1,6 +1,6 @@
 
-// gtest
-#include "gtest/gtest.h"
+// catch
+#include "catch.hpp"
 
 // std
 #include <fstream>
@@ -21,15 +21,17 @@
 #include "ImageView.h"
 #include "Util.h"
 
+using namespace Catch;
 
-TEST(ImageTest, IntTest)
+
+TEST_CASE("ImageTest - IntTest")
 {
     G8Image im( 200, 100 );
-    ASSERT_EQ( im.width(), 200 );
-    ASSERT_EQ( im.height(), 100 );
+    REQUIRE( im.width()  == 200 );
+    REQUIRE( im.height() == 100 );
 }
 
-TEST(ImageTest, FillTest)
+TEST_CASE("ImageTest - FillTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
@@ -37,18 +39,19 @@ TEST(ImageTest, FillTest)
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im[i] == v);
 
-    ASSERT_EQ( result, true );
+    REQUIRE( result );
 }
 
-TEST(ImageTest, ResizeTest)
+TEST_CASE("ImageTest - ResizeTest")
 {
     G8Image im;
-    ASSERT_EQ( im.width(), 0 );
-    ASSERT_EQ( im.height(), 0 );
+    REQUIRE( im.width()  == 0 );
+    REQUIRE( im.height() == 0 );
 
     im.resize( 100, 100 );
-    ASSERT_EQ( im.width(), 100 );
-    ASSERT_EQ( im.height(), 100 );
+    REQUIRE( im.width()  == 100 );
+    REQUIRE( im.height() == 100 );
+    REQUIRE( im.pixel_count() == 100*100 );
 
     G8 v{ 128 };
     fill( im, v );
@@ -56,26 +59,26 @@ TEST(ImageTest, ResizeTest)
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im[i] == v);
 
-    ASSERT_EQ( result, true );
+    REQUIRE( result );
 }
 
-TEST(ImageTest, CopyTest)
+TEST_CASE("ImageTest - CopyTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
 
     G8Image im2{ im };
-    ASSERT_EQ(im.width(), im2.width());
-    ASSERT_EQ(im.height(), im2.height());
+    REQUIRE(im.width()  == im2.width());
+    REQUIRE(im.height() == im2.height());
 
     bool result = true;
     for ( uint32_t i=0; i<im2.pixel_count(); ++i )
         result &= (im2[i] == v);
 
-    ASSERT_EQ( result, true );
+    REQUIRE( result );
 }
 
-TEST(ImageTest, MoveTest)
+TEST_CASE("ImageTest - MoveTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
@@ -86,47 +89,47 @@ TEST(ImageTest, MoveTest)
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im2[i] == v);
 
-    ASSERT_EQ( result, true );
+    REQUIRE( result );
 }
 
-TEST(ImageTest, ConvertTest)
+TEST_CASE("ImageTest - ConvertTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
 
-    DoubleImage im2{ im };
+    GFImage im2{ im };
 
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im2[i] == v);
 
-    ASSERT_EQ( result, true );
+    REQUIRE( result );
 }
 
-TEST(ImageTest, LineOutOfBoundsTest)
+TEST_CASE("ImageTest - LineOutOfBoundsTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
 
-    _ASSERT_DEATH( im.line(101), std::range_error, "line out of range" );
+    _REQUIRE_THROWS_MATCHES( im.line(101), std::range_error, Contains( "line out of range" ) );
 }
 
-TEST(ImageTest, LineTest)
+TEST_CASE("ImageTest - LineTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 2, 2 ), 0);
     int64_t sum1 = pixel_sum(im) / im.pixel_count();
-    ASSERT_EQ(sum1, 0);
+    REQUIRE(sum1 == 0);
 
     G8* p = im.line(1);
     for ( size_t i=0; i<im.width(); ++i )
         *p++ = 128;
 
     int64_t sum2 = pixel_sum(im) / im.pixel_count();
-    ASSERT_EQ(sum2, 64);
+    REQUIRE(sum2 == 64);
 }
 
-TEST(ImageTest, EqualityTest)
+TEST_CASE("ImageTest - EqualityTest")
 {
     G8Image im1;
     std::tie( im1, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
@@ -134,14 +137,14 @@ TEST(ImageTest, EqualityTest)
     G8Image im2;
     std::tie( im2, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
 
-    ASSERT_EQ( im1, im2 );
+    REQUIRE( im1 == im2 );
 
     // modify a pixel
     im2[ Point2<uint32_t>( 100u, 50u ) ] = 100;
-    ASSERT_NE( im1, im2 );
+    REQUIRE( im1 != im2 );
 }
 
-TEST(ImageTest, ApplyTest)
+TEST_CASE("ImageTest - ApplyTest")
 {
     G8Image im; G8 v;
     std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
@@ -151,21 +154,21 @@ TEST(ImageTest, ApplyTest)
     std::tie(min, max) = findImageRange( im );
     G8 scale{ (max-min)==0 ? 255 : 255/(max-min) };
 
-    im.apply( [&min, &scale](auto v){return scale*(v-min);} );
+    im.apply( [&min, &scale](auto i, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = findImageRange( im );
-    ASSERT_EQ(min, 0);
-    ASSERT_EQ(max, 255);
+    REQUIRE(min == 0);
+    REQUIRE(max == 255);
 }
 
 
-TEST(ImageTest, ScaleTest)
+TEST_CASE("ImageTest - ScaleTest")
 {
     std::ifstream is("A_00001_a.tif", std::ios::binary);
-    ASSERT_TRUE(is.is_open());
+    REQUIRE(is.is_open());
 
     std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
-    ASSERT_TRUE(!!loader);
+    REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
@@ -176,27 +179,27 @@ TEST(ImageTest, ScaleTest)
     G16 scale{ (max-min)==0 ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
-    im.apply( [min, scale](auto v){return scale*(v-min);} );
+    im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = findImageRange( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
 
     // write data
     std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
-    ASSERT_TRUE(!!writer);
-    ASSERT_EQ(writer->name(), "image/x-portable-anymap");
+    REQUIRE(!!writer);
+    REQUIRE(writer->name() == "image/x-portable-anymap");
 
     std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
     writer->save( os, im );
 }
 
-TEST(ImageTest, PNMLoadSaveTest)
+TEST_CASE("ImageTest - PNMLoadSaveTest")
 {
     std::ifstream is("A_00001_a.tif", std::ios::binary);
-    ASSERT_TRUE(is.is_open());
+    REQUIRE(is.is_open());
 
     std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
-    ASSERT_TRUE(!!loader);
+    REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
@@ -210,10 +213,10 @@ TEST(ImageTest, PNMLoadSaveTest)
 
     // re-read data, from PNM
     is = std::ifstream("A_00001_a.pgm", std::ios::binary);
-    ASSERT_TRUE(is.is_open());
+    REQUIRE(is.is_open());
 
     loader = ImageLoader::findLoader(is);
-    ASSERT_TRUE(!!loader);
+    REQUIRE(!!loader);
 
     G16Image reloaded;
     loader->load( is, reloaded );
@@ -224,46 +227,46 @@ TEST(ImageTest, PNMLoadSaveTest)
     }
 
     // and check the two images are equal
-    ASSERT_EQ( im, reloaded );
+    REQUIRE( im == reloaded );
 }
 
-TEST(ImageTest, RGBASplitTest)
+TEST_CASE("ImageTest - RGBASplitTest")
 {
     RGBA16Image im{ 200, 200, RGBA16{100, 200, 300, 400} };
     auto [ r, g, b, a ] = split_to_channels(im);
 
     {
         auto [ min, max ] = findImageRange( r );
-        ASSERT_EQ( min, max );
-        ASSERT_EQ( min, 100 );
+        REQUIRE( min == max );
+        REQUIRE( min == 100 );
     }
 
     {
         auto [ min, max ] = findImageRange( g );
-        ASSERT_EQ( min, max );
-        ASSERT_EQ( min, 200 );
+        REQUIRE( min == max );
+        REQUIRE( min == 200 );
     }
 
     {
         auto [ min, max ] = findImageRange( b );
-        ASSERT_EQ( min, max );
-        ASSERT_EQ( min, 300 );
+        REQUIRE( min == max );
+        REQUIRE( min == 300 );
     }
 
     {
         auto [ min, max ] = findImageRange( a );
-        ASSERT_EQ( min, max );
-        ASSERT_EQ( min, 400 );
+        REQUIRE( min == max );
+        REQUIRE( min == 400 );
     }
 }
 
-TEST(ImageTest, RGBAJoinTest)
+TEST_CASE("ImageTest - RGBAJoinTest")
 {
     std::ifstream is("test-mono.tiff", std::ios::binary);
-    ASSERT_TRUE(is.is_open());
+    REQUIRE(is.is_open());
 
     std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
-    ASSERT_TRUE(!!loader);
+    REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
@@ -271,7 +274,7 @@ TEST(ImageTest, RGBAJoinTest)
     G16 min, max, scale;
     std::tie(min, max) = findImageRange( im );
     scale = (max-min)==0 ? G16::max() : G16::max()/(max-min);
-    im.apply( [min, scale](auto v){return scale*(v-min);} );
+    im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     Size outputSize = im.size() - Size(40, 40);
@@ -287,11 +290,79 @@ TEST(ImageTest, RGBAJoinTest)
     writer->save( os, rgba );
 }
 
-TEST(ImageTest, IteratorTest)
+TEST_CASE("ImageTest - IteratorTest")
 {
     G16Image im{ 100, 100 };
     std::iota( std::begin( im ), std::end( im ), 0 );
 
-    for ( auto h : make_range(0).length(im.height()) )
-        ASSERT_EQ( *im.line(h), h*100 );
+    for ( auto h : range_start_at(0).length(im.height()) )
+        REQUIRE( *im.line(h) == h*100 );
+}
+
+TEST_CASE("ImageTest - SimpleTransposeTest")
+{
+    G16Image im{ 100, 200 };
+    std::iota( std::begin( im ), std::end( im ), 0 );
+
+    G16Image transposed{ transpose( im ) };
+    REQUIRE( transposed.width()  == im.height() );
+    REQUIRE( transposed.height() == im.width() );
+
+    for ( auto h : range_start_at(0).length(transposed.height()) )
+        REQUIRE( *transposed.line(h) == h );
+}
+
+TEST_CASE("ImageTest - IdentityTransposeTest")
+{
+    G16Image im{ 100, 200 };
+    std::iota( std::begin( im ), std::end( im ), 0 );
+
+    G16Image transposed{ transpose( im ) };
+    G16Image identity{ transpose( transposed ) };
+
+    auto i = std::cbegin(im);
+    auto e = std::cend(im);
+    auto id = std::cbegin(identity);
+    while ( i!=e )
+    {
+        REQUIRE( *i == *id );
+        ++i; ++id;
+    }
+}
+
+TEST_CASE("ImageTest - SwapQuadrantsTest")
+{
+    GFImage im{ 100, 100 };
+
+    im.apply(
+        [w=im.width(), h=im.height()]( auto i, auto v )
+        {
+            GF x = ( i % w ) < w/2 ? 1 : 2;
+            GF y = ( i / w ) < h/2 ? 1 : 4;
+
+            return x*y;
+        }
+        );
+
+    REQUIRE( saveToFile( "swap_quadrants_input.pgm", im ) );
+
+    Size s{ im.width()/2, im.height()/2 };
+    GFImageView q1{ createImageView( im, { {0, 0}, s } ) };
+    GFImageView q2{ createImageView( im, { {50, 0}, s } ) };
+    GFImageView q3{ createImageView( im, { {0, 50}, s } ) };
+    GFImageView q4{ createImageView( im, { {50, 50}, s } ) };
+
+    REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
+    REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
+    REQUIRE( pixel_sum( q3 ) == 4 * q3.pixel_count() );
+    REQUIRE( pixel_sum( q4 ) == 8 * q4.pixel_count() );
+
+    swap_quadrants( im );
+
+    REQUIRE( saveToFile( "swap_quadrants_output.pgm", im ) );
+
+    REQUIRE( pixel_sum( q1 ) == 8 * q1.pixel_count() );
+    REQUIRE( pixel_sum( q2 ) == 4 * q2.pixel_count() );
+    REQUIRE( pixel_sum( q3 ) == 2 * q3.pixel_count() );
+    REQUIRE( pixel_sum( q4 ) == 1 * q4.pixel_count() );
 }

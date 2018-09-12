@@ -53,7 +53,7 @@ public:
         , data_( w*h, value )
     {}
 
-    /// conversion from another similar image; hideously expensive!
+    /// conversion from another similar image; expensive!
     template < template<typename> class ImageT,
                typename ContainedT,
                typename E = typename std::enable_if<
@@ -72,9 +72,19 @@ public:
     /// after a re-size should be considered invalid
     void resize( uint32_t w, uint32_t h )
     {
+        if ( w == width_ && h == height_ )
+            return;
+
         width_ = w;
         height_ = h;
         data_.resize( pixel_count() );
+    }
+
+    /// resize the image; this is destructive and any data contained
+    /// after a re-size should be considered invalid
+    void resize( const Size& s )
+    {
+        resize( s.width(), s.height() );
     }
 
     /// assignment
@@ -101,10 +111,13 @@ public:
                typename ContainedT,
                typename E = typename std::enable_if<
                    std::is_convertible<ContainedT, T>::value>::type >
-    Image& operator=( const ImageT<ContainedT>& p )
+    Image& operator=( const ImageInterface< ImageT, ContainedT >& p )
     {
-        Image im{ p };
-        swap(im);
+        resize( p.size() );
+
+        // no alternative but to iterate
+        for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
+            this->operator[](i) = p[i];
 
         return *this;
     }
@@ -196,8 +209,9 @@ std::ostream& operator<<( std::ostream& os, const Image<T>& p )
 
 
 /// standard image types
-using G8Image  = Image< G8 >;
-using G16Image = Image< G16 >;
-using DoubleImage = Image< GF >;
-using RGBA8Image = Image< RGBA8 >;
+using G8Image     = Image< G8 >;
+using G16Image    = Image< G16 >;
+using GFImage     = Image< GF >;
+using RGBA8Image  = Image< RGBA8 >;
 using RGBA16Image = Image< RGBA16 >;
+using CFImage     = Image< CF >;

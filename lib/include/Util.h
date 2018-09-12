@@ -14,6 +14,35 @@
 #include <vector>
 
 
+// thin wrapper around underlying contiguous data;
+// provides an encapsulation for passing around
+// blocks of data
+template < typename PointerT,
+           typename E = typename std::enable_if< std::is_pointer<PointerT>::value >::type >
+class DataView
+{
+public:
+    DataView( PointerT d, size_t length ) : d_( d ), length_( length ) {}
+    DataView( DataView&& ) = default;
+    DataView( const DataView& ) = default;
+    DataView& operator=( DataView&& ) = default;
+    DataView& operator=( const DataView& ) = default;
+
+    PointerT data() const { return d_; }
+    size_t length() const { return length_; }
+    size_t size() const { return length_; }
+
+private:
+    PointerT d_;
+    size_t length_;
+};
+
+/// determine if \a v is a power of two
+inline constexpr bool is_pow2( uint64_t v )
+{
+    return v && (v == (v&-v));
+}
+
 /// wrapper to allow using stringstream to construct an
 /// exception message; throw \ta E on destruction.
 template < typename E >
@@ -79,6 +108,18 @@ auto make_range( const T& s )
     return Range< T >(s);
 }
 
+template <typename T>
+auto range_from( const T& s )
+{
+    return make_range(s);
+}
+
+template <typename T>
+auto range_start_at( const T& s )
+{
+    return make_range(s);
+}
+
 /// simple RAII for std::istream multi-char peek
 class Peeker
 {
@@ -90,20 +131,16 @@ public:
         // this will only work if we can read and rewind
         if ( pos_ == -1 || !is.good() )
             Thrower<std::runtime_error>() << "input stream doesn't support input position indicator";
-
-        success_ = true;
     }
 
     ~Peeker()
     {
-        if ( success_ )
-            is_.seekg(pos_);
+        is_.seekg(pos_);
     }
 
 private:
     std::istream& is_;
     std::istream::pos_type pos_ {-1};
-    bool success_ {false};
 };
 
 /// allow safe conversion from unsigned to signed

@@ -1,6 +1,6 @@
 
-// gtest
-#include "gtest/gtest.h"
+// catch
+#include "catch.hpp"
 
 // std
 #include <cstdint>
@@ -14,85 +14,113 @@
 // to be tested
 #include "Util.h"
 
-TEST(UtilTest, ThrowerTest)
+using namespace Catch;
+
+TEST_CASE("UtilTest - IsPow2Test")
+{
+    std::vector< uint16_t > valid;
+    uint16_t p = 1;
+    while ( p < std::numeric_limits<uint16_t>::max()/2 )
+    {
+        valid.push_back( p );
+        p <<= 1;
+    }
+
+    uint16_t v = 0;
+    size_t p_index = 0;
+    while ( p_index < valid.size() && v < std::numeric_limits<uint16_t>::max() )
+    {
+        bool check = is_pow2(v);
+        REQUIRE( check == (v == valid[p_index]) );
+        if ( check )
+            ++p_index;
+
+        ++v;
+    }
+}
+
+TEST_CASE("UtilTest - ThrowerTest")
 {
     auto l = [](){ Thrower<std::runtime_error>() << "die!"; };
 
-    _ASSERT_DEATH( l(), std::runtime_error, "die!" );
+    _REQUIRE_THROWS_MATCHES( l(), std::runtime_error, Contains( "die!" ) );
 }
 
-TEST(UtilTest, RangeFromToTest)
+TEST_CASE("UtilTest - RangeFromToTest")
 {
     std::vector<int> expected{ 1, 2, 3, 4, 5 };
-    ASSERT_EQ( expected, make_range( 1 ).to( 5 ) );
+    REQUIRE( expected == range_from( 1 ).to( 5 ) );
 }
 
-TEST(UtilTest, RangeFromToNegativeTest)
+TEST_CASE("UtilTest - RangeFromToNegativeTest")
 {
     std::vector<int> expected{ -3, -2, -1, 0, 1 };
-    ASSERT_EQ( expected, make_range( -3 ).to( 1 ) );
+    REQUIRE( expected == range_from( -3 ).to( 1 ) );
 }
 
-TEST(UtilTest, RangeFromToBackwardsTest)
+TEST_CASE("UtilTest - RangeFromToBackwardsTest")
 {
     std::vector<int> expected{ 5, 4, 3, 2, 1 };
-    ASSERT_EQ( expected, make_range( 5 ).to( 1 ) );
+    REQUIRE( expected == range_from( 5 ).to( 1 ) );
 }
 
-TEST(UtilTest, RangeFromLengthTest)
+TEST_CASE("UtilTest - RangeFromLengthTest")
 {
     std::vector<int> expected{ 1, 2, 3, 4, 5 };
-    ASSERT_EQ( expected, make_range( 1 ).length( 5 ) );
+    REQUIRE( expected == range_start_at( 1 ).length( 5 ) );
 }
 
-TEST(UtilTest, CheckedUnsignedConversionSameSizeWithinRange)
+TEST_CASE("UtilTest - CheckedUnsignedConversionSameSizeWithinRange")
 {
     int32_t i{ 32 };
     uint32_t u{ 32 };
 
-    ASSERT_EQ(i, checked_unsigned_conversion<decltype(i)>(u));
+    REQUIRE(i == checked_unsigned_conversion<decltype(i)>(u));
 }
 
-TEST(UtilTest, CheckedUnsignedConversionSameSizeOutwithRange)
+TEST_CASE("UtilTest - CheckedUnsignedConversionSameSizeOutwithRange")
 {
     uint32_t u{ std::numeric_limits<uint32_t>::max() };
 
-    _ASSERT_DEATH(checked_unsigned_conversion<int32_t>(u), std::range_error, "unable to convert");
+    _REQUIRE_THROWS_MATCHES(
+        checked_unsigned_conversion<int32_t>(u),
+        std::range_error,
+        Contains( "unable to convert" ) );
 }
 
-TEST(UtilTest, CheckedUnsignedConversionLargerSize)
+TEST_CASE("UtilTest - CheckedUnsignedConversionLargerSize")
 {
     int64_t i{ std::numeric_limits<uint32_t>::max() };
     uint32_t u{ std::numeric_limits<uint32_t>::max() };
 
-    ASSERT_EQ(i, checked_unsigned_conversion<int64_t>(u));
+    REQUIRE(i == checked_unsigned_conversion<int64_t>(u));
 }
 
-TEST(UtilTest, AreAllConvertibleTrue)
+TEST_CASE("UtilTest - AreAllConvertibleTrue")
 {
     bool b{ are_all_convertible<double, int, unsigned int, float>::value };
-    ASSERT_TRUE(b);
+    REQUIRE(b);
 }
 
-TEST(UtilTest, AreAllConvertibleFalse)
+TEST_CASE("UtilTest - AreAllConvertibleFalse")
 {
     bool b{ are_all_convertible<double, int, unsigned int, char>::value };
-    ASSERT_TRUE(b);
+    REQUIRE(b);
 }
 
-TEST(UtilTest, AreAllEqualTrue)
+TEST_CASE("UtilTest - AreAllEqualTrue")
 {
     bool b{ are_all_equal<double, double, double>::value };
-    ASSERT_TRUE(b);
+    REQUIRE(b);
 }
 
-TEST(UtilTest, AreAllEqualFalse)
+TEST_CASE("UtilTest - AreAllEqualFalse")
 {
     bool b{ are_all_equal<double, double, int>::value };
-    ASSERT_FALSE(b);
+    REQUIRE(!b);
 }
 
-TEST(UtilTest, ConvertArray)
+TEST_CASE("UtilTest - ConvertArray")
 {
     std::array<int, 4> i{ {1, 2, 3, 4} };
     auto d{ convert_array_to< double >(i) };
@@ -101,6 +129,6 @@ TEST(UtilTest, ConvertArray)
     for ( decltype(i.size()) j=0; j<i.size(); ++j)
         result &= (i[j] == d[j]);
 
-    ASSERT_EQ(i.size(), d.size());
-    ASSERT_TRUE(result);
+    REQUIRE(i.size() == d.size());
+    REQUIRE(result);
 }

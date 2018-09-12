@@ -14,11 +14,14 @@ public:
     virtual bool canLoad( std::istream& ) const override;
     virtual bool canSave() const override;
     virtual void load( std::istream&, G16Image& ) const override;
-    virtual void load( std::istream&, DoubleImage& ) const override;
+    virtual void load( std::istream&, GFImage& ) const override;
     virtual void load( std::istream&, RGBA16Image& ) const override;
     virtual void save( std::ostream&, const G16Image& ) const override;
-    virtual void save( std::ostream&, const DoubleImage& ) const override;
+    virtual void save( std::ostream&, const GFImage& ) const override;
     virtual void save( std::ostream&, const RGBA16Image& ) const override;
+    virtual void save( std::ostream&, const G16ImageView& ) const override;
+    virtual void save( std::ostream&, const GFImageView& ) const override;
+    virtual void save( std::ostream&, const RGBA16ImageView& ) const override;
 
     virtual std::string name() const override;
     virtual int priority() const override;

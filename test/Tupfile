@@ -1,6 +1,5 @@
 include_rules
 
-GTEST_INCLUDE = -I/usr/include
-GTEST_LIB = -L/usr/lib -lgtest -lpthread
+CATCH_INCLUDE = -I/usr/include
 
-: main.cpp $(OPENPIV_LIB_NAME) |> $(CXX) -o %o %f $(CXXFLAGS) $(OPENPIV_INCLUDE) $(GTEST_INCLUDE) $(OPENPIV_LIB) $(GTEST_LIB) |> test
+: main.cpp $(OPENPIV_LIB_NAME) |> $(CXX) -o %o %f $(CXXFLAGS) $(OPENPIV_INCLUDE) $(CATCH_INCLUDE) $(OPENPIV_LIB) -lpthread |> test
