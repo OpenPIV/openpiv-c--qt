@@ -120,7 +120,10 @@ auto range_start_at( const T& s )
     return make_range(s);
 }
 
-/// simple RAII for std::istream multi-char peek
+/// simple RAII for std::istream multi-char peek; allows caller
+/// to "peek" at multiple bytes and will restore stream upon destruction:
+///
+///
 class Peeker
 {
 public:

@@ -56,8 +56,7 @@ public:
     /// conversion from another similar image; expensive!
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename E = typename std::enable_if<
-                   std::is_convertible<ContainedT, T>::value>::type >
+               typename E = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
     explicit Image( const ImageInterface< ImageT, ContainedT >& p )
         : width_( p.width() )
         , height_( p.height() )
@@ -65,7 +64,7 @@ public:
     {
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
-            this->operator[](i) = p[i];
+            convert( p[i], this->operator[](i) );
     }
 
     /// resize the image; this is destructive and any data contained
@@ -109,15 +108,14 @@ public:
     /// conversion assignment
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename E = typename std::enable_if<
-                   std::is_convertible<ContainedT, T>::value>::type >
+               typename E = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
     Image& operator=( const ImageInterface< ImageT, ContainedT >& p )
     {
         resize( p.size() );
 
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
-            this->operator[](i) = p[i];
+            convert( p[i], this->operator[](i) );
 
         return *this;
     }

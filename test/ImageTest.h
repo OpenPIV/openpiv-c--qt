@@ -152,7 +152,7 @@ TEST_CASE("ImageTest - ApplyTest")
 
     G8 min, max;
     std::tie(min, max) = findImageRange( im );
-    G8 scale{ (max-min)==0 ? 255 : 255/(max-min) };
+    auto scale{ (max == min) ? G8::max() : G8::max()/(max-min) };
 
     im.apply( [&min, &scale](auto i, auto v){return scale*(v-min);} );
 
@@ -176,7 +176,7 @@ TEST_CASE("ImageTest - ScaleTest")
     // scale
     G16 min, max;
     std::tie(min, max) = findImageRange( im );
-    G16 scale{ (max-min)==0 ? G16::max() : G16::max()/(max-min) };
+    auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
@@ -271,9 +271,9 @@ TEST_CASE("ImageTest - RGBAJoinTest")
     G16Image im;
     loader->load( is, im );
 
-    G16 min, max, scale;
+    G16 min, max;
     std::tie(min, max) = findImageRange( im );
-    scale = (max-min)==0 ? G16::max() : G16::max()/(max-min);
+    auto scale = (max == min) ? G16::max() : G16::max()/(max-min);
     im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
@@ -290,6 +290,25 @@ TEST_CASE("ImageTest - RGBAJoinTest")
     writer->save( os, rgba );
 }
 
+// TEST_CASE("ImageTest - ComplexConversionTest")
+// {
+//     G8Image g_im{ 200, 200, 127 };
+//     CFImage c_im{ g_im };
+//     auto [ real, imag ] = split_to_channels( c_im );
+
+//     {
+//         auto [ min, max ] = findImageRange( real );
+//         REQUIRE( min == max );
+//         REQUIRE( min == 127 );
+//     }
+
+//     {
+//         auto [ min, max ] = findImageRange( imag );
+//         REQUIRE( min == max );
+//         REQUIRE( min == 0 );
+//     }
+// }
+
 TEST_CASE("ImageTest - IteratorTest")
 {
     G16Image im{ 100, 100 };
@@ -304,7 +323,11 @@ TEST_CASE("ImageTest - SimpleTransposeTest")
     G16Image im{ 100, 200 };
     std::iota( std::begin( im ), std::end( im ), 0 );
 
+    REQUIRE( saveToFile( "transpose_input.pgm", im ) );
+
     G16Image transposed{ transpose( im ) };
+    REQUIRE( saveToFile( "transpose_output.pgm", transposed ) );
+
     REQUIRE( transposed.width()  == im.height() );
     REQUIRE( transposed.height() == im.width() );
 

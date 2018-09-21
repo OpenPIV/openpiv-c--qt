@@ -28,6 +28,12 @@ struct RGBA
 
     RGBA& operator=(const RGBA&) = default;
     RGBA& operator=(RGBA&&) = default;
+    RGBA& operator=( T v )
+    {
+        std::swap( *this, RGBA(v) );
+        return *this;
+    }
+
     inline bool operator==( const RGBA& rhs ) const
     {
         return std::memcmp(this, &rhs, sizeof(RGBA)) == 0;
@@ -54,23 +60,6 @@ std::ostream& operator<<(std::ostream& os, const RGBA<T>& rgba )
     return os;
 }
 
-// utility to convert to greyscale from rgb
-template < typename To, typename From >
-inline
-typename std::enable_if< std::is_same< From, To >::value && std::is_integral<From>::value && sizeof(From)<64, To >::type
-rgbtogrey( const RGBA<From>& rgb )
-{
-    return (rgb.r*218ULL + rgb.g*732ULL + rgb.b*74ULL) >> 10;
-}
-
-template < typename To, typename From >
-inline
-typename std::enable_if< std::is_floating_point<To>::value, To >::type
-rgbtogrey( const RGBA<From>& rgb )
-{
-    return 0.2126*rgb.r + 0.7152*rgb.g + 0.0722*rgb.b;
-}
-
 /// YUVA packed
 template < typename T >
 struct YUVA
@@ -86,6 +75,12 @@ struct YUVA
 
     YUVA& operator=(const YUVA&) = default;
     YUVA& operator=(YUVA&&) = default;
+    YUVA& operator=( T v )
+    {
+        std::swap( *this, YUVA(v) );
+        return *this;
+    }
+
     inline bool operator==( const YUVA& rhs ) const
     {
         return std::memcmp(this, &rhs, sizeof(YUVA)) == 0;
@@ -123,15 +118,8 @@ public:
     Complex() = default;
     Complex( const Complex& ) = default;
     Complex( Complex&& ) = default;
-    Complex( T r, T i ) : real(r), imag(i){}
+    Complex( T r, T i = T{} ) : real(r), imag(i){}
     Complex( const std::complex<T>& c ) : real(c.real()), imag(c.imag()) {}
-    template <typename U,
-              typename E = typename std::enable_if<
-                  std::is_arithmetic<U>::value &&
-                  std::is_convertible<U, T>::value >::type >
-    Complex( const U& v )
-        : real(v)
-    {}
 
     Complex& operator=( const Complex& c ) = default;
     Complex& operator=( Complex&& c ) = default;
@@ -139,14 +127,101 @@ public:
                typename E = typename std::enable_if< std::is_convertible<U, T>::value >::type >
     Complex& operator=( const Complex<U>& c ) { real = c.real; imag = c.imag; return *this; }
 
-    inline operator T() const { return std::hypot(real, imag); }
+    bool operator==( const Complex& rhs ) const
+    {
+        return real == rhs.real && imag == rhs.imag;
+    }
+    bool operator!=( const Complex& lhs ) const
+    {
+        return !operator==(lhs);
+    }
+
     inline operator std::complex<T>() const { return std::complex<T>(real, imag); }
 
-    inline Complex conj() const { return { real, -imag }; }
+    inline constexpr Complex operator-( const Complex& rhs ) const
+    {
+        return { real - rhs.real, imag - rhs.imag };
+    }
+
+    inline constexpr Complex operator+( const Complex& rhs ) const
+    {
+        return { real + rhs.real, imag + rhs.imag };
+    }
+
+    inline constexpr Complex operator*( const Complex& rhs ) const
+    {
+        const T a{ real }, b{ imag }, c{ rhs.real }, d{ rhs.imag };
+        return { a*c - b*d, b*c + a*d };
+    }
+
+    inline constexpr Complex operator/( const Complex& rhs ) const
+    {
+        const T a{ real }, b{ imag }, c{ rhs.real }, d{ rhs.imag };
+        const T denom{ c*c + d*d };
+        return { (a*c + b*d)/denom, (b*c - a*d)/denom };
+    }
+
+    inline constexpr Complex& operator-=( const Complex& rhs )
+    {
+        *this = operator-(rhs);
+        return *this;
+    }
+
+    inline constexpr Complex& operator+=( const Complex& rhs )
+    {
+        *this = operator+(rhs);
+        return *this;
+    }
+
+    inline constexpr Complex& operator*=( const Complex& rhs )
+    {
+        *this = operator*(rhs);
+        return *this;
+    }
+
+    inline constexpr Complex& operator/=( const Complex& rhs )
+    {
+        *this = operator/(rhs);
+        return *this;
+    }
+
+    inline constexpr Complex conj() const { return { real, -imag }; }
+    inline constexpr T abs() const { return std::sqrt( (*this * conj()).real ); }
 
     T real{};
     T imag{};
 };
+
+template <typename T>
+inline constexpr Complex<T> operator-( const T& lhs, const Complex<T>& rhs )
+{
+    return Complex<T>{ lhs } - rhs;
+}
+
+template <typename T>
+inline constexpr Complex<T> operator+( const T& lhs, const Complex<T>& rhs )
+{
+    return Complex<T>{ lhs } + rhs;
+}
+
+template <typename T>
+inline constexpr Complex<T> operator*( const T& lhs, const Complex<T>& rhs )
+{
+    return Complex<T>{ lhs } * rhs;
+}
+
+template <typename T>
+inline constexpr Complex<T> operator/( const T& lhs, const Complex<T>& rhs )
+{
+    return Complex<T>{ lhs } / rhs;
+}
+
+template <typename T>
+inline constexpr Complex<T> exp( const Complex<T>& c )
+{
+    const T e{ exp( c.real ) };
+    return Complex<T>{ e * std::cos( c.imag ), e * std::sin( c.imag ) };
+}
 
 using C8  = Complex<uint8_t>;
 using C16 = Complex<uint16_t>;
@@ -159,12 +234,6 @@ std::ostream& operator<<(std::ostream& os, const Complex<T>& v )
     char sign{ v.imag<0 ? '-' : '+' };
     os << v.real << sign << v.imag << "j";
     return os;
-}
-
-template < typename To, typename From >
-inline To complextogrey( const Complex<From>& c )
-{
-    return std::hypot(c.real, c.imag);
 }
 
 
@@ -180,31 +249,17 @@ struct G
     G() = default;
     G(const G&) = default;
     G(G&&) = default;
-    G( T v_ ) : v(v_) {}
     template < typename U,
-               typename E = typename std::enable_if< std::is_convertible<U, T>::value >::type >
-    G( U v_) : v(v_) {}
-
-    template < typename U >
-    G( const RGBA<U>& rgb )
-        : v( rgbtogrey< T >( rgb ) )
-    {}
-
-    template < typename U >
-    G( const Complex<U>& c )
-        : v( complextogrey< T >( c ) )
-    {}
+               typename = typename std::enable_if< std::is_convertible< U, T >::value >::type >
+    G( U v_ ) : v(v_) {}
 
     G& operator=(const G&) = default;
     G& operator=(G&&) = default;
-    inline G& operator=(T v_) { v = v_; return *this; }
     template < typename U,
-               typename E = typename std::enable_if< std::is_convertible<U, T>::value >::type >
+               typename = typename std::enable_if< std::is_convertible< U, T >::value >::type >
     inline G& operator=(U v_) { v = v_; return *this; }
 
     inline operator T() const { return v; }
-    inline operator RGBA<T>() const { return RGBA<T>(v); }
-    inline operator Complex<T>() const { return Complex<T>(v, 0); }
 
     T v{};
 };
@@ -241,6 +296,106 @@ struct is_pixeltype<YUVA<T>> : std::true_type {};
 
 template <typename T>
 struct is_pixeltype<Complex<T>> : std::true_type {};
+
+
+// conversion functions between pixel types
+
+template<typename From, typename To,
+         typename E = typename std::enable_if<
+             is_pixeltype<From>::value && is_pixeltype<To>::value
+             >::type >
+class pixeltype_is_convertible_helper
+{
+    template<typename From1, typename To1,
+             typename = decltype( convert( std::declval<From1>(), std::declval<To1&>() ) ) >
+    static std::true_type test(int);
+
+    template<typename, typename>
+    static std::false_type test(...);
+
+public:
+    typedef decltype( test<From, To>(0) ) type;
+};
+
+
+template<typename From, typename To>
+struct pixeltype_is_convertible
+    : public pixeltype_is_convertible_helper<From, To>::type
+{};
+
+// identity case; should be optimized away
+template < typename T >
+inline constexpr
+typename std::enable_if<is_pixeltype<T>::value>::type
+convert( const T& from, T& to )
+{
+    to = from;
+}
+
+// same pixel type but different contained types
+template < template <typename> class PT, typename From, typename To >
+inline constexpr
+typename std::enable_if<std::is_convertible<From, To>::value>::type
+convert( const PT<From>& from, PT<To>& to )
+{
+    to = from;
+}
+
+/// convert from rgb to greyscale
+template < typename From, typename To >
+inline constexpr
+typename
+std::enable_if<
+    std::is_convertible<From, To>::value &&
+    std::is_integral<From>::value &&
+    sizeof(From)<64 >::type
+convert( const RGBA<From>& rgb, G<To>& g )
+{
+    g = (rgb.r*218ULL + rgb.g*732ULL + rgb.b*74ULL) >> 10;
+}
+
+template < typename From, typename To >
+inline constexpr
+typename
+std::enable_if<
+    std::is_convertible<From, To>::value &&
+    std::is_floating_point<From>::value >::type
+convert( const RGBA<From>& rgb, G<To>& g )
+{
+    g = 0.2126*rgb.r + 0.7152*rgb.g + 0.0722*rgb.b;
+}
+
+template < typename From, typename To >
+inline constexpr
+typename
+std::enable_if<
+    std::is_convertible<From, To>::value >::type
+convert( const G<From>& g, RGBA<To>& rgba )
+{
+    rgba = RGBA<To>{ g };
+}
+
+/// convert from complex to greyscale
+template < typename From, typename To >
+inline constexpr
+typename
+std::enable_if<
+    std::is_convertible<From, To>::value >::type
+convert( const Complex<From>& c, G<To>& g )
+{
+    g = std::hypot(c.real, c.imag);
+}
+
+template < typename From, typename To >
+inline constexpr
+typename
+std::enable_if<
+    std::is_convertible<From, To>::value >::type
+convert( const G<From>& g, Complex<To>& c )
+{
+    c = Complex<To>{ g };
+}
+
 
 
 #pragma pack(pop)

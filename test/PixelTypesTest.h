@@ -2,6 +2,9 @@
 // catch
 #include "catch.hpp"
 
+// std
+#include <utility>
+
 // to be tested
 #include "PixelTypes.h"
 
@@ -43,10 +46,13 @@ TEST_CASE("PixelTypesTest - IsPixelTypeTest")
 
 TEST_CASE("PixelTypesTest - PixelConversionTest")
 {
-    REQUIRE( (std::is_convertible< G<double>, RGBA<double> >::value) );
-    REQUIRE( (std::is_convertible< RGBA<double>, G<double> >::value) );
-    REQUIRE( (std::is_convertible< G<double>, Complex<double> >::value) );
-    REQUIRE( (std::is_convertible< Complex<double>, G<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< RGBA<double>, G<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< G<double>, RGBA<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< G<double>, Complex<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< Complex<double>, G<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< G8, Complex<double> >::value) );
+    REQUIRE( (pixeltype_is_convertible< G8, G16 >::value) );
+    REQUIRE( (pixeltype_is_convertible< G8, GF >::value) );
 }
 
 TEST_CASE("PixelTypesTest - RGBATest")
@@ -97,11 +103,11 @@ TEST_CASE("PixelTypesTest - ComplexToGreyscaleTest")
 {
     {
         CF c{ 1,  0 };
-        REQUIRE( GF{ c } == GF{ 1 } );
+        REQUIRE( GF{ c.abs() } == GF{ 1 } );
     }
 
     {
         CF c{ 0,  1 };
-        REQUIRE( GF{ c } == GF{ 1 } );
+        REQUIRE( GF{ c.abs() } == GF{ 1 } );
     }
 }

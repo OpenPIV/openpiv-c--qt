@@ -105,10 +105,10 @@ TEST_CASE("ImageExpressionTest - ScaleTest")
 
     // scale
     auto [min, max] = findImageRange( im );
-    G16 scale{ (max-min)==0 ? G16::max() : G16::max()/(max-min) };
+    auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
-    im = G16{scale} * im - G16{min};
+    im = G16{ scale } * im - G16{ min };
 
     std::tie(min, max) = findImageRange( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
