@@ -51,7 +51,7 @@ TEST_CASE("ImageExpressionTest - NegativeInputTest")
 TEST_CASE("ImageExpressionTest - AddConstTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2( 200, 100 );
     im2 = im + 1_g8;
@@ -60,13 +60,25 @@ TEST_CASE("ImageExpressionTest - AddConstTest")
     REQUIRE(max == 129);
 }
 
+TEST_CASE("ImageExpressionTest - ConjugateTest")
+{
+    CFImage im;
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), CF{ 0, 1 } );
+
+    CFImage im2( 200, 200 );
+    im2 = conj(im);
+
+    for ( decltype(im.pixel_count()) i=0; i<im.pixel_count(); ++i )
+        REQUIRE( im[i] == im2[i].conj() );
+}
+
 TEST_CASE("ImageExpressionTest - AddImageTest")
 {
     G8Image im1; G8 v1;
-    std::tie( im1, v1 ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im1, v1 ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2; G8 v2;
-    std::tie( im2, v2 ) = createAndFill( Size( 200, 100 ), 127);
+    std::tie( im2, v2 ) = createAndFill( Size( 200, 100 ), 127_g8 );
 
     G8Image im3( 200, 100 );
     im3 = im1 + im2;
@@ -79,10 +91,10 @@ TEST_CASE("ImageExpressionTest - AddImageTest")
 TEST_CASE("ImageExpressionTest - AddImageConstTest")
 {
     G8Image im1; G8 v1;
-    std::tie( im1, v1 ) = createAndFill( Size( 200, 100 ), 127);
+    std::tie( im1, v1 ) = createAndFill( Size( 200, 100 ), 127_g8 );
 
     G8Image im2; G8 v2;
-    std::tie( im2, v2 ) = createAndFill( Size( 200, 100 ), 127);
+    std::tie( im2, v2 ) = createAndFill( Size( 200, 100 ), 127_g8 );
 
     G8Image im3( 200, 100 );
     im3 = im1 + im2 + 1_g8;

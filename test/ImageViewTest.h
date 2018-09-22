@@ -19,7 +19,7 @@ using namespace Catch;
 TEST_CASE("ImageViewTest - BasicConstructionTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
     REQUIRE(iv.width() == 100);
@@ -30,7 +30,7 @@ TEST_CASE("ImageViewTest - BasicConstructionTest")
 TEST_CASE("ImageViewTest - ResizeTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
 
     iv.resize(150, 150);
@@ -48,7 +48,7 @@ TEST_CASE("ImageViewTest - ResizeTest")
 TEST_CASE("ImageViewTest - ResizeFailureTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
 
     _REQUIRE_THROWS_MATCHES(
@@ -60,7 +60,7 @@ TEST_CASE("ImageViewTest - ResizeFailureTest")
 TEST_CASE("ImageViewTest - CopyTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
     auto iv2{ iv1 };
@@ -76,7 +76,7 @@ TEST_CASE("ImageViewTest - CopyTest")
 TEST_CASE("ImageViewTest - MoveTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
     auto iv_tmp = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -93,7 +93,7 @@ TEST_CASE("ImageViewTest - MoveTest")
 TEST_CASE("ImageViewTest - EqualityTest")
 {
     G8Image im;
-    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 100)) );
     auto iv2 = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -103,7 +103,7 @@ TEST_CASE("ImageViewTest - EqualityTest")
 TEST_CASE("ImageViewTest - SizeInequalityTest")
 {
     G8Image im;
-    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im, Rect::fromSize(Size(100, 101)) );
     auto iv2 = createImageView( im, Rect::fromSize(Size(100, 100)) );
@@ -113,7 +113,7 @@ TEST_CASE("ImageViewTest - SizeInequalityTest")
 TEST_CASE("ImageViewTest - OriginInequalityTest")
 {
     G8Image im;
-    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im, Rect( {1, 0}, {100, 100}) );
     auto iv2 = createImageView( im, Rect( {0, 0}, {100, 100}) );
@@ -123,9 +123,9 @@ TEST_CASE("ImageViewTest - OriginInequalityTest")
 TEST_CASE("ImageViewTest - ImageInequalityTest")
 {
     G8Image im;
-    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), 0_g8 );
     G8Image im2;
-    std::tie( im2, std::ignore ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im2, std::ignore ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv1 = createImageView( im,  Rect( {0, 0}, {100, 100}) );
     auto iv2 = createImageView( im2, Rect( {0, 0}, {100, 100}) );
@@ -135,7 +135,7 @@ TEST_CASE("ImageViewTest - ImageInequalityTest")
 TEST_CASE("ImageViewTest - ViewTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 100)) );
     REQUIRE( pixel_sum(im) == 0 );
@@ -148,7 +148,7 @@ TEST_CASE("ImageViewTest - ViewTest")
 TEST_CASE("ImageViewTest - OffsetTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
     im[ Point2<uint32_t>{20, 20} ] = 255;
 
     auto iv = createImageView( im, Rect( {20, 20}, {100, 100} ) );
@@ -158,7 +158,7 @@ TEST_CASE("ImageViewTest - OffsetTest")
 TEST_CASE("ImageViewTest - LineTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
     im[ Point2<uint32_t>{20, 20} ] = 255;
 
     auto iv = createImageView( im, Rect( {10, 10}, {100, 100} ) );
@@ -168,7 +168,7 @@ TEST_CASE("ImageViewTest - LineTest")
 TEST_CASE("ImageViewTest - ImageFromImageViewTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 1);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 1_g8 );
 
     auto iv = createImageView( im, Rect::fromSize(Size(100, 50)) );
     GFImage im2{ iv };
@@ -180,7 +180,7 @@ TEST_CASE("ImageViewTest - ImageFromImageViewTest")
 TEST_CASE("ImageViewTest - OutOfBoundsTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
 
     _REQUIRE_THROWS_MATCHES(
         createImageView( im,

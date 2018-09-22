@@ -67,15 +67,13 @@ TEST_CASE("ImageAlgosTest - FFT wrong thread")
 TEST_CASE("ImageAlgosTest - CrossCorrelationTest")
 {
     // load images
-    auto im_a = loadFromFile< GF >( "corr_a.tiff" );
-    auto im_b = loadFromFile< GF >( "corr_b.tiff" );
-    std::cout << "im_a: " << im_a << "\n";
-    std::cout << "im_b: " << im_b << "\n";
+    auto im = loadFromFile< GF >( "corr_a.tiff" );
+    std::cout << "im: " << im << "\n";
 
     // extract a couple of small windows
     Size s{ 128, 128 };
-    auto view_a{ createImageView( im_a, Rect{ {20, 20}, s } ) };
-    auto view_b{ createImageView( im_b, Rect{ {20, 20}, s } ) };
+    auto view_a{ createImageView( im, Rect{ {20, 20}, s } ) };
+    auto view_b{ createImageView( im, Rect{ {30, 30}, s } ) };
 
     FFT fft( view_a.size() );
 
@@ -126,21 +124,21 @@ TEST_CASE("ImageAlgosTest - FFTRealTest")
 TEST_CASE("ImageAlgosTest - AutoCorrelationTest")
 {
     // load images
-    auto im_a = loadFromFile< GF >( "corr_a.tiff" );
-    auto im_b = loadFromFile< GF >( "corr_b.tiff" );
+    auto im = loadFromFile< GF >( "corr_a.tiff" );
 
     std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
 
-    // combine
-    GFImage im{ im_a.width(), im_a.height() };
-    im = im_a + im_b;
-    REQUIRE( saveToFile( "auto-correlate-input.pgm", im) );
+    Size s{ 128, 128 };
+    auto view_a{ createImageView( im, Rect{ {20, 20}, s } ) };
+    auto view_b{ createImageView( im, Rect{ {30, 30}, s } ) };
 
-    // extract a couple of small windows
-    auto view{ createImageView( im, Rect{ {20, 20}, {128, 128} } ) };
+    // combine
+    GFImage data{ view_a.width(), view_a.height() };
+    data = view_a + view_b;
+    REQUIRE( saveToFile( "auto-correlate-input.pgm", data) );
 
     // prepare & corrrelate
-    FFT fft( view.size() );
-    GFImage output{ fft.auto_correlate( view ) };
+    FFT fft( data.size() );
+    GFImage output{ fft.auto_correlate( data ) };
     REQUIRE( saveToFile( "auto-correlate-output.pgm", output) );
 }

@@ -207,6 +207,32 @@ struct mod_op
 
 ///
 template <typename T>
+struct is_imageexpression : std::false_type
+{};
+
+template <typename LE, typename RE, typename OP>
+struct is_imageexpression<ImageExpression<OP, LE, RE>> : std::true_type
+{
+    using type = typename LE::type;
+    using node_type = ImageExpression<OP, LE, RE>;
+};
+
+template <typename T>
+struct is_imageexpression<ConstImageExpressionNode<T>> : std::true_type
+{
+    using type = T;
+    using node_type = ConstImageExpressionNode<T>;
+};
+
+template <typename T, typename OP>
+struct is_imageexpression<UnaryImageExpression<OP, T>> : std::true_type
+{
+    using type = T;
+    using node_type = UnaryImageExpression<OP, T>;
+};
+
+///
+template <typename T>
 struct is_ie_inputtype : std::false_type
 {};
 

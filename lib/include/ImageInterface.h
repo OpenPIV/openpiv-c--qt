@@ -78,9 +78,9 @@ public:
         return *derived();
     }
 
-    // image expression assignment/evaluation
-    template <typename Op, typename LeftExpr, typename RightExpr>
-    DerivedType& operator=(const ImageExpression<Op, LeftExpr, RightExpr>& e)
+    template <typename E>
+    typename std::enable_if< is_imageexpression<E>::value, DerivedType& >::type
+    operator=(const E& e)
     {
         for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
         {
@@ -89,6 +89,7 @@ public:
 
         return *derived();
     }
+
 
     /// iterators
     auto begin() const { return derived()->begin(); }

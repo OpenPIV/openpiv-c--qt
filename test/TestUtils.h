@@ -44,9 +44,12 @@ bool saveToFile( const std::string& filename, const ImageT< ContainedT >& im )
     return true;
 }
 
-static std::tuple< G8Image, G8 > createAndFill( Size s, G8 v )
+template < typename T >
+typename std::enable_if< is_pixeltype<T>::value,
+                         std::tuple< Image<T>, T > >::type
+createAndFill( Size s, T v )
 {
-    G8Image result(s.width(), s.height());
+    Image<T> result(s.width(), s.height());
     fill( result, v );
 
     return std::make_tuple( result, v );

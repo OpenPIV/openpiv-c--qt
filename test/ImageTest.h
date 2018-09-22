@@ -34,7 +34,7 @@ TEST_CASE("ImageTest - IntTest")
 TEST_CASE("ImageTest - FillTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im[i] == v);
@@ -65,7 +65,7 @@ TEST_CASE("ImageTest - ResizeTest")
 TEST_CASE("ImageTest - CopyTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2{ im };
     REQUIRE(im.width()  == im2.width());
@@ -81,7 +81,7 @@ TEST_CASE("ImageTest - CopyTest")
 TEST_CASE("ImageTest - MoveTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2{ std::move(im) };
 
@@ -95,7 +95,7 @@ TEST_CASE("ImageTest - MoveTest")
 TEST_CASE("ImageTest - ConvertTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
 
     GFImage im2{ im };
 
@@ -109,7 +109,7 @@ TEST_CASE("ImageTest - ConvertTest")
 TEST_CASE("ImageTest - LineOutOfBoundsTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     _REQUIRE_THROWS_MATCHES( im.line(101), std::range_error, Contains( "line out of range" ) );
 }
@@ -117,7 +117,7 @@ TEST_CASE("ImageTest - LineOutOfBoundsTest")
 TEST_CASE("ImageTest - LineTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 2, 2 ), 0);
+    std::tie( im, v ) = createAndFill( Size( 2, 2 ), 0_g8 );
     int64_t sum1 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum1 == 0);
 
@@ -132,10 +132,10 @@ TEST_CASE("ImageTest - LineTest")
 TEST_CASE("ImageTest - EqualityTest")
 {
     G8Image im1;
-    std::tie( im1, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im1, std::ignore ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2;
-    std::tie( im2, std::ignore ) = createAndFill( Size( 200, 100 ), 128);
+    std::tie( im2, std::ignore ) = createAndFill( Size( 200, 100 ), 128_g8 );
 
     REQUIRE( im1 == im2 );
 
@@ -147,7 +147,7 @@ TEST_CASE("ImageTest - EqualityTest")
 TEST_CASE("ImageTest - ApplyTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128);
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
     im[Point2<uint32_t>(100, 100)] = 129;
 
     G8 min, max;
