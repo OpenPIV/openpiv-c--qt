@@ -74,7 +74,7 @@ public:
         if ( i > r_.area() )
             Thrower<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
-        Point2<int32_t> bl{ r_.bottomLeft() };
+        const Point2<int32_t> bl{ r_.bottomLeft() };
         auto x = bl[0] + i % r_.width();
         auto y = bl[1] + i / r_.width();
         return im_[ Point2<uint32_t>(x, y) ];
