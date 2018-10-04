@@ -11,6 +11,7 @@
 #include <vector>
 
 // local
+#include "ImageExpression.h"
 #include "ImageInterface.h"
 #include "PixelTypes.h"
 #include "Size.h"
@@ -45,12 +46,22 @@ public:
         , height_( h )
         , data_( w*h )
     {}
+    Image( const Size& s )
+        : width_( s.width() )
+        , height_( s.height() )
+        , data_( s.area() )
+    {}
 
     /// image with default value
     Image( uint32_t w, uint32_t h, T value )
         : width_( w )
         , height_( h )
         , data_( w*h, value )
+    {}
+    Image( const Size& s, T value )
+        : width_( s.width() )
+        , height_( s.height() )
+        , data_( s.area(), value )
     {}
 
     /// conversion from another similar image; expensive!
@@ -65,6 +76,16 @@ public:
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
             convert( p[i], this->operator[](i) );
+    }
+
+    template <typename E,
+              typename = typename std::enable_if_t< is_imageexpression<E>::value > >
+    Image( const E& e )
+    {
+        resize( e.size() );
+
+        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+            operator[](i) = e[i];
     }
 
     /// resize the image; this is destructive and any data contained
@@ -200,7 +221,7 @@ void swap( Image<PixelT>& lhs, Image<PixelT>& rhs )
 template < typename T >
 std::ostream& operator<<( std::ostream& os, const Image<T>& p )
 {
-    os << "Image<" << typeid(T).name() << ">[" << p.width() << ", " << p.height() << "]";
+    os << "Image<" << typeid(T).name() << ">[" << p.width() << ", " << p.height() << "] data @ " << (void*)p.data();
 
     return os;
 }
