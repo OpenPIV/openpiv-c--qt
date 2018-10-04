@@ -47,11 +47,15 @@ public:
     }
     constexpr inline PointT topLeft() const
     {
-        return PointT( bottomLeft_[0], bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
+        return PointT(
+            bottomLeft_[0],
+            bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
     }
     constexpr inline PointT bottomRight() const
     {
-        return PointT( bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()), bottomLeft_[1] );
+        return PointT(
+            bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()),
+            bottomLeft_[1] );
     }
     constexpr inline PointT topRight() const
     {

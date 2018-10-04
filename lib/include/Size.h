@@ -28,9 +28,7 @@ public:
     inline bool operator!=(const Size& rhs) const { return !operator==(rhs); }
 
     constexpr inline type width() const { return data_[0]; }
-    constexpr inline type& width() { return data_[0]; }
     constexpr inline type height() const { return data_[1]; }
-    constexpr inline type& height() { return data_[1]; }
     constexpr inline type area() const { return data_[0] * data_[1]; }
     constexpr inline std::tuple<uint32_t, uint32_t> components() const { return std::make_tuple( data_[0], data_[1] ); }
 
@@ -38,6 +36,9 @@ public:
     Size& operator-=( const Size& rhs );
 
 private:
+    constexpr inline type& width_() { return data_[0]; }
+    constexpr inline type& height_() { return data_[1]; }
+
     std::array<type, 2> data_ {};
 };
 

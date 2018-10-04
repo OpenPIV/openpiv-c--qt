@@ -10,8 +10,8 @@
 
 Size& Size::operator+=( const Size& rhs )
 {
-    width() += rhs.width();
-    height() += rhs.height();
+    width_() += rhs.width();
+    height_() += rhs.height();
     return *this;
 }
 
@@ -20,8 +20,8 @@ Size& Size::operator-=( const Size& rhs )
     if ( rhs.width() > width() || rhs.height() > height() )
         Thrower<std::out_of_range>() << "sizes cannot be negative: " << *this << " - " << rhs;
 
-    width() -= rhs.width();
-    height() -= rhs.height();
+    width_() -= rhs.width();
+    height_() -= rhs.height();
     return *this;
 }
 
