@@ -47,7 +47,7 @@ bool saveToFile( const std::string& filename, const ImageT< ContainedT >& im )
 template < typename T >
 typename std::enable_if< is_pixeltype<T>::value,
                          std::tuple< Image<T>, T > >::type
-createAndFill( Size s, T v )
+createAndFill( const Size& s, T v )
 {
     Image<T> result(s.width(), s.height());
     fill( result, v );

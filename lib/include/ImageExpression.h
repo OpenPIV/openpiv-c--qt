@@ -7,6 +7,7 @@
 
 // local
 #include "PixelTypes.h"
+#include "Size.h"
 
 // forwards
 template < typename ContainedT > class ImageView;
@@ -25,8 +26,9 @@ public:
     ConstImageExpressionNode() = default;
     ConstImageExpressionNode(const ConstImageExpressionNode&) = default;
     ConstImageExpressionNode(ConstImageExpressionNode&&) = default;
-    explicit ConstImageExpressionNode(const T& t)
+    explicit ConstImageExpressionNode(const T& t, const Size& s)
         : t_(t)
+        , size_(s)
     {}
 
     explicit ConstImageExpressionNode(T&& t)
@@ -38,8 +40,14 @@ public:
         return t_;
     }
 
+    inline constexpr Size size() const
+    {
+        return size_;
+    }
+
 private:
     T t_ {};
+    Size size_;
 };
 
 /// wrapper around an image interface, allowing storage of
@@ -62,6 +70,11 @@ public:
     inline constexpr ContainedT operator[](size_t i) const
     {
         return im_[i];
+    }
+
+    inline constexpr Size size() const
+    {
+        return im_.size();
     }
 
 private:
@@ -100,6 +113,11 @@ public:
         return Op::apply(le()[index], re()[index]);
     }
 
+    inline constexpr Size size() const
+    {
+        return le_.size();
+    }
+
 private:
     LeftExpr le_;
     RightExpr re_;
@@ -135,6 +153,11 @@ public:
         return Op::apply(expr()[index]);
     }
 
+    inline constexpr Size size() const
+    {
+        return expr_.size();
+    }
+
 private:
     Expr expr_;
 };
@@ -144,20 +167,71 @@ template <typename T>
 struct conjugate_op
 {};
 
-
 template <typename T>
 struct conjugate_op< Complex<T> >
 {
-    static Complex<T> apply(const Complex<T>& v)
+    constexpr static Complex<T> apply(const Complex<T>& v)
     {
         return v.conj();
     }
 };
 
 template <typename T>
+struct abs_op
+{};
+
+template <typename T>
+struct abs_op< Complex<T> >
+{
+    constexpr static Complex<T> apply(const Complex<T>& v)
+    {
+        return v.abs();
+    }
+};
+
+template <typename T>
+struct abs_sqr_op
+{};
+
+template <typename T>
+struct abs_sqr_op< Complex<T> >
+{
+    constexpr static Complex<T> apply(const Complex<T>& v)
+    {
+        return v.abs_sqr();
+    }
+};
+
+template <typename T>
+struct real_op
+{};
+
+template <typename T>
+struct real_op< Complex<T> >
+{
+    constexpr static T apply(const Complex<T>& v)
+    {
+        return v.real;
+    }
+};
+
+template <typename T>
+struct imag_op
+{};
+
+template <typename T>
+struct imag_op< Complex<T> >
+{
+    constexpr static T apply(const Complex<T>& v)
+    {
+        return v.imag;
+    }
+};
+
+template <typename T>
 struct plus_op
 {
-    static T apply(const T& lhs, const T& rhs)
+    constexpr static T apply(const T& lhs, const T& rhs)
     {
         return lhs + rhs;
     }
@@ -166,12 +240,12 @@ struct plus_op
 template <typename T>
 struct minus_op
 {
-    static T apply(const T& lhs, const T& rhs)
+    constexpr static T apply(const T& lhs, const T& rhs)
     {
         return lhs - rhs;
     }
 
-    static T apply(const T& lhs)
+    constexpr static T apply(const T& lhs)
     {
         return T{-1} * lhs;
     }
@@ -180,7 +254,7 @@ struct minus_op
 template <typename T>
 struct mult_op
 {
-    static T apply(const T& lhs, const T& rhs)
+    constexpr static T apply(const T& lhs, const T& rhs)
     {
         return lhs * rhs;
     }
@@ -189,7 +263,7 @@ struct mult_op
 template <typename T>
 struct div_op
 {
-    static T apply(const T& lhs, const T& rhs)
+    constexpr static T apply(const T& lhs, const T& rhs)
     {
         return lhs / rhs;
     }
@@ -198,7 +272,7 @@ struct div_op
 template <typename T>
 struct mod_op
 {
-    static T apply(const T& lhs, const T& rhs)
+    constexpr static T apply(const T& lhs, const T& rhs)
     {
         return lhs % rhs;
     }
@@ -297,7 +371,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator+(const LE& le, T&& v)
 {
-    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v), le.size() } };
 }
 
 template <
@@ -310,7 +384,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator+(T&& v, const RE& re)
 {
-    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v), re.size() }, REWrapped{ re } };
 }
 
 ///
@@ -339,7 +413,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator-(const LE& le, T&& v)
 {
-    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v), le.size() } };
 }
 
 template <
@@ -352,12 +426,40 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator-(T&& v, const RE& re)
 {
-    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v), re.size() }, REWrapped{ re } };
 }
 
 template < typename ValueT >
 UnaryImageExpression<conjugate_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
 conj(const Image<Complex<ValueT>>& im)
+{
+    return { im };
+}
+
+template < typename ValueT >
+UnaryImageExpression<abs_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
+abs(const Image<Complex<ValueT>>& im)
+{
+    return { im };
+}
+
+template < typename ValueT >
+UnaryImageExpression<abs_sqr_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
+abs_sqr(const Image<Complex<ValueT>>& im)
+{
+    return { im };
+}
+
+template < typename ValueT >
+UnaryImageExpression<real_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
+real(const Image<Complex<ValueT>>& im)
+{
+    return { im };
+}
+
+template < typename ValueT >
+UnaryImageExpression<imag_op<Complex<ValueT>>, ImageInterfaceExpressionNode<Image, Complex<ValueT>>>
+imag(const Image<Complex<ValueT>>& im)
 {
     return { im };
 }
@@ -388,7 +490,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator/(const LE& le, T&& v)
 {
-    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v), le.size() } };
 }
 
 template <
@@ -401,7 +503,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator/(T&& v, const RE& re)
 {
-    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v), re.size() }, REWrapped{ re } };
 }
 
 ///
@@ -430,7 +532,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator*(const LE& le, T&& v)
 {
-    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v), le.size() } };
 }
 
 template <
@@ -443,7 +545,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator*(T&& v, const RE& re)
 {
-    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v), re.size() }, REWrapped{ re } };
 }
 
 ///
@@ -472,7 +574,7 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator%(const LE& le, T&& v)
 {
-    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v) } };
+    return { LEWrapped{ le }, REWrapped{ std::forward<T>(v), le.size() } };
 }
 
 template <
@@ -485,5 +587,5 @@ template <
 ImageExpression<Op, LEWrapped, REWrapped>
 operator%(T&& v, const RE& re)
 {
-    return { LEWrapped{ std::forward<T>(v) }, REWrapped{ re } };
+    return { LEWrapped{ std::forward<T>(v), re.size() }, REWrapped{ re } };
 }

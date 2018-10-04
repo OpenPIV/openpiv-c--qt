@@ -9,7 +9,7 @@
 
 template < template<typename> class ImageT, typename ContainedT >
 std::tuple< ContainedT, ContainedT >
-findImageRange( const ImageInterface< ImageT, ContainedT >& im )
+find_image_range( const ImageInterface< ImageT, ContainedT >& im )
 {
     ContainedT min, max;
     auto p = std::cbegin( im );

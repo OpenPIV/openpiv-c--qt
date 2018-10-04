@@ -151,12 +151,12 @@ TEST_CASE("ImageTest - ApplyTest")
     im[Point2<uint32_t>(100, 100)] = 129;
 
     G8 min, max;
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? G8::max() : G8::max()/(max-min) };
 
     im.apply( [&min, &scale](auto i, auto v){return scale*(v-min);} );
 
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     REQUIRE(min == 0);
     REQUIRE(max == 255);
 }
@@ -175,13 +175,13 @@ TEST_CASE("ImageTest - ScaleTest")
 
     // scale
     G16 min, max;
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
 
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
 
     // write data
@@ -236,25 +236,25 @@ TEST_CASE("ImageTest - RGBASplitTest")
     auto [ r, g, b, a ] = split_to_channels(im);
 
     {
-        auto [ min, max ] = findImageRange( r );
+        auto [ min, max ] = find_image_range( r );
         REQUIRE( min == max );
         REQUIRE( min == 100 );
     }
 
     {
-        auto [ min, max ] = findImageRange( g );
+        auto [ min, max ] = find_image_range( g );
         REQUIRE( min == max );
         REQUIRE( min == 200 );
     }
 
     {
-        auto [ min, max ] = findImageRange( b );
+        auto [ min, max ] = find_image_range( b );
         REQUIRE( min == max );
         REQUIRE( min == 300 );
     }
 
     {
-        auto [ min, max ] = findImageRange( a );
+        auto [ min, max ] = find_image_range( a );
         REQUIRE( min == max );
         REQUIRE( min == 400 );
     }
@@ -272,7 +272,7 @@ TEST_CASE("ImageTest - RGBAJoinTest")
     loader->load( is, im );
 
     G16 min, max;
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     auto scale = (max == min) ? G16::max() : G16::max()/(max-min);
     im.apply( [min, scale](auto i, auto v){return scale*(v-min);} );
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
@@ -290,24 +290,29 @@ TEST_CASE("ImageTest - RGBAJoinTest")
     writer->save( os, rgba );
 }
 
-// TEST_CASE("ImageTest - ComplexConversionTest")
-// {
-//     G8Image g_im{ 200, 200, 127 };
-//     CFImage c_im{ g_im };
-//     auto [ real, imag ] = split_to_channels( c_im );
+TEST_CASE("ImageTest - ComplexConversionTest")
+{
+    auto [ g_im, v ] = createAndFill< G8 >( { 200, 200 }, 127 );
+    CFImage c_im{ g_im };
+    {
+        auto [ min, max ] = find_image_range( c_im );
+        REQUIRE( min == max );
+        REQUIRE( (min == CF{ 127, 0 }) );
+    }
 
-//     {
-//         auto [ min, max ] = findImageRange( real );
-//         REQUIRE( min == max );
-//         REQUIRE( min == 127 );
-//     }
+    auto [ real, imag ] = split_to_channels( c_im );
+    {
+        auto [ min, max ] = find_image_range( real );
+        REQUIRE( min == max );
+        REQUIRE( min == 127 );
+    }
 
-//     {
-//         auto [ min, max ] = findImageRange( imag );
-//         REQUIRE( min == max );
-//         REQUIRE( min == 0 );
-//     }
-// }
+    {
+        auto [ min, max ] = find_image_range( imag );
+        REQUIRE( min == max );
+        REQUIRE( min == 0 );
+    }
+}
 
 TEST_CASE("ImageTest - IteratorTest")
 {
@@ -346,6 +351,27 @@ TEST_CASE("ImageTest - IdentityTransposeTest")
     auto i = std::cbegin(im);
     auto e = std::cend(im);
     auto id = std::cbegin(identity);
+    while ( i!=e )
+    {
+        REQUIRE( *i == *id );
+        ++i; ++id;
+    }
+}
+
+TEST_CASE("ImageTest - ComplexTransposeTest")
+{
+    CFImage im{ 100, 200 };
+    std::generate( std::begin( im ), std::end( im ),
+                   [i=0]() mutable {
+                       return CF{ i, i };
+                   } );
+
+
+    CFImage transposed{ transpose( im ) };
+
+    auto i = std::cbegin(im);
+    auto e = std::cend(im);
+    auto id = std::cbegin(transposed);
     while ( i!=e )
     {
         REQUIRE( *i == *id );

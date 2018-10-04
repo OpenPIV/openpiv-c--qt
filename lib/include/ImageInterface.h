@@ -22,6 +22,16 @@ public:
     inline const DerivedType* derived() const { return static_cast<const DerivedType*>( this ); }
     inline DerivedType* derived() { return static_cast<DerivedType*>( this ); }
 
+    inline void resize( uint32_t w, uint32_t h )
+    {
+        derived()->resize( w, h );
+    }
+
+    inline void resize( const Size& s )
+    {
+        derived()->resize( s.width(), s.height() );
+    }
+
     /// equality
     inline bool operator==(const ImageInterface& rhs) const
     {
@@ -82,6 +92,8 @@ public:
     typename std::enable_if< is_imageexpression<E>::value, DerivedType& >::type
     operator=(const E& e)
     {
+        resize( e.size() );
+
         for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
         {
             operator[](i) = e[i];
@@ -89,7 +101,6 @@ public:
 
         return *derived();
     }
-
 
     /// iterators
     auto begin() const { return derived()->begin(); }
@@ -102,8 +113,6 @@ public:
 template < template<typename> class ImageT, typename ContainedT >
 std::ostream& operator<<( std::ostream& os, const ImageInterface<ImageT, ContainedT>& p )
 {
-    os << typeid(ImageT<ContainedT>).name() << "[" << p.width() << ", " << p.height() << "]";
-
-    return os;
+    return operator<<(os, *p.derived());
 }
 

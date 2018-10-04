@@ -55,7 +55,7 @@ TEST_CASE("ImageExpressionTest - AddConstTest")
 
     G8Image im2( 200, 100 );
     im2 = im + 1_g8;
-    auto [min, max] = findImageRange( im2 );
+    auto [min, max] = find_image_range( im2 );
     REQUIRE(min == 129);
     REQUIRE(max == 129);
 }
@@ -72,6 +72,29 @@ TEST_CASE("ImageExpressionTest - ConjugateTest")
         REQUIRE( im[i] == im2[i].conj() );
 }
 
+TEST_CASE("ImageExpressionTest - ConjugateMultiplyTest")
+{
+    CFImage im;
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), CF{ 2, 1 } );
+
+    CFImage result( 200, 200 );
+    result = im * conj( im );
+
+    for ( decltype(im.pixel_count()) i=0; i<im.pixel_count(); ++i )
+        REQUIRE( (result[i] == CF{ 5, 0 }) );
+}
+
+TEST_CASE("ImageExpressionTest - WriteToSelfTest")
+{
+    CFImage im;
+    std::tie( im, std::ignore ) = createAndFill( Size( 200, 200 ), CF{ 2, 1 } );
+
+    im = im * conj( im );
+
+    for ( decltype(im.pixel_count()) i=0; i<im.pixel_count(); ++i )
+        REQUIRE( (im[i] == CF{ 5, 0 }) );
+}
+
 TEST_CASE("ImageExpressionTest - AddImageTest")
 {
     G8Image im1; G8 v1;
@@ -83,7 +106,7 @@ TEST_CASE("ImageExpressionTest - AddImageTest")
     G8Image im3( 200, 100 );
     im3 = im1 + im2;
 
-    auto [min, max] = findImageRange( im3 );
+    auto [min, max] = find_image_range( im3 );
     REQUIRE(min == 255);
     REQUIRE(max == 255);
 }
@@ -99,7 +122,7 @@ TEST_CASE("ImageExpressionTest - AddImageConstTest")
     G8Image im3( 200, 100 );
     im3 = im1 + im2 + 1_g8;
 
-    auto [min, max] = findImageRange( im3 );
+    auto [min, max] = find_image_range( im3 );
     REQUIRE(min == 255);
     REQUIRE(max == 255);
 }
@@ -116,13 +139,13 @@ TEST_CASE("ImageExpressionTest - ScaleTest")
     loader->load( is, im );
 
     // scale
-    auto [min, max] = findImageRange( im );
+    auto [min, max] = find_image_range( im );
     auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     im = G16{ scale } * im - G16{ min };
 
-    std::tie(min, max) = findImageRange( im );
+    std::tie(min, max) = find_image_range( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
 
     // write data
