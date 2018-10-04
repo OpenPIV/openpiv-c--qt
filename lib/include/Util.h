@@ -4,38 +4,90 @@
 // std
 #include <cmath>
 #include <limits>
+#include <initializer_list>
 #include <istream>
 #include <numeric>
 #include <experimental/optional>
 #include <sstream>
+#include <thread>
 #include <typeinfo>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
+template <typename T>
+void* typed_memcpy( void* dest, const T* src, size_t count )
+{
+    return memcpy( dest, src, count*sizeof( T ) );
+}
 
-// thin wrapper around underlying contiguous data;
-// provides an encapsulation for passing around
-// blocks of data
-template < typename PointerT,
-           typename E = typename std::enable_if< std::is_pointer<PointerT>::value >::type >
-class DataView
+template <typename E,
+          typename = typename std::enable_if_t< std::is_enum<E>::value >>
+class EnumHelper
 {
 public:
-    DataView( PointerT d, size_t length ) : d_( d ), length_( length ) {}
-    DataView( DataView&& ) = default;
-    DataView( const DataView& ) = default;
-    DataView& operator=( DataView&& ) = default;
-    DataView& operator=( const DataView& ) = default;
+    using underlying_t = typename std::underlying_type<E>::type;
+    using map_t = std::unordered_map< E, std::string >;
 
-    PointerT data() const { return d_; }
-    size_t length() const { return length_; }
-    size_t size() const { return length_; }
+    static map_t& storage()
+    {
+        static map_t storage_;
+        return storage_;
+    }
 
-private:
-    PointerT d_;
-    size_t length_;
+    static bool init(std::initializer_list<std::pair<E, std::string>> l)
+    {
+        for ( auto i : l )
+            storage().emplace( std::move( i ) );
+
+        return true;
+    }
 };
+
+#define DECLARE_ENUM_HELPER( E, ... )                                   \
+    static const auto e##EnumHelper__ = EnumHelper<E>::init( __VA_ARGS__ ); \
+    std::ostream& operator<<( std::ostream& os, E e )                   \
+    {                                                                   \
+        if ( EnumHelper<E>::storage().empty() )                         \
+            os << EnumHelper<E>::underlying_t(e);                       \
+        else                                                            \
+            os << EnumHelper<E>::storage().at(e);                       \
+        return os;                                                      \
+    }
+
+/// simple entry/exit logger with indent
+class EntryExitLogger
+{
+private:
+    static thread_local uint8_t indent;
+
+    std::ostream& os_;
+    std::string s_;
+    std::thread::id id_;
+
+public:
+    EntryExitLogger( std::ostream& os, const std::string& s )
+        : os_( os ),
+          s_( s ),
+          id_( std::this_thread::get_id() )
+    {
+        ++indent;
+        os_ << std::string( indent, '>' ) << " (" << id_ << ") " << s_ << "\n";
+    }
+
+    ~EntryExitLogger()
+    {
+        os_ << std::string( indent, '<' ) << " (" << id_ << ") " << s_ << "\n";
+        --indent;
+    }
+};
+
+#if defined(DEBUG)
+# define DECLARE_ENTRY_EXIT EntryExitLogger __func__##EntryExitLogger__( std::cout, __func__ );
+#else
+# define DECLARE_ENTRY_EXIT
+#endif
 
 /// determine if \a v is a power of two
 inline constexpr bool is_pow2( uint64_t v )
@@ -168,7 +220,8 @@ typename std::enable_if<
 checked_unsigned_conversion(const From& v)
 {
     if (v>std::numeric_limits<To>::max())
-        Thrower<std::range_error>() << "unable to convert " << v << " to " << typeid(To).name() << " as value would be truncated";
+        Thrower<std::range_error>() << "unable to convert " << v
+                                    << " to " << typeid(To).name() << " as value would be truncated";
 
     return static_cast<To>(v);
 }
