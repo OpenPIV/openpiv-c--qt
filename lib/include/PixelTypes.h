@@ -118,8 +118,11 @@ public:
     Complex() = default;
     Complex( const Complex& ) = default;
     Complex( Complex&& ) = default;
-    Complex( T r, T i = T{} ) : real(r), imag(i){}
-    Complex( const std::complex<T>& c ) : real(c.real()), imag(c.imag()) {}
+
+    template < typename U,
+               typename E = typename std::enable_if< std::is_convertible<U, T>::value >::type >
+    constexpr Complex( U r, U i = U{} ) : real(r), imag(i){}
+    constexpr Complex( const std::complex<T>& c ) : real(c.real()), imag(c.imag()) {}
 
     Complex& operator=( const Complex& c ) = default;
     Complex& operator=( Complex&& c ) = default;
@@ -135,6 +138,12 @@ public:
     {
         return !operator==(lhs);
     }
+    // mathematical comparison operators; complex cannot be
+    // compared so use abs value for sorting
+    bool operator>( const Complex& rhs ) const { return abs_sqr() > rhs.abs_sqr(); }
+    bool operator<( const Complex& rhs ) const { return abs_sqr() < rhs.abs_sqr(); }
+    bool operator>=( const Complex& rhs ) const { return abs_sqr() >= rhs.abs_sqr(); }
+    bool operator<=( const Complex& rhs ) const { return abs_sqr() <= rhs.abs_sqr(); }
 
     inline operator std::complex<T>() const { return std::complex<T>(real, imag); }
 
@@ -186,7 +195,8 @@ public:
     }
 
     inline constexpr Complex conj() const { return { real, -imag }; }
-    inline constexpr T abs() const { return std::sqrt( (*this * conj()).real ); }
+    inline constexpr T abs() const { return std::sqrt( abs_sqr() ); }
+    inline constexpr T abs_sqr() const { return (*this * conj()).real; }
 
     T real{};
     T imag{};
@@ -231,8 +241,8 @@ using CF  = Complex<double>;
 template < typename T >
 std::ostream& operator<<(std::ostream& os, const Complex<T>& v )
 {
-    char sign{ v.imag<0 ? '-' : '+' };
-    os << v.real << sign << v.imag << "j";
+    static const char* sign[] = { " ", " +" };
+    os << v.real << sign[ v.imag< 0 ? 0 : 1 ] << v.imag << "j";
     return os;
 }
 
@@ -324,10 +334,10 @@ struct pixeltype_is_convertible
 {};
 
 // identity case; should be optimized away
-template < typename T >
+template < template <typename> class PT, typename T >
 inline constexpr
-typename std::enable_if<is_pixeltype<T>::value>::type
-convert( const T& from, T& to )
+typename std::enable_if<is_pixeltype<PT<T>>::value>::type
+convert( const PT<T>& from, PT<T>& to )
 {
     to = from;
 }
@@ -383,7 +393,7 @@ std::enable_if<
     std::is_convertible<From, To>::value >::type
 convert( const Complex<From>& c, G<To>& g )
 {
-    g = std::hypot(c.real, c.imag);
+    g = c.abs();
 }
 
 template < typename From, typename To >
