@@ -5,6 +5,7 @@
 
 // to be tested
 #include "PointTest.h"
+#include "RangeTest.h"
 #include "SizeTest.h"
 #include "RectTest.h"
 #include "ImageTest.h"
