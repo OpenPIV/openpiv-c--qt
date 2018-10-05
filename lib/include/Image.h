@@ -213,8 +213,8 @@ public:
     }
 
 private:
-    uint32_t width_;
-    uint32_t height_;
+    uint32_t width_ = {};
+    uint32_t height_ = {};
     DataType data_;
 };
 
