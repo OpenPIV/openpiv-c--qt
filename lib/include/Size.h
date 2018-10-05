@@ -14,16 +14,39 @@ public:
     using type = uint32_t;
 
     Size() = default;
-    Size( const Size& ) = default;
-    Size( Size&& ) = default;
+
+    constexpr Size( const Size& rhs )
+    {
+        data_[0] = rhs.data_[0];
+        data_[1] = rhs.data_[1];
+    }
+
+    constexpr Size( Size&& rhs )
+    {
+        data_ = std::move( rhs.data_ );
+    }
+
     constexpr Size( type w, type h )
     {
         data_[0] = w;
         data_[1] = h;
     }
 
-    Size& operator=( const Size& ) = default;
-    Size& operator=( Size&& ) = default;
+    Size& operator=( const Size& rhs )
+    {
+        Size s( rhs );
+        *this = std::move( s );
+
+        return *this;
+    }
+
+    Size& operator=( Size&& rhs )
+    {
+        data_ = std::move( rhs.data_ );
+
+        return *this;
+    }
+
     inline bool operator==(const Size& rhs) const { return data_ == rhs.data_; }
     inline bool operator!=(const Size& rhs) const { return !operator==(rhs); }
 

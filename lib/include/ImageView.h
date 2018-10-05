@@ -104,7 +104,7 @@ public:
         bool operator!=(const const_iterator& rhs) const { return !operator==(rhs); }
         const PixelType& operator*() const
         {
-            if ( i_ < 0 || i_ >= iv_.pixel_count() )
+            if ( i_ < 0 || i_ >= checked_unsigned_conversion<IndexT>(iv_.pixel_count()) )
                 Thrower< std::out_of_range >()
                     << "attempting to dereference out of range iterator: "
                     << i_ << ", " << iv_.pixel_count();

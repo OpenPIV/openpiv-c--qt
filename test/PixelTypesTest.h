@@ -46,13 +46,27 @@ TEST_CASE("PixelTypesTest - IsPixelTypeTest")
 
 TEST_CASE("PixelTypesTest - PixelConversionTest")
 {
-    REQUIRE( (pixeltype_is_convertible< RGBA<double>, G<double> >::value) );
-    REQUIRE( (pixeltype_is_convertible< G<double>, RGBA<double> >::value) );
-    REQUIRE( (pixeltype_is_convertible< G<double>, Complex<double> >::value) );
-    REQUIRE( (pixeltype_is_convertible< Complex<double>, G<double> >::value) );
-    REQUIRE( (pixeltype_is_convertible< G8, Complex<double> >::value) );
-    REQUIRE( (pixeltype_is_convertible< G8, G16 >::value) );
-    REQUIRE( (pixeltype_is_convertible< G8, GF >::value) );
+    SECTION( "self" )
+    {
+        REQUIRE( (pixeltype_is_convertible< GF, GF >::value) );
+        REQUIRE( (pixeltype_is_convertible< G8, G8 >::value) );
+        REQUIRE( (pixeltype_is_convertible< G16, G16 >::value) );
+        REQUIRE( (pixeltype_is_convertible< CF, CF >::value) );
+        REQUIRE( (pixeltype_is_convertible< RGBA<double>, RGBA<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< RGBA8, RGBA8 >::value) );
+        REQUIRE( (pixeltype_is_convertible< RGBA16, RGBA16 >::value) );
+    }
+
+    SECTION( "convertion" )
+    {
+        REQUIRE( (pixeltype_is_convertible< RGBA<double>, G<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< G<double>, RGBA<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< G<double>, Complex<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< Complex<double>, G<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< G8, Complex<double> >::value) );
+        REQUIRE( (pixeltype_is_convertible< G8, G16 >::value) );
+        REQUIRE( (pixeltype_is_convertible< G8, GF >::value) );
+    }
 }
 
 TEST_CASE("PixelTypesTest - RGBATest")

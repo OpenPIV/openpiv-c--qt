@@ -88,20 +88,6 @@ public:
         return *derived();
     }
 
-    template <typename E>
-    typename std::enable_if< is_imageexpression<E>::value, DerivedType& >::type
-    operator=(const E& e)
-    {
-        resize( e.size() );
-
-        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
-        {
-            operator[](i) = e[i];
-        }
-
-        return *derived();
-    }
-
     /// iterators
     auto begin() const { return derived()->begin(); }
     auto begin() { return derived()->begin(); }

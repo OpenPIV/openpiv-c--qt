@@ -341,7 +341,7 @@ struct is_ie_inputtype<ConstImageExpressionNode<T>> : std::true_type
 template <typename T, typename OP>
 struct is_ie_inputtype<UnaryImageExpression<OP, T>> : std::true_type
 {
-    using type = T;
+    using type = typename T::type;
     using node_type = UnaryImageExpression<OP, T>;
 };
 

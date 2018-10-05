@@ -244,9 +244,11 @@ ReturnT& swap_quadrants( ImageInterface< ImageT, ContainedT >& in )
 
         for ( uint32_t w=0; w<width/2; ++w )
         {
-            ContainedT tmp = i[w];
-            i[w] = o[ (w + width/2) % width ];
-            o[ (w + width/2) % width ] = tmp;
+            std::swap( i[w], o[ (w + width/2) % width ] );
+
+            // ContainedT tmp = i[w];
+            // i[w] = o[ (w + width/2) % width ];
+            // o[ (w + width/2) % width ] = tmp;
         }
     }
 

@@ -158,10 +158,21 @@ TEST_CASE("ImageViewTest - OffsetTest")
 TEST_CASE("ImageViewTest - LineTest")
 {
     G8Image im; uint8_t v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 0_g8 );
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 127_g8 );
+
+    // set a single pixel
     im[ Point2<uint32_t>{20, 20} ] = 255;
 
     auto iv = createImageView( im, Rect( {10, 10}, {100, 100} ) );
+
+    // check line pointers all match
+    for (decltype(iv.height()) h=0; h<iv.height(); ++h)
+    {
+        REQUIRE( iv.line(h) == im.line(h + 10) + 10 );
+        REQUIRE( iv.line(h) + iv.width() - 1 == im.line(h + 10) + 10 + iv.width() - 1 );
+        REQUIRE( *(iv.line(h) + iv.width() - 1) == *(im.line(h + 10) + 10 + iv.width() - 1) );
+    }
+
     REQUIRE( *(iv.line(10) + 10) == *(im.line(20) + 20) );
 }
 
@@ -187,5 +198,24 @@ TEST_CASE("ImageViewTest - OutOfBoundsTest")
                          Rect::fromSize(Size(250, 250)) ),
         std::out_of_range,
         Contains( "not contained within image" ) );
+}
+
+TEST_CASE("ImageViewTest - ConvertionTest")
+{
+    G8Image im; uint8_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 127_g8 );
+
+    auto view = createImageView( im, { {50, 50}, {100, 100} } );
+    CFImage c( view.size() );
+    c = view;
+
+    REQUIRE( c.width() == view.width() );
+    REQUIRE( c.height() == view.height() );
+    REQUIRE( c.pixel_count() == view.pixel_count() );
+    bool result = true;
+    for ( uint32_t i=0; i<c.pixel_count(); ++i )
+        result &= (c[i] == CF{ v });
+
+    REQUIRE( result == true );
 }
 

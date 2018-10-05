@@ -15,22 +15,42 @@
 
 TEST_CASE("ImageAlgosTest - FFTTest")
 {
+    // generate sinusoidal pattern
     GFImage im{ 256, 256 };
-    fill( im, []( uint32_t w, uint32_t h ){ return (w/2)%2 ? 1.0 : 0.0; } );
+    fill( im, []( uint32_t w, uint32_t h ){ return 128 * std::sin( 2*M_PI*w/8 + 2*M_PI*h/8 ); } );
 
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
-    {
-        std::fstream os( "fft-input.pgm", std::ios_base::trunc | std::ios_base::out );
-        writer->save( os, im );
-    }
+    // save
+    REQUIRE( saveToFile( "fft-input.pgm", im ) );
 
+    // transform
     FFT fft( im.size() );
-    GFImage output{ fft.transform( im ) };
+    CFImage output{ fft.transform( im, Direction::FORWARD ) };
 
-    {
-        std::fstream os( "fft-output.pgm", std::ios_base::trunc | std::ios_base::out );
-        writer->save( os, output );
-    }
+    REQUIRE( saveToFile( "fft-output.pgm", GFImage( output ) ) );
+
+    // two peaks; relies on quadrants being unswapped i.e. zero
+    // frequency is at edges
+    for ( uint32_t y=0; y<output.height(); ++y )
+        for ( uint32_t x=0; x<output.width(); ++x )
+            if ( x == 32 && y == 32 )
+            {
+                auto p = Point2<uint32_t>{ x, y };
+                std::cout << p << ": " << output[ p ] << "\n";
+                REQUIRE( (output[ p ] != CF{}) );
+            }
+            else if ( x == 224 && y == 224 )
+            {
+                auto p = Point2<uint32_t>{ x, y };
+                std::cout << p << ": " << output[ p ] << "\n";
+                REQUIRE( (output[ p ] != CF{}) );
+            }
+            else
+                REQUIRE( (output[ Point2<uint32_t>{ x, y } ].abs_sqr()) == Approx(0) );
+
+    // inverse transform
+    GFImage g{ real( fft.transform( output, Direction::REVERSE ) ) };
+
+    REQUIRE( saveToFile( "fft-reverse.pgm", g) );
 }
 
 
@@ -68,57 +88,21 @@ TEST_CASE("ImageAlgosTest - CrossCorrelationTest")
 {
     // load images
     auto im = loadFromFile< GF >( "corr_a.tiff" );
-    std::cout << "im: " << im << "\n";
 
     // extract a couple of small windows
     Size s{ 128, 128 };
     auto view_a{ createImageView( im, Rect{ {20, 20}, s } ) };
-    auto view_b{ createImageView( im, Rect{ {30, 30}, s } ) };
+    auto view_b{ createImageView( im, Rect{ {20, 25}, s } ) };
 
-    FFT fft( view_a.size() );
-
-    // inspect individual FFTs
-    {
-        REQUIRE( saveToFile( "cross-correlate-a-input.pgm", view_a ) );
-
-        auto [real, imag] = split_to_channels( fft.transform( view_a ) );
-        REQUIRE( saveToFile( "cross-correlate-a-real.pgm", real ) );
-        REQUIRE( saveToFile( "cross-correlate-a-imag.pgm", imag ) );
-    }
-
-    {
-        REQUIRE( saveToFile( "cross-correlate-b-input.pgm", view_b ) );
-
-        auto [real, imag] = split_to_channels( fft.transform( view_b ) );
-        REQUIRE( saveToFile( "cross-correlate-b-real.pgm", real ) );
-        REQUIRE( saveToFile( "cross-correlate-b-imag.pgm", imag ) );
-    }
+    REQUIRE( saveToFile( "cross-correlate-a-input.pgm", view_a ) );
+    REQUIRE( saveToFile( "cross-correlate-b-input.pgm", view_b ) );
 
     // prepare & correlate
+    FFT fft( view_a.size() );
     GFImage output{ fft.cross_correlate( view_a, view_b ) };
 
     // write output
     REQUIRE( saveToFile( "cross-correlate-output.pgm", output ) );
-}
-
-TEST_CASE("ImageAlgosTest - FFTRealTest")
-{
-    // load images
-    auto im_a = loadFromFile< GF >( "corr_a.tiff" );
-    std::cout << "im_a: " << im_a << "\n";
-
-    // extract a couple of small windows
-    Size s{ 128, 128 };
-    auto view_a{ createImageView( im_a, Rect{ {20, 20}, s } ) };
-
-    REQUIRE( saveToFile( "fft_corr_a_input.pgm", view_a ) );
-
-    // prepare & corrrelate
-    FFT fft( view_a.size() );
-    GFImage output{ fft.transform( view_a ) };
-
-    // write output
-    REQUIRE( saveToFile( "fft_corr_a_output.pgm", output) );
 }
 
 TEST_CASE("ImageAlgosTest - AutoCorrelationTest")
@@ -126,11 +110,10 @@ TEST_CASE("ImageAlgosTest - AutoCorrelationTest")
     // load images
     auto im = loadFromFile< GF >( "corr_a.tiff" );
 
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
-
+    // extract a couple of small windows
     Size s{ 128, 128 };
     auto view_a{ createImageView( im, Rect{ {20, 20}, s } ) };
-    auto view_b{ createImageView( im, Rect{ {30, 30}, s } ) };
+    auto view_b{ createImageView( im, Rect{ {20, 25}, s } ) };
 
     // combine
     GFImage data{ view_a.width(), view_a.height() };
@@ -142,3 +125,48 @@ TEST_CASE("ImageAlgosTest - AutoCorrelationTest")
     GFImage output{ fft.auto_correlate( data ) };
     REQUIRE( saveToFile( "auto-correlate-output.pgm", output) );
 }
+
+TEST_CASE("ImageAlgosTest - FFTRealTest")
+{
+    // load images
+    auto im_a = loadFromFile< GF >( "corr_a.tiff" );
+    std::cout << "im_a: " << im_a << "\n";
+
+    // extract a couple of small windows
+    Size s{ 128, 128 };
+    auto view_a{ createImageView( im_a, Rect{ {20, 20}, s } ) };
+    auto view_b{ createImageView( im_a, Rect{ {20, 25}, s } ) };
+
+    // combine
+    GFImage data{ s };
+    data = view_a + view_b;
+
+    REQUIRE( saveToFile( "fft_corr_a_input.pgm", data ) );
+
+    // transform
+    FFT fft( data.size() );
+    CFImage output;
+    output = fft.transform( data, Direction::FORWARD );
+
+    // remove DC
+    output[ {0, 0} ] = CF{};
+
+    // transformed
+    swap_quadrants( output );
+    REQUIRE( saveToFile( "fft_corr_a_fourier.pgm", GFImage{ output }) );
+
+    // complex conjugate
+    for ( uint32_t h=0; h<output.height(); ++h )
+        for ( uint32_t w=0; w<output.width(); ++w )
+            output[ {w, h} ] = output[ {w, h} ] * output[ {w, h} ].conj();
+
+    REQUIRE( saveToFile( "fft_corr_a_conj.pgm", GFImage{ output }) );
+
+    // inverse
+    output = fft.transform( GFImage( output ), Direction::REVERSE );
+    swap_quadrants( output );
+
+    // write output
+    REQUIRE( saveToFile( "fft_corr_a_output.pgm", GFImage{ output }) );
+}
+

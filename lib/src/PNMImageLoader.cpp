@@ -304,7 +304,7 @@ void PNMImageLoader::save( std::ostream& os, const G16ImageView& im ) const
 template < template <typename> class ImageT >
 void save_( std::ostream& os, const ImageInterface< ImageT, GF >& im )
 {
-    auto [min, max] = findImageRange( im );
+    auto [min, max] = find_image_range( im );
     auto range = max - min;
     if ( max == min )
     {

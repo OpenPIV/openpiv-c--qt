@@ -75,17 +75,17 @@ public:
     {
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
-            convert( p[i], this->operator[](i) );
+            convert( p[i], data_[i] );
     }
 
     template <typename E,
               typename = typename std::enable_if_t< is_imageexpression<E>::value > >
-    Image( const E& e )
+    explicit Image( const E& e )
     {
         resize( e.size() );
 
         for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
-            operator[](i) = e[i];
+            data_[i] = e[i];
     }
 
     /// resize the image; this is destructive and any data contained
@@ -106,6 +106,7 @@ public:
     {
         resize( s.width(), s.height() );
     }
+
 
     /// assignment
     Image& operator=(const Image& rhs)
@@ -129,21 +130,28 @@ public:
     /// conversion assignment
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename E = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
+               typename = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
     Image& operator=( const ImageInterface< ImageT, ContainedT >& p )
     {
         resize( p.size() );
 
         // no alternative but to iterate
         for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
-            convert( p[i], this->operator[](i) );
+            convert( p[i], data_[i] );
 
         return *this;
     }
 
-    // import operator= from ImageInterface
-    using ImageInterface< Image, T >::operator=;
+    template <typename E,
+              typename = typename std::enable_if< is_imageexpression<E>::value >::type >
+    Image& operator=(const E& e)
+    {
+        resize( e.size() );
+        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+            data_[i] = e[i];
 
+        return *this;
+    }
 
     /// equality
     inline bool operator==(const Image& rhs) const

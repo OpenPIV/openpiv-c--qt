@@ -28,24 +28,28 @@ TEST_CASE("ImageExpressionTest - ImageExpressionInputTest")
 {
     auto ie = ImageExpression<plus_op<T_::type>, T_, T_>{ T_{}, T_{} };
     REQUIRE( is_ie_inputtype<decltype(ie)>::value );
+    REQUIRE( is_imageexpression<decltype(ie)>::value );
 }
 
 TEST_CASE("ImageExpressionTest - ImageInputTest")
 {
     using type = G8Image;
     REQUIRE( is_ie_inputtype<type>::value );
+    REQUIRE( !is_imageexpression<type>::value );
 }
 
 TEST_CASE("ImageExpressionTest - ImageViewInputTest")
 {
     using type = ImageView<G8>;
     REQUIRE( is_ie_inputtype<type>::value );
+    REQUIRE( !is_imageexpression<type>::value );
 }
 
 TEST_CASE("ImageExpressionTest - NegativeInputTest")
 {
     using type = uint32_t;
     REQUIRE( !is_ie_inputtype<type>::value );
+    REQUIRE( !is_imageexpression<type>::value );
 }
 
 TEST_CASE("ImageExpressionTest - AddConstTest")
