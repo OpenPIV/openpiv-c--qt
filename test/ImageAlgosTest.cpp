@@ -13,6 +13,8 @@
 #include "ImageLoader.h"
 #include "ImageUtils.h"
 
+using namespace Catch;
+
 TEST_CASE("ImageAlgosTest - FFTTest")
 {
     // generate sinusoidal pattern
@@ -45,7 +47,11 @@ TEST_CASE("ImageAlgosTest - FFTTest")
                 REQUIRE( (output[ p ] != CF{}) );
             }
             else
-                REQUIRE( (output[ Point2<uint32_t>{ x, y } ].abs_sqr()) == Approx(0) );
+            {
+                auto p = Point2<uint32_t>{ x, y };
+                std::cout << p << ": " << output[ p ] << "\n";
+                REQUIRE( (output[ p ].abs_sqr()) == Approx(0).margin(1e-9) );
+            }
 
     // inverse transform
     GFImage g{ real( fft.transform( output, Direction::REVERSE ) ) };

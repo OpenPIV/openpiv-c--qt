@@ -19,6 +19,7 @@
 #include "ImageStats.h"
 #include "ImageUtils.h"
 #include "ImageView.h"
+#include "Range.h"
 #include "Util.h"
 
 using namespace Catch;

@@ -7,8 +7,9 @@
 #include <iostream>
 
 // local
-#include "Util.h"
 #include "Point.h"
+#include "Size.h"
+#include "Util.h"
 
 /// basic 2D integer rectangle defined in terms of an origin (bottom right) and size
 class Rect

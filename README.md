@@ -7,8 +7,12 @@ the implementation depends on a modern C++17 compliant compiler.
 Build
 -----
 
-Building currently uses TUP (https://github.com/gittup/tup): a cross-platform rules
-based build system. TUP has been chosen for it's speed and simplicity.
+Building uses cmake; to build (linux example):
+
+* mkdir build
+* cd build
+* cmake ..
+* make
 
 Dependencies
 ------------
@@ -30,15 +34,15 @@ TODO
   * utilities
     * split RGB to 4xgreyscale - done
     * join 4xgreyscale to RGB - done
-    * split complex to planes
-    * create complex from planes
+    * split complex to planes - done
+    * create complex from planes - done
   * add ImageInterface data iterators - done
   * remove data() method from ImageInterface, ImageView - done
   * allow ImageView to be non-const
 * algorithms
   * transpose - done
-  * normalize
-  * FFT
+  * normalize - done
+  * FFT - done
     * spectral correlation
     * optimize
   * direct correlation

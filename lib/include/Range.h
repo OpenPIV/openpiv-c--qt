@@ -3,6 +3,7 @@
 
 // std
 #include <algorithm>
+#include <numeric>
 #include <optional>
 #include <type_traits>
 #include <vector>

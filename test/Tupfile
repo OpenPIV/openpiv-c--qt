@@ -1,5 +1,0 @@
-include_rules
-
-CATCH_INCLUDE = -I/usr/include
-
-: main.cpp $(OPENPIV_LIB_NAME) |> $(CXX) -o %o %f $(CXXFLAGS) $(OPENPIV_INCLUDE) $(CATCH_INCLUDE) $(OPENPIV_LIB) -lpthread |> test
