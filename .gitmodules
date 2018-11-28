@@ -1,6 +1,0 @@
-[submodule "3rd-party/CAF"]
-	path = 3rd-party/CAF
-	url = https://github.com/actor-framework/actor-framework.git
-[submodule "3rd-party/catch"]
-	path = 3rd-party/catch
-	url = https://github.com/catchorg/Catch2.git

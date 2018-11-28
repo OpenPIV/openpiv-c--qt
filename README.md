@@ -11,16 +11,17 @@ Building uses cmake; to build (linux example):
 
 * mkdir build
 * cd build
-* cmake ..
+* cmake -DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake ..
 * make
 
 Dependencies
 ------------
 
-* C++17 compiler e.g. clang++-5.0
-* libtiff (http://libtiff.org/)
-* Catch2 (https://github.com/catchorg/Catch2)
-
+* C++17 compiler e.g. clang++-5.0, gcc7
+* [vcpkg](https://github.com/Microsoft/vcpkg)
+  * vcpkg install catch2
+  * vcpkg install tiff
+  * vcpkg install spdlog
 
 TODO
 ----

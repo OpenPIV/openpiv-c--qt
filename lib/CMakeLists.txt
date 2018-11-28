@@ -15,9 +15,9 @@ if(TIFF_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TIFFImageLoader.cpp )
 
   # workaround missing libtiffxx
-  get_filename_component(TIFF_DIR ${TIFF_LIBRARIES} DIRECTORY)
-  get_filename_component(TIFF_SO_EXT ${TIFF_LIBRARIES} EXT)
-  get_filename_component(TIFF_LIB ${TIFF_LIBRARIES} NAME_WE)
+  get_filename_component(TIFF_DIR ${TIFF_LIBRARY} DIRECTORY)
+  get_filename_component(TIFF_SO_EXT ${TIFF_LIBRARY} EXT)
+  get_filename_component(TIFF_LIB ${TIFF_LIBRARY} NAME_WE)
   set(TIFF_LIBRARIES ${TIFF_LIBRARIES} "${TIFF_DIR}/${TIFF_LIB}xx${TIFF_SO_EXT}")
 
   set(LIBS

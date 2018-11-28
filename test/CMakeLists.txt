@@ -1,9 +1,9 @@
 
-# include catch
-include_directories(${CMAKE_SOURCE_DIR}/3rd-party/catch/single_include/catch2)
-
 # create an archive for catch-main
 add_library(catch-main STATIC main.cpp)
+
+# include catch
+find_package(Catch2 CONFIG REQUIRED)
 
 file(GLOB SOURCES *.cpp)
 list(REMOVE_ITEM SOURCES "main.cpp")
