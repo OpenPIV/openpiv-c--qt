@@ -4,7 +4,6 @@
 // std
 #include <cmath>
 #include <limits>
-#include <initializer_list>
 #include <istream>
 #include <numeric>
 #include <optional>
@@ -12,7 +11,6 @@
 #include <thread>
 #include <typeinfo>
 #include <type_traits>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -22,39 +20,6 @@ void* typed_memcpy( void* dest, const T* src, size_t count )
     return memcpy( dest, src, count*sizeof( T ) );
 }
 
-template <typename E,
-          typename = typename std::enable_if_t< std::is_enum<E>::value >>
-class EnumHelper
-{
-public:
-    using underlying_t = typename std::underlying_type<E>::type;
-    using map_t = std::unordered_map< E, std::string >;
-
-    static map_t& storage()
-    {
-        static map_t storage_;
-        return storage_;
-    }
-
-    static bool init(std::initializer_list<std::pair<E, std::string>> l)
-    {
-        for ( auto i : l )
-            storage().emplace( std::move( i ) );
-
-        return true;
-    }
-};
-
-#define DECLARE_ENUM_HELPER( E, ... )                                   \
-    static const auto e##EnumHelper__ = EnumHelper<E>::init( __VA_ARGS__ ); \
-    std::ostream& operator<<( std::ostream& os, E e )                   \
-    {                                                                   \
-        if ( EnumHelper<E>::storage().empty() )                         \
-            os << EnumHelper<E>::underlying_t(e);                       \
-        else                                                            \
-            os << EnumHelper<E>::storage().at(e);                       \
-        return os;                                                      \
-    }
 
 /// simple entry/exit logger with indent
 class EntryExitLogger
@@ -85,8 +50,10 @@ public:
 
 #if defined(DEBUG)
 # define DECLARE_ENTRY_EXIT EntryExitLogger __func__##EntryExitLogger__( std::cout, __func__ );
+# define DECLARE_ENTRY_EXIT_STREAM(s) EntryExitLogger __func__##EntryExitLogger__( s, __func__ );
 #else
 # define DECLARE_ENTRY_EXIT
+# define DECLARE_ENTRY_EXIT_STREAM(s)
 #endif
 
 /// determine if \a v is a power of two

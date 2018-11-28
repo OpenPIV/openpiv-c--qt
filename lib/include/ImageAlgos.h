@@ -8,6 +8,7 @@
 #include <vector>
 
 // local
+#include "EnumHelper.h"
 #include "Image.h"
 #include "PixelTypes.h"
 #include "Util.h"
