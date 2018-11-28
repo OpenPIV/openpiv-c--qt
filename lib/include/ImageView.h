@@ -77,7 +77,7 @@ public:
         const Point2<int32_t> bl{ r_.bottomLeft() };
         auto x = bl[0] + i % r_.width();
         auto y = bl[1] + i / r_.width();
-        return im_[ Point2<uint32_t>(x, y) ];
+        return im_[ {x, y} ];
     }
     inline const T& operator[]( const Point2<uint32_t>& xy ) const
     {
@@ -109,7 +109,7 @@ public:
                     << "attempting to dereference out of range iterator: "
                     << i_ << ", " << iv_.pixel_count();
 
-            return iv_[ Point2<uint32_t>{i_ % iv_.width(), i_ / iv_.width()} ];
+            return iv_[ {i_ % iv_.width(), i_ / iv_.width()} ];
         }
 
     private:

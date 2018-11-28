@@ -311,7 +311,7 @@ struct is_pixeltype<Complex<T>> : std::true_type {};
 // conversion functions between pixel types
 
 template<typename From, typename To,
-         typename E = typename std::enable_if<
+         typename = typename std::enable_if<
              is_pixeltype<From>::value && is_pixeltype<To>::value
              >::type >
 class pixeltype_is_convertible_helper
