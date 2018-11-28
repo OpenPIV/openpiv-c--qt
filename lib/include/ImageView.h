@@ -22,8 +22,8 @@ class ImageView : public ImageInterface< ImageView, T >
 {
 public:
     using type = T;
-    using PixelType = typename Image<T>::PixelType;
-    using DataType = typename Image<T>::DataType;
+    using pixel_type = typename Image<T>::pixel_type;
+    using data_type = typename Image<T>::data_type;
 
     // ctor
     ImageView() = delete;
@@ -90,7 +90,7 @@ public:
     inline const Size size() const { return r_.size(); }
     inline const uint32_t pixel_count() const { return r_.area(); }
 
-    class const_iterator : public std::iterator< std::bidirectional_iterator_tag, PixelType >
+    class const_iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_type >
     {
     public:
         using IndexT = Rect::PointT::type;
@@ -102,7 +102,7 @@ public:
         const_iterator operator--(int) { const_iterator result = *this; operator--(); return result; }
         bool operator==(const const_iterator& rhs) const { return iv_ == rhs.iv_ && i_ == rhs.i_; }
         bool operator!=(const const_iterator& rhs) const { return !operator==(rhs); }
-        const PixelType& operator*() const
+        const pixel_type& operator*() const
         {
             if ( i_ < 0 || i_ >= checked_unsigned_conversion<IndexT>(iv_.pixel_count()) )
                 Thrower< std::out_of_range >()

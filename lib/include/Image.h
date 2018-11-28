@@ -24,12 +24,12 @@ class Image : public ImageInterface< Image, T >
 {
 public:
     using type = T;
-    using PixelType = T;
-    using DataType = typename std::vector<T>;
-    using iterator = typename DataType::iterator;
-    using const_iterator = typename DataType::const_iterator;
-    using reverse_iterator = typename DataType::reverse_iterator;
-    using const_reverse_iterator = typename DataType::const_reverse_iterator;
+    using pixel_type = T;
+    using data_type = typename std::vector<T>;
+    using iterator = typename data_type::iterator;
+    using const_iterator = typename data_type::const_iterator;
+    using reverse_iterator = typename data_type::reverse_iterator;
+    using const_reverse_iterator = typename data_type::const_reverse_iterator;
 
     // ctor
     Image()
@@ -215,7 +215,7 @@ public:
 private:
     uint32_t width_ = {};
     uint32_t height_ = {};
-    DataType data_;
+    data_type data_;
 };
 
 

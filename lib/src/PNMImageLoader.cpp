@@ -272,7 +272,7 @@ void save_( std::ostream& os, const ImageInterface< ImageT, G16 >& im )
        << im.width() << " " << im.height() << "\n"
        << "65535\n";
 
-    const size_t bytesPerLine{ im.width() * sizeof(G16Image::PixelType) };
+    const size_t bytesPerLine{ im.width() * sizeof(G16Image::pixel_type) };
 
     std::vector<G16> buffer( im.width() );
     for ( uint32_t h=0; h<im.height(); ++h )
@@ -318,7 +318,7 @@ void save_( std::ostream& os, const ImageInterface< ImageT, GF >& im )
        << im.width() << " " << im.height() << "\n"
        << "65535\n";
 
-    const size_t bytesPerLine{ im.width() * sizeof(G16Image::PixelType) };
+    const size_t bytesPerLine{ im.width() * sizeof(G16Image::pixel_type) };
 
     std::vector<G16> buffer( im.width() );
     for ( uint32_t h=0; h<im.height(); ++h )
@@ -354,7 +354,7 @@ void save_( std::ostream& os, const ImageInterface< ImageT, RGBA16 >& im )
        << "65535\n";
 
     // only write RGB data, not RGBA
-    using SampleType = RGBA16Image::PixelType::Type;
+    using SampleType = RGBA16Image::pixel_type::Type;
     const size_t sampleCount = im.width() * 3;
     const size_t bytesPerLine{ sampleCount * sizeof(SampleType) };
     std::vector<SampleType> buffer( bytesPerLine );
