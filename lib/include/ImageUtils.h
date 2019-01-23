@@ -12,7 +12,7 @@ template < template<typename> class ImageT, typename ContainedT >
 ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >& im, ContainedT value )
 {
     auto p = std::begin( im );
-    auto e = std::cend( im );
+    const auto e = std::end( im );
     while ( p != e )
         *p++ = value;
 
@@ -37,7 +37,7 @@ R pixel_sum_impl( const ImageInterface< ImageT, ContainedT >& im )
 {
     R result = 0;
     auto p = std::begin( im );
-    auto e = std::cend( im );
+    const auto e = std::end( im );
     while ( p != e )
     {
         result += *p++;
@@ -243,13 +243,7 @@ ReturnT& swap_quadrants( ImageInterface< ImageT, ContainedT >& in )
         ContainedT* o = in.line( (h + height/2) % height );
 
         for ( uint32_t w=0; w<width/2; ++w )
-        {
             std::swap( i[w], o[ (w + width/2) % width ] );
-
-            // ContainedT tmp = i[w];
-            // i[w] = o[ (w + width/2) % width ];
-            // o[ (w + width/2) % width ] = tmp;
-        }
     }
 
     return in;

@@ -8,6 +8,7 @@
 #include <tuple>
 
 // local
+#include "ImageStats.h"
 #include "TestUtils.h"
 
 // to be tested
@@ -217,5 +218,23 @@ TEST_CASE("ImageViewTest - ConvertionTest")
         result &= (c[i] == CF{ v });
 
     REQUIRE( result == true );
+}
+
+TEST_CASE("ImageViewTest - FillTest")
+{
+    G16Image im; uint16_t v;
+    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 127_g16 );
+
+    auto view = createImageView( im, { {50, 50}, {100, 100} } );
+    fill( view, 255_g16 );
+
+    REQUIRE( pixel_sum( view ) == 100*100*255 );
+    REQUIRE( pixel_sum( im ) == 100*100*128 + 200*200*127 );
+
+    auto [min, max] = find_image_range( im );
+    auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
+
+    im.apply( [&min, &scale](auto i, auto v){return scale*(v-min);} );
+    REQUIRE( saveToFile( "view_fill_test.pgm", im ) );
 }
 
