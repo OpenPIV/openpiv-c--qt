@@ -61,7 +61,7 @@ public:
           r_( r )
     {
         // check that view makes sense
-        Rect imageRect{ Rect::fromSize( Size( im.width(), im.height())) };
+        Rect imageRect{ Rect::from_size( Size( im.width(), im.height())) };
         if ( !imageRect.contains( r ) )
             Thrower<std::out_of_range>()
                 << "image view (" << r << ") not contained within image (" << imageRect << ")";
@@ -78,7 +78,7 @@ public:
     void resize( uint32_t w, uint32_t h )
     {
         Rect newRect{ r_.bottomLeft(), Size{ w, h } };
-        Rect imageRect{ Rect::fromSize( Size(im_->width(), im_->height())) };
+        Rect imageRect{ Rect::from_size( Size(im_->width(), im_->height())) };
         if ( !imageRect.contains( newRect ) )
             Thrower<std::out_of_range>()
                 << "resize: image view (" << newRect << ") not contained within image (" << imageRect << ")";
@@ -192,13 +192,13 @@ private:
 };
 
 template <typename T>
-const ImageView<T> createImageView( const Image<T>& im, Rect r )
+const ImageView<T> create_image_view( const Image<T>& im, Rect r )
 {
     return { im, r };
 }
 
 template <typename T>
-ImageView<T> createImageView( Image<T>& im, Rect r )
+ImageView<T> create_image_view( Image<T>& im, Rect r )
 {
     return { im, r };
 }

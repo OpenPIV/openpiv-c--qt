@@ -27,7 +27,7 @@ public:
     {}
 
     /// construct a rect from size with default origin
-    static Rect fromSize( const Size& s )
+    static Rect from_size( const Size& s )
     {
         return Rect( PointT(), s );
     }

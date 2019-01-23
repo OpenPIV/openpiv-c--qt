@@ -13,13 +13,13 @@
 #include "ImageUtils.h"
 
 template < typename ContainedT >
-Image< ContainedT > loadFromFile( const std::string& filename )
+Image< ContainedT > load_from_file( const std::string& filename )
 {
     std::ifstream is(filename, std::ios::binary);
     if ( !is.is_open() )
         Thrower<std::runtime_error>() << "failed to open " << filename;
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     if ( !loader )
         Thrower<std::runtime_error>() << "failed to find loader for " << filename;
 
@@ -34,9 +34,9 @@ template < template<typename> class ImageT,
            typename E = typename std::enable_if<
                std::is_same< ImageT<ContainedT>, Image<ContainedT> >::value ||
                std::is_same< ImageT<ContainedT>, ImageView<ContainedT> >::value >::type >
-bool saveToFile( const std::string& filename, const ImageT< ContainedT >& im )
+bool save_to_file( const std::string& filename, const ImageT< ContainedT >& im )
 {
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     if ( !writer )
         Thrower<std::runtime_error>() << "failed to find image writer";
 
@@ -49,7 +49,7 @@ bool saveToFile( const std::string& filename, const ImageT< ContainedT >& im )
 template < typename T >
 typename std::enable_if< is_pixeltype<T>::value,
                          std::tuple< Image<T>, T > >::type
-createAndFill( const Size& s, T v )
+create_and_fill( const Size& s, T v )
 {
     Image<T> result(s.width(), s.height());
     fill( result, v );

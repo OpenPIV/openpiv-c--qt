@@ -17,7 +17,7 @@ static ImageLoaderContainer& loaders()
     return static_loaders;
 }
 
-std::shared_ptr< ImageLoader > ImageLoader::findLoader( std::istream& s )
+std::shared_ptr< ImageLoader > ImageLoader::find_loader( std::istream& s )
 {
     for ( auto& loader: loaders() )
         if ( loader->canLoad( s ) )
@@ -26,7 +26,7 @@ std::shared_ptr< ImageLoader > ImageLoader::findLoader( std::istream& s )
     return std::shared_ptr< ImageLoader >();
 }
 
-std::shared_ptr< ImageLoader > ImageLoader::findLoader( const std::string& n )
+std::shared_ptr< ImageLoader > ImageLoader::find_loader( const std::string& n )
 {
     for ( auto& loader: loaders() )
         if ( loader->name() == n )

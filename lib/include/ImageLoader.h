@@ -60,10 +60,10 @@ public:
     /// find a loader for an image; if no ImageLoader is returned
     /// then this image is unhandled; the image loader returned is owned
     /// by ImageLoader
-    static std::shared_ptr< ImageLoader > findLoader( std::istream& );
+    static std::shared_ptr< ImageLoader > find_loader( std::istream& );
 
     /// find a loader by name for saving/forced loading
-    static std::shared_ptr< ImageLoader > findLoader( const std::string& );
+    static std::shared_ptr< ImageLoader > find_loader( const std::string& );
 
     /// register a loader; done this way to avoid the provider knowing
     /// anything about the allocation/ownership of the loader.

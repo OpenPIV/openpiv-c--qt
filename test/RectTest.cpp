@@ -30,7 +30,7 @@ TEST_CASE("RectTest - EqualityTest")
 
 TEST_CASE("RectTest - FromSizeTest")
 {
-    REQUIRE( Rect::fromSize(Size(10,10)) == Rect(Point2<int32_t>(0,0), Size(10,10)) );
+    REQUIRE( Rect::from_size(Size(10,10)) == Rect(Point2<int32_t>(0,0), Size(10,10)) );
 }
 
 TEST_CASE("RectTest - CopyTest")

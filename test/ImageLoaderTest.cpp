@@ -18,7 +18,7 @@ TEST_CASE("ImageLoaderTest - TIFFLoaderMono")
     std::ifstream is("test-mono.tiff", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
     REQUIRE(loader->name() == std::string("image/tiff") );
 
@@ -34,7 +34,7 @@ TEST_CASE("ImageLoaderTest - TIFFLoaderRGBA")
     std::ifstream is("test-rgb.tiff", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
     REQUIRE(loader->name() == std::string("image/tiff"));
 
@@ -50,14 +50,14 @@ TEST_CASE("ImageLoaderTest - PNMLoaderSaveP5")
     std::ifstream is("test-mono.tiff", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
 
     // write data
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     REQUIRE(!!writer);
     REQUIRE(writer->name() == std::string("image/x-portable-anymap") );
 
@@ -70,14 +70,14 @@ TEST_CASE("ImageLoaderTest - PNMLoaderSaveP6")
     std::ifstream is("test-rgb.tiff", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
 
     // write data
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     REQUIRE(!!writer);
     REQUIRE(writer->name() == std::string("image/x-portable-anymap") );
 

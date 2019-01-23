@@ -35,7 +35,7 @@ TEST_CASE("ImageTest - IntTest")
 TEST_CASE("ImageTest - FillTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 100 ), 128_g8 );
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
         result &= (im[i] == v);
@@ -66,7 +66,7 @@ TEST_CASE("ImageTest - ResizeTest")
 TEST_CASE("ImageTest - CopyTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2{ im };
     REQUIRE(im.width()  == im2.width());
@@ -82,7 +82,7 @@ TEST_CASE("ImageTest - CopyTest")
 TEST_CASE("ImageTest - MoveTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2{ std::move(im) };
 
@@ -96,7 +96,7 @@ TEST_CASE("ImageTest - MoveTest")
 TEST_CASE("ImageTest - ConvertTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 200 ), 128_g8 );
 
     GFImage im2{ im };
 
@@ -110,7 +110,7 @@ TEST_CASE("ImageTest - ConvertTest")
 TEST_CASE("ImageTest - LineOutOfBoundsTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 100 ), 128_g8 );
 
     _REQUIRE_THROWS_MATCHES( im.line(101), std::range_error, Contains( "line out of range" ) );
 }
@@ -118,7 +118,7 @@ TEST_CASE("ImageTest - LineOutOfBoundsTest")
 TEST_CASE("ImageTest - LineTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 2, 2 ), 0_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 2, 2 ), 0_g8 );
     int64_t sum1 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum1 == 0);
 
@@ -133,10 +133,10 @@ TEST_CASE("ImageTest - LineTest")
 TEST_CASE("ImageTest - EqualityTest")
 {
     G8Image im1;
-    std::tie( im1, std::ignore ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im1, std::ignore ) = create_and_fill( Size( 200, 100 ), 128_g8 );
 
     G8Image im2;
-    std::tie( im2, std::ignore ) = createAndFill( Size( 200, 100 ), 128_g8 );
+    std::tie( im2, std::ignore ) = create_and_fill( Size( 200, 100 ), 128_g8 );
 
     REQUIRE( im1 == im2 );
 
@@ -148,7 +148,7 @@ TEST_CASE("ImageTest - EqualityTest")
 TEST_CASE("ImageTest - ApplyTest")
 {
     G8Image im; G8 v;
-    std::tie( im, v ) = createAndFill( Size( 200, 200 ), 128_g8 );
+    std::tie( im, v ) = create_and_fill( Size( 200, 200 ), 128_g8 );
     im[Point2<uint32_t>(100, 100)] = 129;
 
     G8 min, max;
@@ -168,7 +168,7 @@ TEST_CASE("ImageTest - ScaleTest")
     std::ifstream is("A_00001_a.tif", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
 
     G16Image im;
@@ -186,7 +186,7 @@ TEST_CASE("ImageTest - ScaleTest")
     std::cout << "min: " << min << ", max: " << max << "\n";
 
     // write data
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     REQUIRE(!!writer);
     REQUIRE(writer->name() == "image/x-portable-anymap");
 
@@ -199,14 +199,14 @@ TEST_CASE("ImageTest - PNMLoadSaveTest")
     std::ifstream is("A_00001_a.tif", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
 
     G16Image im;
     loader->load( is, im );
 
     // write data
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     {
         std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
         writer->save( os, im );
@@ -216,7 +216,7 @@ TEST_CASE("ImageTest - PNMLoadSaveTest")
     is = std::ifstream("A_00001_a.pgm", std::ios::binary);
     REQUIRE(is.is_open());
 
-    loader = ImageLoader::findLoader(is);
+    loader = ImageLoader::find_loader(is);
     REQUIRE(!!loader);
 
     G16Image reloaded;
@@ -266,7 +266,7 @@ TEST_CASE("ImageTest - RGBAJoinTest")
     std::ifstream is("test-mono.tiff", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<ImageLoader> loader{ ImageLoader::findLoader(is) };
+    std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     REQUIRE(!!loader);
 
     G16Image im;
@@ -286,14 +286,14 @@ TEST_CASE("ImageTest - RGBAJoinTest")
 
     RGBA16Image rgba = join_from_channels( r, g, b, a);
 
-    std::shared_ptr<ImageLoader> writer{ ImageLoader::findLoader("image/x-portable-anymap") };
+    std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     std::fstream os( "test-rgbjoin.ppm", std::ios_base::trunc | std::ios_base::out );
     writer->save( os, rgba );
 }
 
 TEST_CASE("ImageTest - ComplexConversionTest")
 {
-    auto [ g_im, v ] = createAndFill< G8 >( { 200, 200 }, 127 );
+    auto [ g_im, v ] = create_and_fill< G8 >( { 200, 200 }, 127 );
     CFImage c_im{ g_im };
     {
         auto [ min, max ] = find_image_range( c_im );
@@ -329,10 +329,10 @@ TEST_CASE("ImageTest - SimpleTransposeTest")
     G16Image im{ 100, 200 };
     std::iota( std::begin( im ), std::end( im ), 0 );
 
-    REQUIRE( saveToFile( "transpose_input.pgm", im ) );
+    REQUIRE( save_to_file( "transpose_input.pgm", im ) );
 
     G16Image transposed{ transpose( im ) };
-    REQUIRE( saveToFile( "transpose_output.pgm", transposed ) );
+    REQUIRE( save_to_file( "transpose_output.pgm", transposed ) );
 
     REQUIRE( transposed.width()  == im.height() );
     REQUIRE( transposed.height() == im.width() );
@@ -394,13 +394,13 @@ TEST_CASE("ImageTest - SwapQuadrantsTest")
         }
         );
 
-    REQUIRE( saveToFile( "swap_quadrants_input.pgm", im ) );
+    REQUIRE( save_to_file( "swap_quadrants_input.pgm", im ) );
 
     Size s{ im.width()/2, im.height()/2 };
-    GFImageView q1{ createImageView( im, { {0, 0}, s } ) };
-    GFImageView q2{ createImageView( im, { {50, 0}, s } ) };
-    GFImageView q3{ createImageView( im, { {0, 50}, s } ) };
-    GFImageView q4{ createImageView( im, { {50, 50}, s } ) };
+    GFImageView q1{ create_image_view( im, { {0, 0}, s } ) };
+    GFImageView q2{ create_image_view( im, { {50, 0}, s } ) };
+    GFImageView q3{ create_image_view( im, { {0, 50}, s } ) };
+    GFImageView q4{ create_image_view( im, { {50, 50}, s } ) };
 
     REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
     REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
@@ -409,7 +409,7 @@ TEST_CASE("ImageTest - SwapQuadrantsTest")
 
     swap_quadrants( im );
 
-    REQUIRE( saveToFile( "swap_quadrants_output.pgm", im ) );
+    REQUIRE( save_to_file( "swap_quadrants_output.pgm", im ) );
 
     REQUIRE( pixel_sum( q1 ) == 8 * q1.pixel_count() );
     REQUIRE( pixel_sum( q2 ) == 4 * q2.pixel_count() );
