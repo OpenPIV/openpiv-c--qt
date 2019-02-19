@@ -38,7 +38,7 @@ std::shared_ptr< ImageLoader > ImageLoader::find_loader( const std::string& n )
 bool ImageLoader::registerLoader( std::shared_ptr<ImageLoader> loader )
 {
     if ( !loader )
-        Thrower<std::runtime_error>() << "attempting to register null image loader";
+        exception_builder<std::runtime_error>() << "attempting to register null image loader";
 
     loaders().push_back( loader );
     std::sort( loaders().begin(), loaders().end(),

@@ -63,7 +63,7 @@ public:
         // check that view makes sense
         Rect imageRect{ Rect::from_size( Size( im.width(), im.height())) };
         if ( !imageRect.contains( r ) )
-            Thrower<std::out_of_range>()
+            exception_builder<std::out_of_range>()
                 << "image view (" << r << ") not contained within image (" << imageRect << ")";
     }
 
@@ -80,7 +80,7 @@ public:
         Rect newRect{ r_.bottomLeft(), Size{ w, h } };
         Rect imageRect{ Rect::from_size( Size(im_->width(), im_->height())) };
         if ( !imageRect.contains( newRect ) )
-            Thrower<std::out_of_range>()
+            exception_builder<std::out_of_range>()
                 << "resize: image view (" << newRect << ") not contained within image (" << imageRect << ")";
 
         r_ = newRect;
@@ -103,7 +103,7 @@ public:
     inline T& operator[](size_t i)
     {
         if ( i > r_.area() )
-            Thrower<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
+            exception_builder<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
         const Point2<int32_t> bl{ r_.bottomLeft() };
         auto x = bl[0] + i % r_.width();
@@ -140,7 +140,7 @@ public:
         pixel_type& operator*()
         {
             if ( i_ < 0 || i_ >= checked_unsigned_conversion<IndexT>(iv_.pixel_count()) )
-                Thrower< std::out_of_range >()
+                exception_builder< std::out_of_range >()
                     << "attempting to dereference out of range iterator: "
                     << i_ << ", " << iv_.pixel_count();
 
@@ -168,7 +168,7 @@ public:
         pixel_type& operator*()
         {
             if ( i_ < 0 || i_ >= checked_unsigned_conversion<IndexT>(iv_.pixel_count()) )
-                Thrower< std::out_of_range >()
+                exception_builder< std::out_of_range >()
                     << "attempting to dereference out of range iterator: "
                     << i_ << ", " << iv_.pixel_count();
 

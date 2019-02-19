@@ -58,7 +58,7 @@ bool isSupported( char* b )
 bool PNMImageLoader::canLoad( std::istream& is ) const
 {
     if ( !is.good() )
-        Thrower<ImageLoaderException>() << "input stream is not ready for reading";
+        exception_builder<ImageLoaderException>() << "input stream is not ready for reading";
 
     // record position
     Peeker peek(is);
@@ -67,7 +67,7 @@ bool PNMImageLoader::canLoad( std::istream& is ) const
     std::array<char, 2> header;
     is.read(&header[0], sizeof(header));
     if ( !is.good() )
-        Thrower<ImageLoaderException>() << "input stream doesn't contain enough data";
+        exception_builder<ImageLoaderException>() << "input stream doesn't contain enough data";
 
     if ( isSupported(&header[0]) )
         return true;
@@ -217,7 +217,7 @@ static void load_( std::istream& is, Image<PixelT>& im )
     std::tie( isValid, type ) = getHeaderInfo( buffer );
 
     if ( !isValid )
-        Thrower<ImageLoaderException>() << "image type not supported: " << std::string( buffer, 2 );
+        exception_builder<ImageLoaderException>() << "image type not supported: " << std::string( buffer, 2 );
 
     // get dimensions & depth
     uint32_t width{};

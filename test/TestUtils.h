@@ -17,11 +17,11 @@ Image< ContainedT > load_from_file( const std::string& filename )
 {
     std::ifstream is(filename, std::ios::binary);
     if ( !is.is_open() )
-        Thrower<std::runtime_error>() << "failed to open " << filename;
+        exception_builder<std::runtime_error>() << "failed to open " << filename;
 
     std::shared_ptr<ImageLoader> loader{ ImageLoader::find_loader(is) };
     if ( !loader )
-        Thrower<std::runtime_error>() << "failed to find loader for " << filename;
+        exception_builder<std::runtime_error>() << "failed to find loader for " << filename;
 
     Image< ContainedT > result;
     loader->load( is, result );
@@ -38,7 +38,7 @@ bool save_to_file( const std::string& filename, const ImageT< ContainedT >& im )
 {
     std::shared_ptr<ImageLoader> writer{ ImageLoader::find_loader("image/x-portable-anymap") };
     if ( !writer )
-        Thrower<std::runtime_error>() << "failed to find image writer";
+        exception_builder<std::runtime_error>() << "failed to find image writer";
 
     std::fstream os( filename, std::ios_base::trunc | std::ios_base::out );
     writer->save( os, im );

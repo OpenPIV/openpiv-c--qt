@@ -23,7 +23,7 @@ TIFFImageLoader::~TIFFImageLoader()
 bool TIFFImageLoader::canLoad( std::istream& is ) const
 {
     if ( !is.good() )
-        Thrower<ImageLoaderException>() << "input stream is not ready for reading";
+        exception_builder<ImageLoaderException>() << "input stream is not ready for reading";
 
     // record position
     Peeker peek(is);
@@ -32,7 +32,7 @@ bool TIFFImageLoader::canLoad( std::istream& is ) const
     std::array<char, 4> header;
     is.read(&header[0], sizeof(header));
     if ( !is.good() )
-        Thrower<ImageLoaderException>() << "input stream doesn't contain enough data";
+        exception_builder<ImageLoaderException>() << "input stream doesn't contain enough data";
 
     static std::array<char, 4> LE_HEADER{ { 0x49, 0x49, 0x2a, 0x00 } };
     static std::array<char, 4> BE_HEADER{ { 0x4d, 0x4d, 0x00, 0x2a } };
@@ -178,7 +178,7 @@ static void load_( std::istream& is, Image<PixelT>& im )
     PlanarConfig planar;  TIFFGetField( tiff.get(), TIFFTAG_PLANARCONFIG, &planar );
 
     if ( spp != 1 && spp != 3 )
-        Thrower<ImageLoaderException>() << "images with spp != 1 or 3 not yet supported: (" << spp << ")";
+        exception_builder<ImageLoaderException>() << "images with spp != 1 or 3 not yet supported: (" << spp << ")";
 
     if ( spp == 1 )
     {
@@ -214,32 +214,32 @@ void TIFFImageLoader::load( std::istream& is, RGBA16Image& im ) const
 
 void TIFFImageLoader::save( std::ostream&, const G16Image& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const G16ImageView& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const GFImage& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const GFImageView& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const RGBA16Image& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 void TIFFImageLoader::save( std::ostream&, const RGBA16ImageView& ) const
 {
-    Thrower<ImageLoaderException>() << name() << ": cannot save data";
+    exception_builder<ImageLoaderException>() << name() << ": cannot save data";
 }
 
 std::string TIFFImageLoader::name() const

@@ -52,7 +52,7 @@ public:
     {
         // ensure power-of-two sizes
         if ( !(is_pow2(size_.width()) && is_pow2(size_.height()) ) )
-            Thrower<std::runtime_error>() << "dimensions must be power of 2: " << size_;
+            exception_builder<std::runtime_error>() << "dimensions must be power of 2: " << size_;
 
         // store thread id
         thread_id_ = std::this_thread::get_id();
@@ -80,12 +80,12 @@ public:
         // sanity checks
         if ( std::this_thread::get_id() != thread_id_ )
         {
-            Thrower< std::runtime_error >() << "calling FFT::transform() from wrong thread";
+            exception_builder< std::runtime_error >() << "calling FFT::transform() from wrong thread";
         }
 
         if ( input.size() != size_ )
         {
-            Thrower< std::runtime_error >()
+            exception_builder< std::runtime_error >()
                 << "image size is different from expected: " << input.size() << ", " << size_;
         }
 

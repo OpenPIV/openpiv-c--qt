@@ -182,7 +182,7 @@ public:
     inline T* line( size_t i )
     {
         if (i>height_)
-            Thrower<std::range_error>() << "line out of range (" << i << ", max is: " << height_ << ")";
+            exception_builder<std::range_error>() << "line out of range (" << i << ", max is: " << height_ << ")";
 
         return &data_[i*width_];
     }

@@ -65,11 +65,11 @@ inline constexpr bool is_pow2( uint64_t v )
 /// wrapper to allow using stringstream to construct an
 /// exception message; throw \ta E on destruction.
 template < typename E >
-class Thrower
+class exception_builder
 {
 public:
-    Thrower() = default;
-    ~Thrower() noexcept(false)
+    exception_builder() = default;
+    ~exception_builder() noexcept(false)
     {
         throw E(ss.str());
     }
@@ -97,7 +97,7 @@ public:
         pos_ = is.tellg();
         // this will only work if we can read and rewind
         if ( pos_ == -1 || !is.good() )
-            Thrower<std::runtime_error>() << "input stream doesn't support input position indicator";
+            exception_builder<std::runtime_error>() << "input stream doesn't support input position indicator";
     }
 
     ~Peeker()
@@ -132,7 +132,7 @@ typename std::enable_if<
 checked_unsigned_conversion(const From& v)
 {
     if (v>std::numeric_limits<To>::max())
-        Thrower<std::range_error>() << "unable to convert " << v
+        exception_builder<std::range_error>() << "unable to convert " << v
                                     << " to " << typeid(To).name() << " as value would be truncated";
 
     return static_cast<To>(v);

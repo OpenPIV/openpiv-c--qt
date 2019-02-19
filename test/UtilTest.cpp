@@ -39,9 +39,9 @@ TEST_CASE("UtilTest - IsPow2Test")
     }
 }
 
-TEST_CASE("UtilTest - ThrowerTest")
+TEST_CASE("UtilTest - exception_builderTest")
 {
-    auto l = [](){ Thrower<std::runtime_error>() << "die!"; };
+    auto l = [](){ exception_builder<std::runtime_error>() << "die!"; };
 
     _REQUIRE_THROWS_MATCHES( l(), std::runtime_error, Contains( "die!" ) );
 }

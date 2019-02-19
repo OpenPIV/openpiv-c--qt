@@ -106,7 +106,7 @@ join_from_channels( const ImageInterface< ImageT, G<T>>& r_im,
     if ( r_im.size() != g_im.size() ||
          g_im.size() != b_im.size() ||
          b_im.size() != a_im.size() )
-        Thrower<std::runtime_error>() << "source images must have matching dimensions";
+        exception_builder<std::runtime_error>() << "source images must have matching dimensions";
 
     Image<RGBA<T>> rgba_im( r_im.width(), r_im.height() );
 
@@ -165,7 +165,7 @@ join_from_channels( const ImageInterface< ImageT, G<T>>& real_im,
                     const ImageInterface< ImageT, G<T>>& imag_im )
 {
     if ( real_im.size() != imag_im.size() )
-        Thrower<std::runtime_error>() << "source images must have matching dimensions";
+        exception_builder<std::runtime_error>() << "source images must have matching dimensions";
 
     Image<Complex<T>> c_im( real_im.width(), real_im.height() );
 
@@ -197,7 +197,7 @@ template < template<typename> class ImageT,
 ReturnT& transpose( const ImageInterface< ImageT, ContainedT >& in, ImageInterface< ImageT, ContainedT >& out )
 {
     if ( !(in.width() == out.height() && in.height() == out.width() ) )
-        Thrower<std::runtime_error>() << "input and output must have transposed dimensions: "
+        exception_builder<std::runtime_error>() << "input and output must have transposed dimensions: "
                                       << in.size() << ", " << out.size();
 
     // get pointers to all result lines
