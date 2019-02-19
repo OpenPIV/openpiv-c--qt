@@ -40,7 +40,7 @@ struct propagate_const
 };
 
 
-/// const view onto an image; view must be less than or equal to the
+/// view onto an image; view must be less than or equal to the
 /// size of the source image; aim is to provide a lightweight
 /// respresentation  of a portion of an image with the same
 /// interface as Image

@@ -11,6 +11,7 @@
 #include "EnumHelper.h"
 #include "Image.h"
 #include "PixelTypes.h"
+#include "ImageUtils.h"
 #include "Util.h"
 
 

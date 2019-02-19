@@ -30,6 +30,7 @@ find_package(Threads REQUIRED)
 set(LIBS ${LIBS} Threads::Threads)
 
 set(LIBNAME openpivcore)
+add_compile_options(-ffast-math)
 add_library(${LIBNAME} SHARED ${SOURCE})
 target_link_libraries(${LIBNAME} ${LIBS})
 

@@ -1,8 +1,8 @@
-OpenPIV (C++)
+OpenPIV (c++)
 =============
 
 An implementation of a PIV analysis engine in C++ using as few dependencies as possible;
-the implementation depends on a modern C++17 compliant compiler.
+the implementation requires a c++17 compliant compiler.
 
 Build
 -----
@@ -17,11 +17,12 @@ Building uses cmake; to build (linux example):
 Dependencies
 ------------
 
-* C++17 compiler e.g. clang++-5.0, gcc7
+* c++17 compiler e.g. clang++-5.0, gcc7
 * [vcpkg](https://github.com/Microsoft/vcpkg)
   * vcpkg install catch2
   * vcpkg install tiff
   * vcpkg install spdlog
+  * vcpkg install benchmark
 
 TODO
 ----
@@ -43,11 +44,15 @@ TODO
 * algorithms
   * transpose - done
   * normalize - done
-  * FFT - done
-    * spectral correlation
+  * FFT
+    * spectral correlation - done
     * optimize
+    * apply kernel in Fourier space
+    * use SIMD
   * direct correlation
   * peak detection
+* image processing
+  * low/high pass filter
 * processing framework
   * grid generator
   * processing
