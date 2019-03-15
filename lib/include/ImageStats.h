@@ -6,10 +6,14 @@
 
 // local
 #include "Image.h"
+#include "ImageTypeTraits.h"
 
-template < template<typename> class ImageT, typename ContainedT >
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
 std::tuple< ContainedT, ContainedT >
-find_image_range( const ImageInterface< ImageT, ContainedT >& im )
+find_image_range( const ImageT<ContainedT>& im )
 {
     ContainedT min, max;
     auto p = std::cbegin( im );

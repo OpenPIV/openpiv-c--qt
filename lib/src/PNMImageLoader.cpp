@@ -10,6 +10,7 @@
 // local
 #include "Image.h"
 #include "ImageStats.h"
+#include "ImageTypeTraits.h"
 #include "Util.h"
 
 
@@ -264,8 +265,10 @@ void PNMImageLoader::load( std::istream& is, RGBA16Image& im ) const
     load_(is, im);
 }
 
-template < template <typename> class ImageT >
-void save_( std::ostream& os, const ImageInterface< ImageT, G16 >& im )
+template < template <typename> class ImageT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<G16>>::value >
+           >
+void save_( std::ostream& os, const ImageT<G16>& im )
 {
     os << "P5\n"
        << "# created by PNMImageLoader\n"
@@ -301,8 +304,10 @@ void PNMImageLoader::save( std::ostream& os, const G16ImageView& im ) const
     save_( os, im );
 }
 
-template < template <typename> class ImageT >
-void save_( std::ostream& os, const ImageInterface< ImageT, GF >& im )
+template < template <typename> class ImageT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<GF>>::value >
+           >
+void save_( std::ostream& os, const ImageT<GF>& im )
 {
     auto [min, max] = find_image_range( im );
     auto range = max - min;
@@ -345,8 +350,10 @@ void PNMImageLoader::save( std::ostream& os, const GFImageView& im ) const
 }
 
 
-template < template <typename> class ImageT >
-void save_( std::ostream& os, const ImageInterface< ImageT, RGBA16 >& im )
+template < template <typename> class ImageT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<RGBA16>>::value >
+           >
+void save_( std::ostream& os, const ImageT<RGBA16>& im )
 {
     os << "P6\n"
        << "# created by PNMImageLoader\n"

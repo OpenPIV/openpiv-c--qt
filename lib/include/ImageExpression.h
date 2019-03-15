@@ -7,12 +7,12 @@
 
 // local
 #include "PixelTypes.h"
+#include "ImageTypeTraits.h"
 #include "Size.h"
 
 // forwards
 template < typename ContainedT > class ImageView;
 template < typename ContainedT > class Image;
-template < template <typename> class ImageT, typename ContainedT > class ImageInterface;
 
 
 /// wrapper around a constant to adhere to requirements of
@@ -54,7 +54,7 @@ private:
 /// an expression node without copying the image data
 template <template <typename> class ImageT,
           typename ContainedT,
-          typename T = ImageInterface<ImageT, ContainedT>>
+          typename T = ImageT<ContainedT>>
 class ImageInterfaceExpressionNode
 {
 public:

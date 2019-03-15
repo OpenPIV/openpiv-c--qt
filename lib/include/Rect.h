@@ -64,6 +64,10 @@ public:
             bottomLeft_[0]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.width()),
             bottomLeft_[1]+checked_unsigned_conversion<decltype(bottomLeft_)::type>(size_.height()) );
     }
+    constexpr inline PointT midpoint() const
+    {
+        return { bottomLeft_[0] + width()/2, bottomLeft_[1] + height()/2 };
+    }
 
     constexpr inline const Size& size() const { return size_; }
     constexpr inline Size::type width() const { return size_.width(); }

@@ -44,6 +44,17 @@ TEST_CASE("PixelTypesTest - IsPixelTypeTest")
     REQUIRE( !is_pixeltype<uint16_t>::value );
 }
 
+TEST_CASE("PixelTypesTest - IsRealMonoPixelTypeTest")
+{
+    REQUIRE( !is_real_mono_pixeltype<RGBA<uint16_t>>::value );
+    REQUIRE( !is_real_mono_pixeltype<YUVA<uint16_t>>::value );
+    REQUIRE( !is_real_mono_pixeltype<Complex<uint16_t>>::value );
+    REQUIRE( !is_real_mono_pixeltype<uint16_t>::value );
+    REQUIRE( is_real_mono_pixeltype<G<uint32_t>>::value );
+    REQUIRE( is_real_mono_pixeltype<G<uint16_t>>::value );
+    REQUIRE( is_real_mono_pixeltype<G<uint8_t>>::value );
+}
+
 TEST_CASE("PixelTypesTest - PixelConversionTest")
 {
     SECTION( "self" )

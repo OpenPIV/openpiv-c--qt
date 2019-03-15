@@ -9,16 +9,18 @@
 #include <type_traits>
 
 // local
-#include "ImageInterface.h"
 #include "Image.h"
 #include "Rect.h"
 #include "Util.h"
 
+/// Const-propagating wrapper for pointers without the restrictions of std::experimental::propagate_const.
+/// It treats the wrapped pointer as a pointer to const when accessed through a const access path, hence the name.
 template <typename T>
 struct propagate_const
 {
     using type = typename std::remove_pointer_t<T>;
     using type_ptr = typename std::add_pointer_t<type>;
+    using type_ref = typename std::add_lvalue_reference_t<type>;
     type_ptr _ptr{ nullptr };
 
     propagate_const() = default;
@@ -34,6 +36,8 @@ struct propagate_const
     constexpr operator const type_ptr() const { return _ptr; }
     constexpr type_ptr operator->() { return _ptr; }
     constexpr const type_ptr operator->() const { return _ptr; }
+    constexpr type_ref operator*() { return *_ptr; }
+    constexpr const type_ref operator*() const { return *_ptr; }
 
     bool operator==( const propagate_const& rhs ) const { return _ptr == rhs._ptr; }
     bool operator!=( const propagate_const& rhs ) const { return !operator==(rhs); }
@@ -45,15 +49,16 @@ struct propagate_const
 /// respresentation  of a portion of an image with the same
 /// interface as Image
 template < typename T >
-class ImageView : public ImageInterface< ImageView, T >
+class ImageView
 {
 public:
     using type = T;
     using pixel_type = typename Image<T>::pixel_type;
+    using index_type = typename Image<T>::index_type;
     using data_type = typename Image<T>::data_type;
 
     // ctor
-    ImageView() = delete;
+    ImageView() = default;
     ImageView( const ImageView& ) = default;
     ImageView( ImageView&& ) = default;
     ImageView( Image<T>& im, const Rect& r )
@@ -119,10 +124,12 @@ public:
     inline const T& operator[]( const Point2<uint32_t>& xy ) const { return const_cast<ImageView<T>*>(this)->operator[](xy); }
 
     inline const T* line(size_t i) const { return im_->line(r_.bottomLeft()[1] + i) + r_.bottomLeft()[0]; }
-    inline const uint32_t width() const { return r_.width(); }
-    inline const uint32_t height() const { return r_.height(); }
-    inline const Size size() const { return r_.size(); }
-    inline const uint32_t pixel_count() const { return r_.area(); }
+    inline T* line(size_t i) { return im_->line(r_.bottomLeft()[1] + i) + r_.bottomLeft()[0]; }
+    inline uint32_t width() const { return r_.width(); }
+    inline uint32_t height() const { return r_.height(); }
+    inline Size size() const { return r_.size(); }
+    inline index_type pixel_count() const { return r_.area(); }
+    inline Rect rect() const { return r_; }
 
     class iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_type >
     {
@@ -185,6 +192,11 @@ public:
     iterator end() { return iterator( *this, pixel_count() ); }
     const_iterator begin() const { return const_iterator( *this ); }
     const_iterator end() const { return const_iterator( *this, pixel_count() ); }
+
+    /// return the underlying image type - useful if trying to
+    /// e.g. create an ImageView from another ImageView
+    Image<T>& underlying() { return *im_; }
+    const Image<T>& underlying() const { return *im_; }
 
 private:
     propagate_const<Image<T>> im_;

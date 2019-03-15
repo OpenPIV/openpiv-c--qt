@@ -234,7 +234,7 @@ TEST_CASE("ImageViewTest - FillTest")
     auto [min, max] = find_image_range( im );
     auto scale{ (max == min) ? G16::max() : G16::max()/(max-min) };
 
-    im.apply( [&min, &scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [&min, &scale](auto i, auto v){return scale*(v-min);} );
     REQUIRE( save_to_file( "view_fill_test.pgm", im ) );
 }
 

@@ -14,10 +14,27 @@
 #include <utility>
 #include <vector>
 
+// core
+#include "exception_builder.h"
+
 template <typename T>
-void* typed_memcpy( void* dest, const T* src, size_t count )
+void* typed_memcpy( void* dest, const T* src, size_t count, size_t stride = 1 )
 {
-    return memcpy( dest, src, count*sizeof( T ) );
+    if ( stride == 1 )
+    {
+        return memcpy( dest, src, count*sizeof( T ) );
+    }
+    else
+    {
+        T* dest_t = reinterpret_cast<T*>(dest);
+        for ( size_t i=0; i<count; ++i )
+        {
+            *dest_t++ = *src;
+            src += stride;
+        }
+
+        return dest;
+    }
 }
 
 
@@ -61,28 +78,6 @@ inline constexpr bool is_pow2( uint64_t v )
 {
     return v && (v == (v&-v));
 }
-
-/// wrapper to allow using stringstream to construct an
-/// exception message; throw \ta E on destruction.
-template < typename E >
-class exception_builder
-{
-public:
-    exception_builder() = default;
-    ~exception_builder() noexcept(false)
-    {
-        throw E(ss.str());
-    }
-
-    template < typename T >
-    std::stringstream& operator<<( const T& v )
-    {
-        ss << v;
-        return ss;
-    }
-
-    std::stringstream ss;
-};
 
 /// simple RAII for std::istream multi-char peek; allows caller
 /// to "peek" at multiple bytes and will restore stream upon destruction:

@@ -65,15 +65,18 @@ public:
 
         // make scaling factors
         do {
-            forward_scaling_[N] = generateScalingFactors(N, Direction::FORWARD);
-            reverse_scaling_[N] = generateScalingFactors(N, Direction::REVERSE);
+            forward_scaling_[N] = generate_scaling_factors(N, Direction::FORWARD);
+            reverse_scaling_[N] = generate_scaling_factors(N, Direction::REVERSE);
             N >>= 1;
         } while (N > 2);
     }
 
     /// Perform a 2-D FFT; will always produce a complex floating point image output
-    template < template <typename> class ImageT, typename ContainedT >
-    const CFImage& transform( const ImageInterface< ImageT, ContainedT >& input, Direction d = Direction::FORWARD )
+    template < template <typename> class ImageT,
+               typename ContainedT,
+               typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+               >
+    const CFImage& transform( const ImageT<ContainedT>& input, Direction d = Direction::FORWARD )
     {
         DECLARE_ENTRY_EXIT
 
@@ -109,8 +112,11 @@ public:
         return output_;
     }
 
-    template < template <typename> class ImageT, typename ContainedT >
-    CFImage cross_correlate( const ImageInterface< ImageT, ContainedT >& a, const ImageInterface< ImageT, ContainedT >& b )
+    template < template <typename> class ImageT,
+               typename ContainedT,
+               typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+               >
+    CFImage cross_correlate( const ImageT<ContainedT>& a, const ImageT<ContainedT>& b )
     {
         CFImage a_fft{ transform( a, Direction::FORWARD ) };
         const CFImage& b_fft = transform( b, Direction::FORWARD );
@@ -122,8 +128,11 @@ public:
         return output_;
     }
 
-    template < template <typename> class ImageT, typename ContainedT >
-    CFImage auto_correlate( const ImageInterface< ImageT, ContainedT >& a )
+    template < template <typename> class ImageT,
+               typename ContainedT,
+               typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+               >
+    CFImage auto_correlate( const ImageT<ContainedT>& a )
     {
         CFImage a_fft{ transform( a, Direction::FORWARD ) };
 
@@ -139,6 +148,7 @@ private:
     {
         DECLARE_ENTRY_EXIT
 
+        const scaling_map_t& scaling_ = d == Direction::FORWARD ? forward_scaling_ : reverse_scaling_;
         if (step < n)
         {
             const size_t doublestep{ 2*step };
@@ -147,7 +157,6 @@ private:
 
             for ( size_t i=0; i<n; i+=doublestep )
             {
-                const scaling_map_t& scaling_ = d == Direction::FORWARD ? forward_scaling_ : reverse_scaling_;
                 CF s = scaling_.at(n)[i];
                 CF e{ out[i] };
                 CF o{ out[i + step] };
@@ -157,15 +166,15 @@ private:
         }
     }
 
-    void fft( CF* in, size_t n, Direction d )
+    void fft( CF* in, size_t n, Direction d, size_t stride = 1 )
     {
         DECLARE_ENTRY_EXIT
 
-        typed_memcpy( &fft_buffer_[0], in, n );
+        typed_memcpy( &fft_buffer_[0], in, n, stride );
         fft_inner( in, &fft_buffer_[0], n, 1, d );
     }
 
-    std::vector<CF> generateScalingFactors( size_t n, Direction d ) const
+    static std::vector<CF> generate_scaling_factors( size_t n, Direction d )
     {
         const double scaling{ d == Direction::FORWARD ? -1.0 : 1.0 };
         std::vector<CF> result(n);

@@ -78,6 +78,12 @@ TEST_CASE("RectTest - ContainsTest")
     REQUIRE_FALSE( r.contains( Rect( Point2<int32_t>(6,6), Size(10,8))) );
 }
 
+TEST_CASE("RectTest - MidpointTest")
+{
+    Rect r({5,5}, {10,10});
+    REQUIRE( (r.midpoint() == Rect::PointT{10,10}) );
+}
+
 TEST_CASE("RectTest - OStreamTest")
 {
     std::stringstream ss;

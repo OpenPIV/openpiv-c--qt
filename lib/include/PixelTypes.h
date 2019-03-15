@@ -292,6 +292,9 @@ std::ostream& operator<<(std::ostream& os, const G<T>& v )
     return os;
 }
 
+//
+//
+//
 template <typename T>
 struct is_pixeltype : std::false_type {};
 
@@ -307,9 +310,18 @@ struct is_pixeltype<YUVA<T>> : std::true_type {};
 template <typename T>
 struct is_pixeltype<Complex<T>> : std::true_type {};
 
+//
+//
+//
+template <typename T>
+struct is_real_mono_pixeltype : std::false_type {};
 
+template <typename T>
+struct is_real_mono_pixeltype<G<T>> : std::true_type {};
+
+//
+//
 // conversion functions between pixel types
-
 template<typename From, typename To,
          typename = typename std::enable_if<
              is_pixeltype<From>::value && is_pixeltype<To>::value
@@ -324,7 +336,7 @@ class pixeltype_is_convertible_helper
     static std::false_type test(...);
 
 public:
-    typedef decltype( test<From, To>(0) ) type;
+    using type = decltype( test<From, To>(0) );
 };
 
 

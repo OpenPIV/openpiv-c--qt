@@ -2,28 +2,111 @@
 #pragma once
 
 // std
+#include <algorithm>
 #include <type_traits>
+#include <vector>
 
 // local
 #include "Image.h"
+#include "ImageView.h"
+#include "ImageTypeTraits.h"
 
-/// fill an image with a constant value
-template < template<typename> class ImageT, typename ContainedT >
-ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >& im, ContainedT value )
+/// get the underlying image
+template < typename  ContainedT >
+Image<ContainedT>& get_underlying( Image<ContainedT>& im ) { return im; }
+
+template < typename ContainedT >
+const Image<ContainedT>& get_underlying( const Image<ContainedT>& im ) { return im; }
+
+template < typename ContainedT >
+Image<ContainedT>& get_underlying( ImageView<ContainedT>& iv ) { return iv.underlying(); }
+
+template < typename ContainedT >
+const Image<ContainedT>& get_underlying( const ImageView<ContainedT>& iv ) { return iv.underlying(); }
+
+/// Find highest \a num_peaks peaks in an image and return a vector of peaks.
+/// The peaks are returned as \sa ImageView and the size of the
+/// ImageView can be adjusted by setting \a peak_radius
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT = std::vector<ImageView<ContainedT>>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t peak_radius )
 {
-    auto p = std::begin( im );
-    const auto e = std::end( im );
-    while ( p != e )
-        *p++ = value;
+    ReturnT result;
+    for ( uint32_t h=peak_radius; h<im.height()-2*peak_radius; ++h )
+    {
+        const ContainedT* above = im.line( h-1 );
+        const ContainedT* line = im.line( h );
+        const ContainedT* below = im.line( h+1 );
+
+        for ( uint32_t w=peak_radius; w<im.width()-peak_radius; ++w )
+            if ( line[w-1] < line[w] && line[w+1] < line[w] && above[w] < line[w]  && below[w] < line[w] )
+                result.emplace_back(
+                    create_image_view(
+                        im,
+                        Rect( {w-peak_radius, h-peak_radius},
+                              {2*peak_radius + 1, 2*peak_radius + 1} ) ) );
+    }
+
+    // sort and cull
+    std::sort( std::begin(result), std::end(result),
+               [peak_radius](const auto& a, const auto& b) -> bool {
+                   return b[{peak_radius, peak_radius}] < a[{peak_radius, peak_radius}];
+               } );
+    result.resize(num_peaks);
+
+    return result;
+}
+
+/// apply a function to each pixel
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename OpT,
+           typename ReturnT = ImageT<ContainedT>,
+           typename IndexT = typename ImageT<ContainedT>::index_type,
+           typename = std::enable_if_t<
+               std::is_invocable_v<
+                   OpT,
+                   typename ImageT<ContainedT>::index_type,
+                   typename ImageT<ContainedT>::pixel_type
+                   >
+               >,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT& apply( ImageT<ContainedT>& im, OpT op )
+{
+    for ( IndexT i=0; i<im.pixel_count(); ++i )
+        im[i] = op(i, im[i]);
 
     return im;
 }
 
-/// fill an image with a constant value
+/// fill an image with constant values
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT = ImageT<ContainedT>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT& fill( ImageT<ContainedT>& im, const ContainedT& v )
+{
+    for ( uint32_t h=0; h<im.height(); ++h )
+        for ( uint32_t w=0; w<im.width(); ++w )
+            im[ {w, h} ] = v;
+
+    return im;
+}
+
+/// fill an image with values produced by a generator function
 template < typename GeneratorT,
            template<typename> class ImageT,
-           typename ContainedT>
-ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >& im, GeneratorT g )
+           typename ContainedT,
+           typename ReturnT = ImageT<ContainedT>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >,
+           typename = std::enable_if_t<std::is_invocable_v<GeneratorT, uint32_t, uint32_t>>
+           >
+ReturnT& fill( ImageT<ContainedT >& im, GeneratorT g )
 {
     for ( uint32_t h=0; h<im.height(); ++h )
         for ( uint32_t w=0; w<im.width(); ++w )
@@ -32,10 +115,14 @@ ImageInterface< ImageT, ContainedT >& fill( ImageInterface< ImageT, ContainedT >
     return im;
 }
 
-template < template<typename> class ImageT, typename ContainedT, typename R >
-R pixel_sum_impl( const ImageInterface< ImageT, ContainedT >& im )
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename ReturnT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT pixel_sum_impl( const ImageT<ContainedT>& im )
 {
-    R result = 0;
+    ReturnT result = 0;
     auto p = std::begin( im );
     const auto e = std::end( im );
     while ( p != e )
@@ -47,16 +134,22 @@ R pixel_sum_impl( const ImageInterface< ImageT, ContainedT >& im )
 }
 
 /// find the sum of all pixels
-template < template<typename> class ImageT, typename ContainedT >
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
 typename std::enable_if<std::is_integral<ContainedT>::value, int64_t>::type
-pixel_sum( const ImageInterface< ImageT, ContainedT >& im )
+pixel_sum( const ImageT<ContainedT>& im )
 {
     return pixel_sum_impl<ImageT, ContainedT, int64_t>(im);
 }
 
-template < template<typename> class ImageT, typename ContainedT >
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
 typename std::enable_if<!std::is_integral<ContainedT>::value, double>::type
-pixel_sum( const ImageInterface< ImageT, ContainedT >& im )
+pixel_sum( const ImageT<ContainedT>& im )
 {
     return pixel_sum_impl<ImageT, ContainedT, double>(im);
 }
@@ -65,9 +158,10 @@ pixel_sum( const ImageInterface< ImageT, ContainedT >& im )
 template < template<typename> class ImageT,
            typename T,
            typename ReturnImageT = Image<G<T>>,
-           typename R = std::tuple< ReturnImageT, ReturnImageT, ReturnImageT, ReturnImageT >>
-R
-split_to_channels( const ImageInterface< ImageT, RGBA<T> >& rgba )
+           typename ReturnT = std::tuple< ReturnImageT, ReturnImageT, ReturnImageT, ReturnImageT >,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+           >
+ReturnT split_to_channels( const ImageT<RGBA<T>>& rgba )
 {
     Image<G<T>> r_im( rgba.width(), rgba.height() );
     Image<G<T>> g_im( rgba.width(), rgba.height() );
@@ -96,12 +190,13 @@ split_to_channels( const ImageInterface< ImageT, RGBA<T> >& rgba )
 /// join channels into an RGBA image
 template < template<typename> class ImageT,
            typename T,
-           typename ReturnImageT = Image<RGBA<T>> >
-ReturnImageT
-join_from_channels( const ImageInterface< ImageT, G<T>>& r_im,
-                    const ImageInterface< ImageT, G<T>>& g_im,
-                    const ImageInterface< ImageT, G<T>>& b_im,
-                    const ImageInterface< ImageT, G<T>>& a_im )
+           typename ReturnImageT = Image<RGBA<T>>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+           >
+ReturnImageT join_from_channels( const ImageT<G<T>>& r_im,
+                                 const ImageT<G<T>>& g_im,
+                                 const ImageT<G<T>>& b_im,
+                                 const ImageT<G<T>>& a_im )
 {
     if ( r_im.size() != g_im.size() ||
          g_im.size() != b_im.size() ||
@@ -134,9 +229,10 @@ join_from_channels( const ImageInterface< ImageT, G<T>>& r_im,
 template < template<typename> class ImageT,
            typename T,
            typename ReturnImageT = Image<G<T>>,
-           typename R = std::tuple< ReturnImageT, ReturnImageT >>
-R
-split_to_channels( const ImageInterface< ImageT, Complex<T> >& c )
+           typename ReturnT = std::tuple< ReturnImageT, ReturnImageT >,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+           >
+ReturnT split_to_channels( const ImageT<Complex<T>>& c )
 {
     Image<G<T>> real_im( c.width(), c.height() );
     Image<G<T>> imag_im( c.width(), c.height() );
@@ -159,10 +255,10 @@ split_to_channels( const ImageInterface< ImageT, Complex<T> >& c )
 /// join two images into a Complex image
 template < template<typename> class ImageT,
            typename T,
-           typename ReturnImageT = Image<Complex<T>> >
-ReturnImageT
-join_from_channels( const ImageInterface< ImageT, G<T>>& real_im,
-                    const ImageInterface< ImageT, G<T>>& imag_im )
+           typename ReturnImageT = Image<Complex<T>>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+           >
+ReturnImageT join_from_channels( const ImageT<G<T>>& real_im, const ImageT<G<T>>& imag_im )
 {
     if ( real_im.size() != imag_im.size() )
         exception_builder<std::runtime_error>() << "source images must have matching dimensions";
@@ -193,8 +289,10 @@ join_from_channels( const ImageInterface< ImageT, G<T>>& real_im,
 /// \returns a reference to \a out.
 template < template<typename> class ImageT,
            typename ContainedT,
-           typename ReturnT = ImageInterface< ImageT, ContainedT> >
-ReturnT& transpose( const ImageInterface< ImageT, ContainedT >& in, ImageInterface< ImageT, ContainedT >& out )
+           typename ReturnT = ImageT<ContainedT>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT& transpose( const ImageT<ContainedT>& in, ImageT<ContainedT>& out )
 {
     if ( !(in.width() == out.height() && in.height() == out.width() ) )
         exception_builder<std::runtime_error>() << "input and output must have transposed dimensions: "
@@ -218,8 +316,10 @@ ReturnT& transpose( const ImageInterface< ImageT, ContainedT >& in, ImageInterfa
 /// transpose an image i.e. rows <-> columns; \returns a new transposed image
 template < template<typename> class ImageT,
            typename ContainedT,
-           typename ReturnT = Image< ContainedT > >
-ReturnT transpose( const ImageInterface< ImageT, ContainedT >& im )
+           typename ReturnT = Image< ContainedT >,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT transpose( const ImageT<ContainedT>& im )
 {
     ReturnT result( im.height(), im.width() );
     transpose( im, result );
@@ -232,8 +332,10 @@ ReturnT transpose( const ImageInterface< ImageT, ContainedT >& im )
 /// - quadrant 2 <-> quadrant 4
 template < template<typename> class ImageT,
            typename ContainedT,
-           typename ReturnT = ImageInterface< ImageT, ContainedT > >
-ReturnT& swap_quadrants( ImageInterface< ImageT, ContainedT >& in )
+           typename ReturnT = ImageT<ContainedT>,
+           typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+           >
+ReturnT& swap_quadrants( ImageT<ContainedT>& in )
 {
     const auto [width, height] = in.size().components();
 

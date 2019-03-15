@@ -12,19 +12,21 @@
 
 // local
 #include "ImageExpression.h"
-#include "ImageInterface.h"
+#include "ImageTypeTraits.h"
 #include "PixelTypes.h"
+#include "Point.h"
 #include "Size.h"
 #include "Util.h"
 
 /// basic 2-dimensional image; data is stored as a
 /// contiguous array of type T
 template < typename T >
-class Image : public ImageInterface< Image, T >
+class Image
 {
 public:
     using type = T;
     using pixel_type = T;
+    using index_type = uint32_t;
     using data_type = typename std::vector<T>;
     using iterator = typename data_type::iterator;
     using const_iterator = typename data_type::const_iterator;
@@ -67,14 +69,16 @@ public:
     /// conversion from another similar image; expensive!
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename E = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
-    explicit Image( const ImageInterface< ImageT, ContainedT >& p )
+               typename = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type,
+               typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+               >
+    explicit Image( const ImageT<ContainedT>& p )
         : width_( p.width() )
         , height_( p.height() )
         , data_( p.pixel_count() )
     {
         // no alternative but to iterate
-        for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
+        for ( index_type i=0; i<p.pixel_count(); ++i )
             convert( p[i], data_[i] );
     }
 
@@ -84,7 +88,7 @@ public:
     {
         resize( e.size() );
 
-        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+        for ( index_type i=0; i<pixel_count(); ++i )
             data_[i] = e[i];
     }
 
@@ -130,13 +134,15 @@ public:
     /// conversion assignment
     template < template<typename> class ImageT,
                typename ContainedT,
-               typename = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type >
-    Image& operator=( const ImageInterface< ImageT, ContainedT >& p )
+               typename = typename std::enable_if<pixeltype_is_convertible< ContainedT, T >::value>::type,
+               typename = typename std::enable_if_t< is_imagetype<ImageT<T>>::value >
+               >
+    Image& operator=( const ImageT<ContainedT>& p )
     {
         resize( p.size() );
 
         // no alternative but to iterate
-        for ( decltype(p.pixel_count()) i=0; i<p.pixel_count(); ++i )
+        for ( index_type i=0; i<p.pixel_count(); ++i )
             convert( p[i], data_[i] );
 
         return *this;
@@ -147,7 +153,7 @@ public:
     Image& operator=(const E& e)
     {
         resize( e.size() );
-        for ( decltype(pixel_count()) i=0; i<pixel_count(); ++i )
+        for ( index_type i=0; i<pixel_count(); ++i )
             data_[i] = e[i];
 
         return *this;
@@ -202,7 +208,7 @@ public:
     inline const uint32_t width() const { return width_; }
     inline const uint32_t height() const { return height_; }
     inline const Size size() const { return Size( width_, height_ ); }
-    inline const uint32_t pixel_count() const { return width_ * height_; }
+    inline const index_type pixel_count() const { return width_ * height_; }
 
     /// swap
     void swap( Image& rhs )
