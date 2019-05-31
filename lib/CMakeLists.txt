@@ -2,17 +2,18 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set( SOURCE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/PNMImageLoader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Size.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Util.cpp )
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/image_loader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/pnm_image_loader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/size.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/rect.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/util.cpp )
 set( LIBS )
 
 find_package(TIFF)
 if(TIFF_FOUND)
   set(SOURCE
     ${SOURCE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/TIFFImageLoader.cpp )
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tiff_image_loader.cpp )
 
   # workaround missing libtiffxx
   get_filename_component(TIFF_DIR ${TIFF_LIBRARY} DIRECTORY)

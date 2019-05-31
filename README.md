@@ -50,7 +50,8 @@ TODO
     * apply kernel in Fourier space
     * use SIMD
   * direct correlation
-  * peak detection
+  * peak detection - done
+  * peak fitting
 * image processing
   * low/high pass filter
 * processing framework

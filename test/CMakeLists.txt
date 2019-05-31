@@ -8,7 +8,7 @@ add_library(catch-main STATIC main.cpp)
 # include catch
 find_package(Catch2 CONFIG REQUIRED)
 
-file(GLOB SOURCES *Test.cpp)
+file(GLOB SOURCES *_test.cpp)
 foreach(SOURCE ${SOURCES})
   get_filename_component(OUTPUT ${SOURCE} NAME_WE)
   message("building ${OUTPUT} from ${SOURCE}")
@@ -34,7 +34,7 @@ endforeach()
 # include google benchmark
 find_package(benchmark CONFIG REQUIRED)
 
-file(GLOB BM_SOURCES *Benchmark.cpp)
+file(GLOB BM_SOURCES *_benchmark.cpp)
 foreach(BM_SOURCE ${BM_SOURCES})
   get_filename_component(OUTPUT ${BM_SOURCE} NAME_WE)
   message("building ${OUTPUT} from ${BM_SOURCE}")
