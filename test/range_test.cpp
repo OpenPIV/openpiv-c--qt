@@ -3,7 +3,7 @@
 #include "catch.hpp"
 
 // to be tested
-#include "range.h"
+#include "core/range.h"
 
 using namespace Catch;
 using namespace openpiv::core;

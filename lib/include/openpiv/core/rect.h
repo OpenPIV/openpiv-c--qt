@@ -5,8 +5,8 @@
 #include <iosfwd>
 
 // local
-#include "point.h"
-#include "size.h"
+#include "core/point.h"
+#include "core/size.h"
 
 namespace openpiv::core {
 

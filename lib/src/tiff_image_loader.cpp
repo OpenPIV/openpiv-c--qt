@@ -1,5 +1,5 @@
 
-#include "tiff_image_loader.h"
+#include "loaders/tiff_image_loader.h"
 
 // std
 #include <array>
@@ -11,8 +11,8 @@
 #include <tiffio.hxx>
 
 // local
-#include "util.h"
-#include "image.h"
+#include "core/util.h"
+#include "core/image.h"
 
 namespace openpiv::core {
 

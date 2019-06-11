@@ -11,10 +11,10 @@
 #include "test_utils.h"
 
 // to be tested
-#include "image_expression.h"
-#include "image.h"
-#include "image_utils.h"
-#include "image_stats.h"
+#include "core/image_expression.h"
+#include "core/image.h"
+#include "core/image_utils.h"
+#include "algos/stats.h"
 
 using namespace openpiv::core;
 

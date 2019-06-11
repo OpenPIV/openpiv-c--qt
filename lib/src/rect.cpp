@@ -1,11 +1,11 @@
 
-#include "rect.h"
+#include "core/rect.h"
 
 // std
 #include <iostream>
 
 // local
-#include "exception_builder.h"
+#include "core/exception_builder.h"
 
 namespace openpiv::core {
 

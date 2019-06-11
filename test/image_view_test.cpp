@@ -8,12 +8,12 @@
 #include <tuple>
 
 // local
-#include "image_stats.h"
 #include "test_utils.h"
 
 // to be tested
-#include "image_view.h"
-#include "image_utils.h"
+#include "core/image_view.h"
+#include "core/image_utils.h"
+#include "algos/stats.h"
 
 using namespace Catch;
 using namespace openpiv::core;

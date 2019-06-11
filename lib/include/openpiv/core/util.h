@@ -15,7 +15,7 @@
 #include <vector>
 
 // openpiv
-#include "exception_builder.h"
+#include "core/exception_builder.h"
 
 namespace openpiv::core {
 
@@ -104,4 +104,4 @@ auto convert_array_to(const std::array<Src, N> &src) -> std::array<Dest, N>;
 
 }
 
-#include "detail/util.impl.h"
+#include "core/detail/util.impl.h"

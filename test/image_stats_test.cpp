@@ -6,8 +6,8 @@
 #include "test_utils.h"
 
 // to be tested
-#include "image_stats.h"
-#include "pixel_types.h"
+#include "core/pixel_types.h"
+#include "algos/stats.h"
 
 using namespace openpiv::core;
 

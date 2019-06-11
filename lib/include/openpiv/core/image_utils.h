@@ -7,10 +7,10 @@
 #include <vector>
 
 // local
-#include "exception_builder.h"
-#include "image.h"
-#include "image_view.h"
-#include "image_type_traits.h"
+#include "core/exception_builder.h"
+#include "core/image.h"
+#include "core/image_view.h"
+#include "core/image_type_traits.h"
 
 namespace openpiv::core {
 
@@ -157,4 +157,4 @@ ReturnT& swap_quadrants( ImageT<ContainedT>& in );
 
 }
 
-#include "detail/image_utils.impl.h"
+#include "core/detail/image_utils.impl.h"

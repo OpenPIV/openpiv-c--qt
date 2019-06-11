@@ -7,7 +7,7 @@
 #include <string>
 
 // to be tested
-#include "rect.h"
+#include "core/rect.h"
 
 using namespace openpiv::core;
 

@@ -17,7 +17,7 @@ foreach(SOURCE ${SOURCES})
   add_executable(${OUTPUT} ${SOURCE})
 
   # include openpivcore
-  include_directories(${CMAKE_SOURCE_DIR}/lib/include)
+  include_directories(${CMAKE_SOURCE_DIR}/lib/include/openpiv)
   target_link_libraries(${OUTPUT} catch-main openpivcore)
 
   # add as a test

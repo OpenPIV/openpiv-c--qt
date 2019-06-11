@@ -7,7 +7,7 @@
 #include <iostream>
 
 // local
-#include "util.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 

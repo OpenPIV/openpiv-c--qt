@@ -8,12 +8,12 @@
 #include <vector>
 
 // local
-#include "enum_helper.h"
-#include "exception_builder.h"
-#include "image.h"
-#include "image_utils.h"
-#include "pixel_types.h"
-#include "util.h"
+#include "core/enum_helper.h"
+#include "core/exception_builder.h"
+#include "core/image.h"
+#include "core/image_utils.h"
+#include "core/pixel_types.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 

@@ -3,8 +3,8 @@
 #include <benchmark/benchmark.h>
 
 // openpiv
-#include "image_utils.h"
-#include "image_loader.h"
+#include "core/image_utils.h"
+#include "loaders/image_loader.h"
 
 // test
 #include "test_utils.h"

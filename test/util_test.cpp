@@ -12,7 +12,7 @@
 #include "test_utils.h"
 
 // to be tested
-#include "util.h"
+#include "core/util.h"
 
 using namespace Catch;
 using namespace openpiv::core;

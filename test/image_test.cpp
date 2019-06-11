@@ -14,13 +14,14 @@
 #include "test_utils.h"
 
 // to be tested
-#include "image.h"
-#include "image_loader.h"
-#include "image_stats.h"
-#include "image_utils.h"
-#include "image_view.h"
-#include "range.h"
-#include "util.h"
+#include "core/image.h"
+#include "core/image_utils.h"
+#include "core/image_view.h"
+#include "core/range.h"
+#include "core/util.h"
+#include "algos/stats.h"
+#include "loaders/image_loader.h"
+
 
 using namespace Catch;
 using namespace openpiv::core;

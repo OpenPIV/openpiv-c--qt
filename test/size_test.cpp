@@ -8,7 +8,7 @@
 #include <string>
 
 // to be tested
-#include "size.h"
+#include "core/size.h"
 
 // local
 #include "test_utils.h"

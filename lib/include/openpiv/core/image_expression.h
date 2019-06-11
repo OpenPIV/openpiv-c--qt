@@ -6,9 +6,9 @@
 #include <utility>
 
 // local
-#include "pixel_types.h"
-#include "image_type_traits.h"
-#include "size.h"
+#include "core/pixel_types.h"
+#include "core/image_type_traits.h"
+#include "core/size.h"
 
 namespace openpiv::core {
 

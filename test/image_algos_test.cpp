@@ -9,9 +9,9 @@
 #include "test_utils.h"
 
 // to be tested
-#include "image_algos.h"
-#include "image_loader.h"
-#include "image_utils.h"
+#include "algos/fft.h"
+#include "loaders/image_loader.h"
+#include "core/image_utils.h"
 
 using namespace Catch;
 

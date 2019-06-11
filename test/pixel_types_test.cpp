@@ -6,7 +6,7 @@
 #include <utility>
 
 // to be tested
-#include "pixel_types.h"
+#include "core/pixel_types.h"
 
 using namespace openpiv::core;
 

@@ -3,8 +3,8 @@
 #include <benchmark/benchmark.h>
 
 // openpiv
-#include "image_algos.h"
-#include "image_loader.h"
+#include "algos/fft.h"
+#include "loaders/image_loader.h"
 
 // test
 #include "test_utils.h"

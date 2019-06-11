@@ -11,13 +11,13 @@
 #include <vector>
 
 // local
-#include "image_expression.h"
-#include "image_type_traits.h"
-#include "pixel_types.h"
-#include "point.h"
-#include "size.h"
-#include "util.h"
-#include "exception_builder.h"
+#include "core/image_expression.h"
+#include "core/image_type_traits.h"
+#include "core/pixel_types.h"
+#include "core/point.h"
+#include "core/size.h"
+#include "core/util.h"
+#include "core/exception_builder.h"
 
 namespace openpiv::core {
 

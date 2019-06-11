@@ -9,8 +9,8 @@
 #include <type_traits>
 
 // local
-#include "image.h"
-#include "image_view.h"
+#include "core/image.h"
+#include "core/image_view.h"
 
 namespace openpiv::core {
 

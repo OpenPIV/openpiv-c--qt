@@ -5,8 +5,8 @@
 #include <tuple>
 
 // local
-#include "image.h"
-#include "image_type_traits.h"
+#include "core/image.h"
+#include "core/image_type_traits.h"
 
 namespace openpiv::core {
 

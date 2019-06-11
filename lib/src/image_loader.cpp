@@ -1,5 +1,5 @@
 
-#include "image_loader.h"
+#include "loaders/image_loader.h"
 
 // std
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <vector>
 
 // local
-#include "util.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 

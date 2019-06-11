@@ -1,5 +1,5 @@
 
-#include "util.h"
+#include "core/util.h"
 
 // std
 #include <cmath>
@@ -15,7 +15,7 @@
 #include <vector>
 
 // core
-#include "exception_builder.h"
+#include "core/exception_builder.h"
 
 namespace openpiv::core {
 

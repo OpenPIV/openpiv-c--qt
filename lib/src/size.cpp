@@ -1,12 +1,12 @@
 
-#include "size.h"
+#include "core/size.h"
 
 // std
 #include <iostream>
 
 // local
-#include "exception_builder.h"
-#include "util.h"
+#include "core/exception_builder.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 

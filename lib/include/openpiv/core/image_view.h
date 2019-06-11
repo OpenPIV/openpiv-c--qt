@@ -8,11 +8,11 @@
 #include <string>
 
 // local
-#include "exception_builder.h"
-#include "image.h"
-#include "propagate_const.h"
-#include "rect.h"
-#include "util.h"
+#include "core/exception_builder.h"
+#include "core/image.h"
+#include "core/propagate_const.h"
+#include "core/rect.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 

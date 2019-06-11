@@ -1,5 +1,5 @@
 
-#include "pnm_image_loader.h"
+#include "loaders/pnm_image_loader.h"
 
 // std
 #include <array>
@@ -8,10 +8,10 @@
 #include <memory>
 
 // local
-#include "image.h"
-#include "image_stats.h"
-#include "image_type_traits.h"
-#include "util.h"
+#include "core/image.h"
+#include "core/image_type_traits.h"
+#include "core/util.h"
+#include "algos/stats.h"
 
 namespace openpiv::core {
 

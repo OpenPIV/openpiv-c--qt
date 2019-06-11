@@ -9,7 +9,7 @@
 #include "test_utils.h"
 
 // to be tested
-#include "enum_helper.h"
+#include "core/enum_helper.h"
 
 using namespace Catch;
 using namespace openpiv::core;

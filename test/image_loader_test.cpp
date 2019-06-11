@@ -10,8 +10,8 @@
 #include "test_utils.h"
 
 // to be tested
-#include "image_loader.h"
-#include "image_utils.h"
+#include "core/image_utils.h"
+#include "loaders/image_loader.h"
 
 using namespace openpiv::core;
 

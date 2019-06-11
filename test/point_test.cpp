@@ -7,7 +7,7 @@
 #include <string>
 
 // to be tested
-#include "point.h"
+#include "core/point.h"
 
 using namespace openpiv::core;
 
