@@ -24,7 +24,7 @@
 
 using namespace Catch;
 using namespace openpiv::core;
-
+using namespace openpiv::algos;
 
 TEST_CASE("image_utils_test - constant_fill_test")
 {
@@ -221,10 +221,10 @@ TEST_CASE("image_test - swap_quadrants_test")
     REQUIRE( save_to_file( "swap_quadrants_input.pgm", im ) );
 
     size s{ im.width()/2, im.height()/2 };
-    gf_image_view q1{ create_image_view( im, { {0, 0}, s } ) };
-    gf_image_view q2{ create_image_view( im, { {50, 0}, s } ) };
-    gf_image_view q3{ create_image_view( im, { {0, 50}, s } ) };
-    gf_image_view q4{ create_image_view( im, { {50, 50}, s } ) };
+    gf_image_view q1{ im, { {0, 0}, s } };
+    gf_image_view q2{ im, { {50, 0}, s } };
+    gf_image_view q3{ im, { {0, 50}, s } };
+    gf_image_view q4{ im, { {50, 50}, s } };
 
     REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
     REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );

@@ -14,6 +14,8 @@
 #include "core/image_utils.h"
 
 using namespace Catch;
+using namespace openpiv::core;
+using namespace openpiv::algos;
 
 TEST_CASE("image_algos_test - FFTTest")
 {

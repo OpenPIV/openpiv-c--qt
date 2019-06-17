@@ -17,13 +17,14 @@
 
 using namespace Catch;
 using namespace openpiv::core;
+using namespace openpiv::algos;
 
 TEST_CASE("image_view_test - basic_construction_test")
 {
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
-    auto iv = create_image_view( im, rect::from_size({100, 100}) );
+    g8_image_view iv{ im, rect::from_size({100, 100}) };
     REQUIRE(iv.width() == 100);
     REQUIRE(iv.height() == 100);
     REQUIRE(iv.pixel_count() == 10000);
@@ -33,7 +34,7 @@ TEST_CASE("image_view_test - resize_test")
 {
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 128_g8 );
-    auto iv = create_image_view( im, rect::from_size({100, 100}) );
+    g8_image_view iv{ im, rect::from_size({100, 100}) };
 
     iv.resize(150, 150);
     REQUIRE(iv.width() == 150);

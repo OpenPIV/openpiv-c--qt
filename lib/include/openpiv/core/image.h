@@ -82,19 +82,14 @@ public:
         , height_( p.height() )
         , data_( p.pixel_count() )
     {
-        // no alternative but to iterate
-        for ( index_t i=0; i<p.pixel_count(); ++i )
-            convert( p[i], data_[i] );
+        *this = p;
     }
 
     template <typename E,
               typename = typename std::enable_if_t< is_imageexpression_v<E> > >
     explicit image( const E& e )
     {
-        resize( e.size() );
-
-        for ( index_t i=0; i<pixel_count(); ++i )
-            data_[i] = e[i];
+        *this = e;
     }
 
     /// resize the image; this is destructive and any data contained

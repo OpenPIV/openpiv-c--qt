@@ -10,6 +10,7 @@
 #include "test_utils.h"
 
 using namespace openpiv::core;
+using namespace openpiv::algos;
 
 static void fft_cross_correlation_benchmark(benchmark::State& state)
 {
@@ -18,8 +19,8 @@ static void fft_cross_correlation_benchmark(benchmark::State& state)
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
 
-    auto view_a{ create_image_view( im_a, rect{ {}, s } ) };
-    auto view_b{ create_image_view( im_b, rect{ {}, s } ) };
+    cf_image_view view_a{ im_a, rect{ {}, s } };
+    cf_image_view view_b{ im_b, rect{ {}, s } };
 
     for (auto _ : state)
     {
@@ -40,7 +41,7 @@ static void fft_auto_correlation_benchmark(benchmark::State& state)
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
 
-    auto view_a{ create_image_view( im_a, rect{ {}, s } ) };
+    cf_image_view view_a{ im_a, rect{ {}, s } };
 
     for (auto _ : state)
     {

@@ -10,6 +10,7 @@
 #include "algos/stats.h"
 
 using namespace openpiv::core;
+using namespace openpiv::algos;
 
 TEST_CASE("image_stats_test - find_image_range_uniform_test")
 {

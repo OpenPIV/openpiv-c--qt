@@ -17,6 +17,7 @@
 #include "algos/stats.h"
 
 using namespace openpiv::core;
+using namespace openpiv::algos;
 
 class T_
 {

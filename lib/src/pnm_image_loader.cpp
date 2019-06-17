@@ -310,7 +310,7 @@ namespace openpiv::core {
                >
     void save_( std::ostream& os, const ImageT<g_f>& im )
     {
-        auto [min, max] = find_image_range( im );
+        auto [min, max] = algos::find_image_range( im );
         auto range = max - min;
         if ( max == min )
         {

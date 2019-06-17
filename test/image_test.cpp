@@ -25,7 +25,7 @@
 
 using namespace Catch;
 using namespace openpiv::core;
-
+using namespace openpiv::algos;
 
 TEST_CASE("image_test - int_test")
 {
