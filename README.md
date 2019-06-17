@@ -14,55 +14,59 @@ Building uses cmake; to build (linux example):
 * cmake -DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake ..
 * make
 
+To run tests:
+
+* make test
+
 Dependencies
 ------------
 
 * c++17 compiler e.g. clang++-5.0, gcc7
 * [vcpkg](https://github.com/Microsoft/vcpkg)
-  * vcpkg install catch2
-  * vcpkg install tiff
-  * vcpkg install spdlog
-  * vcpkg install benchmark
+  * catch2: unit test framework: vcpkg install catch2
+  * libtiff: TIFF IO support: vcpkg install tiff
+  * spdlog: logging framework (not yet required): vcpkg install spdlog
+  * benchmark: used to run performance benchmarks: vcpkg install benchmark
 
 TODO
 ----
 
-* logging
 * core
-  * load/save PNM files - done
-    * save double images - done
-  * iostream ops for ImageLoaders
-  * shared memory -> Image allocator support
+  * [ ] logging
+  * [x] load/save PNM files
+    * [x] save double image
+  * [ ] iostream ops for ImageLoaders
+  * [ ] shared memory -> Image allocator support
   * utilities
-    * split RGB to 4xgreyscale - done
-    * join 4xgreyscale to RGB - done
-    * split complex to planes - done
-    * create complex from planes - done
-  * add ImageInterface data iterators - done
-  * remove data() method from ImageInterface, ImageView - done
-  * allow ImageView to be non-const
+    * [x] split RGB to 4xgreyscale
+    * [x] join 4xgreyscale to RGB
+    * [x] split complex to planes
+    * [x] create complex from planes
+  * [x] add ImageInterface data iterators
+  * [x] remove data() method from ImageInterface, ImageView
+  * [x] allow ImageView to be non-const
 * algorithms
-  * transpose - done
-  * normalize - done
+  * [x] transpose
+  * [x] normalize
   * FFT
-    * spectral correlation - done
-    * optimize
-    * apply kernel in Fourier space
-    * use SIMD
-  * direct correlation
-  * peak detection - done
-  * peak fitting
+    * [x] spectral correlation
+    * [ ] optimize
+    * [ ] apply kernel in Fourier space
+    * [ ] use SIMD
+  * [ ] direct correlation
+  * [x] peak detection
+  * [ ] peak fitting
 * image processing
-  * low/high pass filter
+  * [ ] low/high pass filter
 * processing framework
-  * grid generator
-  * processing
-  * marking
+  * [ ] grid generator
+  * [ ] processing
+  * [ ] marking
 * data output
-  * ASCII/CSV
-  * gnuplot/pyplot?
-  * tecplot
+  * [ ] ASCII/CSV
+  * [ ] gnuplot/pyplot?
+  * [ ] tecplot
 * GUI
-  * Qt?
-  * websockets/HTML5?
-  * webassembly + JS/HTML5?
+  * [ ] Qt?
+  * [ ] websockets/HTML5?
+  * [ ] webassembly + JS/HTML5?
