@@ -11,19 +11,19 @@ set( LIBS )
 
 find_package(TIFF)
 if(TIFF_FOUND)
+  # no reliable way to get libtiffxx so build local copy of
+  # tif_stream.cxx
+  set(TIFF_EXTERNAL_LIBRARY_CXX ${PROJECT_SOURCE_DIR}/external/libtiff/4.0.10)
   set(SOURCE
     ${SOURCE}
+    ${TIFF_EXTERNAL_LIBRARY_CXX}/tif_stream.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tiff_image_loader.cpp )
-
-  # workaround missing libtiffxx
-  get_filename_component(TIFF_DIR ${TIFF_LIBRARY} DIRECTORY)
-  get_filename_component(TIFF_SO_EXT ${TIFF_LIBRARY} EXT)
-  get_filename_component(TIFF_LIB ${TIFF_LIBRARY} NAME_WE)
-  set(TIFF_LIBRARIES ${TIFF_LIBRARIES} "${TIFF_DIR}/${TIFF_LIB}xx${TIFF_SO_EXT}")
 
   set(LIBS
     ${LIBS}
     ${TIFF_LIBRARIES})
+
+  include_directories(${TIFF_EXTERNAL_LIBRARY_CXX})
   include_directories(TIFF_INCLUDE_DIR)
 endif()
 
