@@ -1,3 +1,5 @@
+[![Build Status][travis-badge]][travis]
+
 OpenPIV (c++)
 =============
 
@@ -31,6 +33,8 @@ Dependencies
 TODO
 ----
 
+* build
+  * [ ] travis/CI
 * core
   * [ ] logging
   * [x] load/save PNM files
