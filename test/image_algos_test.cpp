@@ -1,6 +1,6 @@
 
 // catch
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 // std
 #include <thread>
@@ -52,7 +52,7 @@ TEST_CASE("image_algos_test - FFTTest")
             {
                 auto p = point2<uint32_t>{ x, y };
                 std::cout << p << ": " << output[ p ] << "\n";
-                REQUIRE( (output[ p ].abs_sqr()) == Approx(0).margin(1e-9) );
+                REQUIRE( (output[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
             }
 
     // inverse transform

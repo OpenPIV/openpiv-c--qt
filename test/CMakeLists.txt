@@ -2,11 +2,11 @@
 # unit tests:
 #
 
+# include catch
+find_package(Catch2 REQUIRED)
+
 # create an archive for catch-main
 add_library(catch-main STATIC main.cpp)
-
-# include catch
-find_package(Catch2 CONFIG REQUIRED)
 
 file(GLOB SOURCES *_test.cpp)
 foreach(SOURCE ${SOURCES})
@@ -16,8 +16,9 @@ foreach(SOURCE ${SOURCES})
   # for each file, build a binary
   add_executable(${OUTPUT} ${SOURCE})
 
-  # include openpivcore
-  include_directories(${CMAKE_SOURCE_DIR}/lib/include/openpiv)
+  # include openpivcore, catch2
+  get_target_property(CATCH2_INCLUDE_DIRECTORIES Catch2::Catch2 INTERFACE_INCLUDE_DIRECTORIES)
+  include_directories(${CMAKE_SOURCE_DIR}/lib/include/openpiv ${CATCH2_INCLUDE_DIRECTORIES})
   target_link_libraries(${OUTPUT} catch-main openpivcore)
 
   # add as a test

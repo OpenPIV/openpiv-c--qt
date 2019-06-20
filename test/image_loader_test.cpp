@@ -1,6 +1,6 @@
 
 // catch
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 // std
 #include <cstdlib>
