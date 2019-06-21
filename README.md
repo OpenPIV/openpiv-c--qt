@@ -1,4 +1,4 @@
-[![Build Status][travis-badge]][travis]
+[![Build Status](https://travis-ci.org/timdewhirst/openpiv-c--qt.svg?branch=master)](https://travis-ci.org/timdewhirst/openpiv-c--qt)
 
 OpenPIV (c++)
 =============
@@ -34,7 +34,7 @@ TODO
 ----
 
 * build
-  * [ ] travis/CI
+  * [x] travis/CI
 * core
   * [ ] logging
   * [x] load/save PNM files
