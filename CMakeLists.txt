@@ -12,6 +12,7 @@ enable_testing()
 
 add_subdirectory(lib)
 add_subdirectory(test)
+add_subdirectory(examples)
 
 #get_cmake_property(_variableNames VARIABLES)
 #foreach (_variableName ${_variableNames})

@@ -4,7 +4,7 @@
 set -ev
 
 # setup vcpkg and install required packages
-required="catch2 tiff spdlog benchmark"
+required="catch2 tiff spdlog benchmark asyncplusplus cxxopts"
 
 pushd ./external/vcpkg
 ./bootstrap-vcpkg.sh

@@ -29,6 +29,8 @@ Dependencies
   * libtiff: TIFF IO support: vcpkg install tiff
   * spdlog: logging framework (not yet required): vcpkg install spdlog
   * benchmark: used to run performance benchmarks: vcpkg install benchmark
+  * async++: implements c++17 parallel algoriths: vcpkg install asyncplusplus
+  * cxxopts: nice command line parsing: vcpkg install cxxopts
 
 TODO
 ----
@@ -62,8 +64,11 @@ TODO
   * [ ] peak fitting
 * image processing
   * [ ] low/high pass filter
+* examples
+  * [x] parallel cross-correlate
 * processing framework
-  * [ ] grid generator
+  * [x] cartesian grid generator
+  * [ ] further grid generators
   * [ ] processing
   * [ ] marking
 * data output
