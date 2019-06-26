@@ -3,6 +3,7 @@
 // std
 #include <algorithm>
 #include <exception>
+#include <functional>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -31,48 +32,76 @@ namespace openpiv::algos {
 
     /// A basic decimate-in-time FFT algorithm; not highly optimized.
     ///
-    /// This class is not thread-safe; if performing FFT in multiple
-    /// threads then a new FFT instance should be created per-thread;
-    /// this is because the FFT class holds some intermediate storage
-    /// which is maintained until the next call to FFT::transform()
+    /// This class is thread-safe
     class FFT
     {
-        size size_;
-        cf_image output_;
-        std::vector< c_f > fft_buffer_;
-        cf_image temp_;
+        const size size_;
 
         /// contains "twiddle factors" for each n: 2^n < N, n>=0
         using scaling_map_t = std::unordered_map< size_t, std::vector<c_f> >;
-        scaling_map_t forward_scaling_;
-        scaling_map_t reverse_scaling_;
+        const scaling_map_t forward_scaling_;
+        const scaling_map_t reverse_scaling_;
 
-        /// track id of thread that created this instance
-        std::thread::id thread_id_;
+        /// storage for intermediate data
+        struct data
+        {
+            cf_image output;
+            std::vector< c_f > fft_buffer;
+            cf_image temp;
+        };
+
+        /// helpers to allow TLS for intermediate storage
+        /// and appropriate cleanup
+        using cleanup_t = std::vector<std::function<void()>>;
+        mutable cleanup_t cleanup_;
+
+        using storage_t = std::unordered_map<FFT*, data>;
+        storage_t& storage() const
+        {
+            thread_local static std::unordered_map<FFT*, data> static_data;
+            return static_data;
+        }
+
+        /// \fn cache contains a per-thread, per-instance copy of data
+        /// that is lazily initialized; this allows a single instance
+        /// of FFT to be called from multiple threads without locking
+        data& cache() const
+        {
+            FFT* self = const_cast<FFT*>(this);
+            if ( !storage().count(self) )
+            {
+                auto& d = storage()[self];
+                size_t N{ maximal_size( size_ ).width() };
+                d.output.resize( size_ );
+                d.temp.resize( transpose(size_) );
+                d.fft_buffer.resize( N );
+
+                cleanup_.emplace_back( [&s = storage(), self](){ s.erase(self); } );
+            }
+
+            return storage().at(self);
+        }
+
+        void clear_cache() const
+        {
+            for ( const auto& c : cleanup_ )
+                c();
+        }
 
     public:
         FFT( const core::size& size )
             : size_(size)
+            , forward_scaling_( generate_scaling_factors(size, direction::FORWARD) )
+            , reverse_scaling_( generate_scaling_factors(size, direction::REVERSE) )
         {
             // ensure power-of-two sizes
             if ( !(is_pow2(size_.width()) && is_pow2(size_.height()) ) )
                 exception_builder<std::runtime_error>() << "dimensions must be power of 2: " << size_;
+        }
 
-            // store thread id
-            thread_id_ = std::this_thread::get_id();
-
-            // allocate output, intermediate storage
-            size_t N{ maximal_size( size ).width() };
-            output_.resize( size );
-            temp_.resize( transpose(size) );
-            fft_buffer_.resize( N );
-
-            // make scaling factors
-            do {
-                forward_scaling_[N] = generate_scaling_factors(N, direction::FORWARD);
-                reverse_scaling_[N] = generate_scaling_factors(N, direction::REVERSE);
-                N >>= 1;
-            } while (N > 2);
+        ~FFT()
+        {
+            clear_cache();
         }
 
         /// Perform a 2-D FFT; will always produce a complex floating point image output
@@ -83,13 +112,6 @@ namespace openpiv::algos {
         const cf_image& transform( const ImageT<ContainedT>& input, direction d = direction::FORWARD )
         {
             DECLARE_ENTRY_EXIT
-
-            // sanity checks
-            if ( std::this_thread::get_id() != thread_id_ )
-            {
-                exception_builder< std::runtime_error >() << "calling FFT::transform() from wrong thread";
-            }
-
             if ( input.size() != size_ )
             {
                 exception_builder< std::runtime_error >()
@@ -97,23 +119,23 @@ namespace openpiv::algos {
             }
 
             // copy data, converting to complex
-            output_.operator=( input );
+            cache().output.operator=( input );
 
             // iterate over rows first
-            for ( uint32_t h = 0; h<output_.height(); ++h )
-                fft( output_.line(h), output_.width(), d );
+            for ( uint32_t h = 0; h < cache().output.height(); ++h )
+                fft( cache().output.line(h), cache().output.width(), d );
 
             // transpose outout -> temp
-            transpose( output_, temp_ );
+            transpose( cache().output, cache().temp );
 
             // now do columns
-            for ( uint32_t h = 0; h<temp_.height(); ++h )
-                fft( temp_.line(h), temp_.width(), d );
+            for ( uint32_t h = 0; h < cache().temp.height(); ++h )
+                fft( cache().temp.line(h), cache().temp.width(), d );
 
             // flip back: temp -> output
-            transpose( temp_, output_ );
+            transpose( cache().temp, cache().output );
 
-            return output_;
+            return cache().output;
         }
 
         template < template <typename> class ImageT,
@@ -126,10 +148,10 @@ namespace openpiv::algos {
             const cf_image& b_fft = transform( b, direction::FORWARD );
 
             a_fft = b_fft * conj( a_fft );
-            output_ = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( output_ );
+            cache().output = real( transform( a_fft, direction::REVERSE ) );
+            swap_quadrants( cache().output );
 
-            return output_;
+            return cache().output;
         }
 
         template < template <typename> class ImageT,
@@ -141,10 +163,10 @@ namespace openpiv::algos {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
 
             a_fft = abs_sqr( a_fft );
-            output_ = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( output_ );
+            cache().output = real( transform( a_fft, direction::REVERSE ) );
+            swap_quadrants( cache().output );
 
-            return output_;
+            return cache().output;
         }
 
     private:
@@ -174,21 +196,28 @@ namespace openpiv::algos {
         {
             DECLARE_ENTRY_EXIT
 
-            typed_memcpy( &fft_buffer_[0], in, n, stride );
-            fft_inner( in, &fft_buffer_[0], n, 1, d );
+            typed_memcpy( &cache().fft_buffer[0], in, n, stride );
+            fft_inner( in, &cache().fft_buffer[0], n, 1, d );
         }
 
-        static std::vector<c_f> generate_scaling_factors( size_t n, direction d )
+        static scaling_map_t generate_scaling_factors( const core::size& size, direction d )
         {
-            const double scaling{ d == direction::FORWARD ? -1.0 : 1.0 };
-            std::vector<c_f> result(n);
-            std::generate(
-                std::begin(result),
-                std::end(result),
-                [i=0, n, d, scaling]() mutable {
-                    const double theta = (scaling * M_PI * i++)/n;
-                    return c_f{ std::cos( theta ), std::sin( theta ) };
-                } );
+            scaling_map_t result;
+            size_t n = maximal_size( size ).width();
+            do {
+                const double scaling{ d == direction::FORWARD ? -1.0 : 1.0 };
+                std::vector<c_f> twiddle(n);
+                std::generate(
+                    std::begin(twiddle),
+                    std::end(twiddle),
+                    [i=0, n, d, scaling]() mutable {
+                        const double theta = (scaling * M_PI * i++)/n;
+                        return c_f{ std::cos( theta ), std::sin( theta ) };
+                    } );
+
+                result[n] = twiddle;
+                n /= 2;
+            } while (n > 2);
 
             return result;
         }

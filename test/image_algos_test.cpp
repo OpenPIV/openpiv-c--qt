@@ -39,19 +39,19 @@ TEST_CASE("image_algos_test - FFTTest")
             if ( x == 32 && y == 32 )
             {
                 auto p = point2<uint32_t>{ x, y };
-                std::cout << p << ": " << output[ p ] << "\n";
+                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ] != c_f{}) );
             }
             else if ( x == 224 && y == 224 )
             {
                 auto p = point2<uint32_t>{ x, y };
-                std::cout << p << ": " << output[ p ] << "\n";
+                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ] != c_f{}) );
             }
             else
             {
                 auto p = point2<uint32_t>{ x, y };
-                std::cout << p << ": " << output[ p ] << "\n";
+                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
             }
 
@@ -75,21 +75,6 @@ TEST_CASE("image_algos_test - FFT non-power-of-two size")
 {
     _REQUIRE_THROWS_MATCHES( FFT( { 512, 400 } ), std::runtime_error, Contains( "power of 2" ) );
     _REQUIRE_THROWS_MATCHES( FFT( { 400, 512 } ), std::runtime_error, Contains( "power of 2" ) );
-}
-
-TEST_CASE("image_algos_test - FFT wrong thread")
-{
-    gf_image im{ 256, 256 };
-    fill( im, []( uint32_t w, uint32_t h ){ return (w/2)%2 ? 1.0 : 0.0; } );
-
-    FFT fft( im.size() );
-    std::thread t{ [&im, &fft](){
-            _REQUIRE_THROWS_MATCHES(
-                fft.transform( im ),
-                std::runtime_error,
-                Contains( "wrong thread" ) );
-        } };
-    t.join();
 }
 
 TEST_CASE("image_algos_test - cross_correlation_test")
@@ -138,7 +123,6 @@ TEST_CASE("image_algos_test - fft_real_test")
 {
     // load images
     auto im_a = load_from_file< g_f >( "corr_a.tiff" );
-    std::cout << "im_a: " << im_a << "\n";
 
     // extract a couple of small windows
     size s{ 128, 128 };
