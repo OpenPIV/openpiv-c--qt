@@ -75,25 +75,25 @@ TEST_CASE("util_test - checked_unsigned_conversion_larger_size")
 
 TEST_CASE("util_test - are_all_convertible_true")
 {
-    bool b{ are_all_convertible<double, int, unsigned int, float>::value };
+    bool b{ are_all_convertible_v<double, int, unsigned int, float> };
     REQUIRE(b);
 }
 
 TEST_CASE("util_test - are_all_convertible_false")
 {
-    bool b{ are_all_convertible<double, int, unsigned int, char>::value };
+    bool b{ are_all_convertible_v<double, int, unsigned int, char> };
     REQUIRE(b);
 }
 
 TEST_CASE("util_test - are_all_equal_true")
 {
-    bool b{ are_all_equal<double, double, double>::value };
+    bool b{ are_all_equal_v<double, double, double> };
     REQUIRE(b);
 }
 
 TEST_CASE("util_test - are_all_equal_false")
 {
-    bool b{ are_all_equal<double, double, int>::value };
+    bool b{ are_all_equal_v<double, double, int> };
     REQUIRE(!b);
 }
 

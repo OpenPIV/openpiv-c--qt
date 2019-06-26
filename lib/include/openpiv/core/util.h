@@ -72,31 +72,24 @@ template <typename To, typename From>
 constexpr
 To checked_unsigned_conversion(const From& v);
 
-/// pair of helpers to determine if all types Ts are convertible to T
-template <typename To, typename From, typename... R>
-struct are_all_convertible {
-    constexpr static bool value =
-        std::is_convertible_v<From,To> &&
-        are_all_convertible<To,R...>::value;
+template <typename To, typename... From>
+struct are_all_convertible
+{
+    constexpr static bool value = (std::is_convertible<From,To>::value && ...);
 };
 
-template <typename To, typename From>
-struct are_all_convertible<To, From> {
-    constexpr static bool value = std::is_convertible<From,To>::value;
+
+template <typename To, typename... From>
+inline constexpr bool are_all_convertible_v = are_all_convertible<To, From...>::value;
+
+template <typename TypeA, typename... TypeB>
+struct are_all_equal
+{
+    constexpr static bool value = (std::is_same<TypeA, TypeB>::value && ...);
 };
 
-/// pair of helpers to determine if all types Ts are equal to T
-template <typename TypeA, typename TypeB, typename... R>
-struct are_all_equal {
-    constexpr static bool value =
-        std::is_same<TypeA, TypeB>::value &&
-        are_all_equal<TypeA, R...>::value;
-};
-
-template <typename TypeA, typename TypeB>
-struct are_all_equal<TypeA, TypeB> {
-    constexpr static bool value = std::is_same<TypeA, TypeB>::value;
-};
+template <typename To, typename... From>
+inline constexpr bool are_all_equal_v = are_all_equal<To, From...>::value;
 
 template<typename Dest, typename Src, std::size_t N>
 auto convert_array_to(const std::array<Src, N> &src) -> std::array<Dest, N>;
