@@ -27,8 +27,8 @@ public:
 
     /// allow initialization of the point components
     template < typename... Ts,
-               typename = typename std::enable_if<N == sizeof...(Ts), void>::type,
-               typename = typename std::enable_if<are_all_convertible<T, Ts...>::value>::type >
+               typename = typename std::enable_if_t<N == sizeof...(Ts), void>,
+               typename = typename std::enable_if_t<are_all_convertible_v<T, Ts...>> >
     constexpr point( Ts&&... v )
         : data_( data_t{ {static_cast<T>(v)...} } )
     {}
@@ -38,6 +38,11 @@ public:
                typename = typename std::enable_if<std::is_convertible<U, T>::value>::type >
     constexpr point( const point< N, U >& p )
         : data_( convert_array_to< T >(p.data()) )
+    {}
+
+    /// conversion from a tuple
+    constexpr point( data_t&& d )
+        : data_( std::move(d) )
     {}
 
     // assignment
