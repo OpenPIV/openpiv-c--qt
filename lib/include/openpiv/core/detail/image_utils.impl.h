@@ -3,6 +3,7 @@
 
 // std
 #include <algorithm>
+#include <cmath>
 #include <type_traits>
 #include <vector>
 
@@ -32,12 +33,13 @@ const image<ContainedT>& get_underlying( const image_view<ContainedT>& iv ) { re
 /// image_view can be adjusted by setting \a peak_radius
 template < template<typename> class ImageT,
            typename ContainedT,
-           typename ReturnT = std::vector<image_view<ContainedT>>,
+           typename ReturnT = peaks_t<ContainedT>,
            typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
            >
 ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t peak_radius )
 {
     ReturnT result;
+    auto bl = im.rect().bottomLeft();
     for ( uint32_t h=peak_radius; h<im.height()-2*peak_radius; ++h )
     {
         const ContainedT* above = im.line( h-1 );
@@ -49,7 +51,7 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
                 result.emplace_back(
                     create_image_view(
                         im,
-                        rect( {w-peak_radius, h-peak_radius},
+                        rect( {bl[0] + w - peak_radius, bl[1] + h - peak_radius},
                               {2*peak_radius + 1, 2*peak_radius + 1} ) ) );
     }
 
@@ -59,6 +61,31 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
                    return b[{peak_radius, peak_radius}] < a[{peak_radius, peak_radius}];
                } );
     result.resize(num_peaks);
+
+    return result;
+}
+
+/// Fit two one-dimensional Gaussian curves to a peak
+template <typename ContainedT,
+          typename result_t = point2<double>>
+result_t fit_simple_gaussian( const image_view<ContainedT>& im )
+{
+    if ( im.size() != size{3, 3} )
+        exception_builder<std::runtime_error>() << "fit_simple_guassian: input must be 3x3";
+
+    auto f = []( auto l, auto c, auto r ) {
+                 double num = log(l) - log(r);
+                 double den = 2.0*(log(l) + log(r) - 2.0*log(c));
+
+                 if ( den == 0.0 )
+                     return 0.0;
+
+                 return num/den;
+             };
+
+    result_t result{ im.rect().midpoint() };
+    result[0] += f(im[{0, 1}], im[{1, 1}], im[{2, 1}]);
+    result[1] += f(im[{1, 0}], im[{1, 1}], im[{1, 2}]);
 
     return result;
 }

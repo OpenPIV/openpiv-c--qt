@@ -15,6 +15,7 @@
 #include "core/image_type_traits.h"
 #include "core/pixel_types.h"
 #include "core/point.h"
+#include "core/rect.h"
 #include "core/size.h"
 #include "core/util.h"
 #include "core/exception_builder.h"
@@ -210,6 +211,7 @@ public:
     inline const uint32_t height() const { return height_; }
     inline const core::size size() const { return { width_, height_ }; }
     inline const index_t pixel_count() const { return width_ * height_; }
+    inline core::rect rect() const { return core::rect{ {}, { width_, height_ } }; }
 
     /// swap
     void swap( image& rhs )
