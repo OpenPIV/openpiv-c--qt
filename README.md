@@ -61,7 +61,7 @@ TODO
     * [ ] use SIMD
   * [ ] direct correlation
   * [x] peak detection
-  * [ ] peak fitting
+  * [x] peak fitting
 * image processing
   * [ ] low/high pass filter
 * examples

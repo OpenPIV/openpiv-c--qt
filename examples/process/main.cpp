@@ -158,6 +158,10 @@ int main( int argc, char* argv[] )
                                  core::fit_simple_gaussian( peaks[0] ) -
                                  core::point2<double>{ ia.width()/2, ia.height()/2 };
 
+                             // convert from image normal cartesian
+                             result.xy[1] = images[0].height() - result.xy[1];
+                             result.vxy[1] = -result.vxy[1];
+
                              found_peaks[peak_count++] = std::move(result);
                          } );
 
