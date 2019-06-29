@@ -71,7 +71,7 @@ namespace openpiv::core {
         /// anything about the allocation/ownership of the loader.
         template < typename T >
         static
-        typename std::enable_if< std::is_base_of< image_loader, T >::value, bool >::type
+        typename std::enable_if_t< std::is_base_of_v< image_loader, T >, bool >
         register_loader()
         {
             return register_loader( std::shared_ptr<image_loader>( new T ) );

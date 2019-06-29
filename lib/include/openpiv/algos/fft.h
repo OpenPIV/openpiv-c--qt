@@ -109,7 +109,7 @@ namespace openpiv::algos {
                    typename ContainedT,
                    typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
                    >
-        const cf_image& transform( const ImageT<ContainedT>& input, direction d = direction::FORWARD )
+        const cf_image& transform( const ImageT<ContainedT>& input, direction d = direction::FORWARD ) const
         {
             DECLARE_ENTRY_EXIT
             if ( input.size() != size_ )
@@ -142,7 +142,7 @@ namespace openpiv::algos {
                    typename ContainedT,
                    typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
                    >
-        cf_image cross_correlate( const ImageT<ContainedT>& a, const ImageT<ContainedT>& b )
+        const cf_image& cross_correlate( const ImageT<ContainedT>& a, const ImageT<ContainedT>& b ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
             const cf_image& b_fft = transform( b, direction::FORWARD );
@@ -158,7 +158,7 @@ namespace openpiv::algos {
                    typename ContainedT,
                    typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
                    >
-        cf_image auto_correlate( const ImageT<ContainedT>& a )
+        const cf_image& auto_correlate( const ImageT<ContainedT>& a ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
 
@@ -170,7 +170,7 @@ namespace openpiv::algos {
         }
 
     private:
-        void fft_inner( c_f* in, c_f* out, size_t n, size_t step, direction d )
+        void fft_inner( c_f* in, c_f* out, size_t n, size_t step, direction d ) const
         {
             DECLARE_ENTRY_EXIT
 
@@ -192,7 +192,7 @@ namespace openpiv::algos {
             }
         }
 
-        void fft( c_f* in, size_t n, direction d, size_t stride = 1 )
+        void fft( c_f* in, size_t n, direction d, size_t stride = 1 ) const
         {
             DECLARE_ENTRY_EXIT
 

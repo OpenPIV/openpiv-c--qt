@@ -173,10 +173,10 @@ namespace openpiv::core {
 
     // user-defined deduction guide
     template <typename T>
-    image_view( image<T>&, core::rect ) -> image_view<T>;
+    image_view( image<T>&, const core::rect& ) -> image_view<T>;
 
     template <typename T>
-    image_view( const image<T>&, core::rect ) -> const image_view<T>;
+    image_view( const image<T>&, const core::rect& ) -> image_view<T>;
 
     template <typename T>
     const image_view<T> create_image_view( const image<T>& im, core::rect r )

@@ -233,7 +233,8 @@ TEST_CASE("image_view_test - fill_test")
     REQUIRE( pixel_sum( view ) == 100*100*255 );
     REQUIRE( pixel_sum( im ) == 100*100*128 + 200*200*127 );
 
-    auto [min, max] = find_image_range( im );
+    g_16 min, max;
+    std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? g_16::max() : g_16::max()/(max-min) };
 
     apply( im, [&min, &scale](auto i, auto v){return scale*(v-min);} );

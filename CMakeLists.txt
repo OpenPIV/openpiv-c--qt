@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 
 project(openpiv-c++)
 
+#SET(CMAKE_C_COMPILER clang)
+#SET(CMAKE_CXX_COMPILER clang++)
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(openpiv-c++_VERSION_MAJOR 0)
