@@ -37,12 +37,15 @@ TODO
 
 * build
   * [x] travis/CI
+  * [ ] add clang/windows/OS X build
 * core
   * [ ] logging
   * [x] load/save PNM files
     * [x] save double image
   * [ ] iostream ops for ImageLoaders
-  * [ ] shared memory -> Image allocator support
+  * [ ] image allocator support
+    * [ ] shared memory
+    * [ ] pooled memory
   * utilities
     * [x] split RGB to 4xgreyscale
     * [x] join 4xgreyscale to RGB
@@ -57,12 +60,15 @@ TODO
   * FFT
     * [x] spectral correlation
     * [ ] optimize
+    * [ ] openCL
     * [ ] apply kernel in Fourier space
     * [ ] use SIMD
+    * [ ] real -> complex FFT
   * [ ] direct correlation
   * [x] peak detection
   * [x] peak fitting
 * image processing
+  * [ ] change image_view to use array of pointers for each row
   * [ ] low/high pass filter
 * examples
   * [x] parallel cross-correlate
