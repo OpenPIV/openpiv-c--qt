@@ -86,6 +86,15 @@ TEST_CASE("rect_test - midpoint_test")
     REQUIRE( r.midpoint() == rect::point_t(10, 10) );
 }
 
+TEST_CASE("rect_test - edge_test")
+{
+    rect r({5, 6}, {10, 11});
+    CHECK( r.left() == 5 );
+    CHECK( r.right() == 15 );
+    CHECK( r.bottom() == 6 );
+    CHECK( r.top() == 17 );
+}
+
 TEST_CASE("rect_test - ostream_test")
 {
     std::stringstream ss;

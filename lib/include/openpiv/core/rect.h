@@ -35,6 +35,11 @@ public:
     point_t topRight() const;
     point_t midpoint() const;
 
+    inline point_t::value_t bottom() const { return bottomLeft_[1]; }
+    inline point_t::value_t top() const { return bottom() + height(); }
+    inline point_t::value_t left() const { return bottomLeft_[0]; }
+    inline point_t::value_t right() const { return left() + width(); }
+
     inline const core::size& size() const { return size_; }
     inline core::size::component_t width() const { return size_.width(); }
     inline core::size::component_t height() const { return size_.height(); }

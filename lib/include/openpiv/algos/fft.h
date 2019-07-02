@@ -170,24 +170,22 @@ namespace openpiv::algos {
         }
 
     private:
-        void fft_inner( c_f* in, c_f* out, size_t n, size_t step, direction d ) const
+        void fft_inner( c_f* in, c_f* out, const c_f* scaling, size_t n, size_t step, direction d ) const
         {
             DECLARE_ENTRY_EXIT
 
-            const scaling_map_t& scaling_ = d == direction::FORWARD ? forward_scaling_ : reverse_scaling_;
             if (step < n)
             {
                 const size_t doublestep{ 2*step };
-                fft_inner(out,        in,        n, doublestep, d);
-                fft_inner(out + step, in + step, n, doublestep, d);
+                fft_inner(out,        in,        scaling, n, doublestep, d);
+                fft_inner(out + step, in + step, scaling, n, doublestep, d);
 
                 for ( size_t i=0; i<n; i+=doublestep )
                 {
-                    c_f s = scaling_.at(n)[i];
-                    c_f e{ out[i] };
-                    c_f o{ out[i + step] };
-                    in[i/2]        = e + s*o;
-                    in[(i + n)/2]  = e - s*o;
+                    const c_f e{ out[i] };
+                    const c_f o{ out[i + step] * scaling[i] };
+                    in[ i/2 ]      = e + o;
+                    in[ (i+n)/2 ]  = e - o;
                 }
             }
         }
@@ -197,7 +195,8 @@ namespace openpiv::algos {
             DECLARE_ENTRY_EXIT
 
             typed_memcpy( &cache().fft_buffer[0], in, n, stride );
-            fft_inner( in, &cache().fft_buffer[0], n, 1, d );
+            const auto& scaling = (d == direction::FORWARD ? forward_scaling_ : reverse_scaling_).at(n);
+            fft_inner( in, &cache().fft_buffer[0], &scaling[0], n, 1, d );
         }
 
         static scaling_map_t generate_scaling_factors( const core::size& size, direction d )

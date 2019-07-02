@@ -136,8 +136,10 @@ int main( int argc, char* argv[] )
     async::parallel_for( grid,
                          [&images, &fft, &found_peaks, &peak_count]( const core::rect& ia )
                          {
-                             auto view_a{ core::create_image_view( images[0], ia ) };
-                             auto view_b{ core::create_image_view( images[1], ia ) };
+                             // auto view_a{ core::create_image_view( images[0], ia ) };
+                             // auto view_b{ core::create_image_view( images[1], ia ) };
+                             auto view_a{ core::extract( images[0], ia ) };
+                             auto view_b{ core::extract( images[1], ia ) };
 
                              // prepare & correlate
                              core::gf_image output{ fft.cross_correlate( view_a, view_b ) };

@@ -375,5 +375,22 @@ ReturnT& swap_quadrants( ImageT<ContainedT>& in )
     return in;
 }
 
+/// extract a new image from existing image; similar to forming an
+/// image_view but actually copying the data
+template < typename  ContainedT >
+image<ContainedT> extract( const image<ContainedT>& im, core::rect r )
+{
+    if ( r.bottomLeft() == core::rect::point_t{} && r.size() == im.size() )
+        return im;
+
+    image<ContainedT> result{ r.size() };
+    for ( size_t h=0; h<r.height(); ++h )
+    {
+        typed_memcpy<ContainedT>( result.line(h), im.line( r.bottom() + h ) + r.left(), r.width() );
+    }
+
+    return result;
+}
+
 
 }

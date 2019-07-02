@@ -259,3 +259,42 @@ TEST_CASE("image_test - peak_find_test")
     REQUIRE( peaks[2].rect().midpoint() == rect::point_t( 30, 30 ) );
     REQUIRE( peaks[0].rect().size() == size( 3, 3 ) );
 }
+
+TEST_CASE("image_test - extract_test")
+{
+    gf_image im{ 100, 100 };
+
+    // fill quadrants with values of 1, 2, 4, 8
+    apply(
+        im,
+        [w=im.width(), h=im.height()]( auto i, auto v )
+        {
+            g_f x = ( i % w ) < w/2 ? 1 : 2;
+            g_f y = ( i / w ) < h/2 ? 1 : 4;
+
+            return x*y;
+        }
+        );
+
+    size s{ im.width()/2, im.height()/2 };
+    gf_image q1 = extract(im, { {0, 0}, s });
+    gf_image q2 = extract(im, { {50, 0}, s });
+    gf_image q3 = extract(im, { {0, 50}, s });
+    gf_image q4 = extract(im, { {50, 50}, s });
+
+    // check we've extracted only the part of the
+    // original we wanted
+    REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
+    REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
+    REQUIRE( pixel_sum( q3 ) == 4 * q3.pixel_count() );
+    REQUIRE( pixel_sum( q4 ) == 8 * q4.pixel_count() );
+
+    swap_quadrants( im );
+
+    // check extracted images are truly independent
+    // of original image
+    REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
+    REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
+    REQUIRE( pixel_sum( q3 ) == 4 * q3.pixel_count() );
+    REQUIRE( pixel_sum( q4 ) == 8 * q4.pixel_count() );
+}
