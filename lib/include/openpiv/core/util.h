@@ -23,6 +23,15 @@ namespace openpiv::core {
 template <typename T>
 void* typed_memcpy( void* dest, const T* src, size_t count, size_t stride = 1 );
 
+
+/// strongly typed memset
+template <typename T>
+void* typed_memset( void* dest, const T& src, size_t count );
+
+/// strongly typed memcmp
+template <typename T>
+int typed_memcmp( const T* s1, const T* s2, size_t count );
+
 /// simple entry/exit logger with indent
 class entry_exit_logger
 {

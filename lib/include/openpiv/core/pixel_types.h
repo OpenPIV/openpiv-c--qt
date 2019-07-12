@@ -157,13 +157,13 @@ public:
 
     inline constexpr complex operator*( const complex& rhs ) const
     {
-        const T a{ real }, b{ imag }, c{ rhs.real }, d{ rhs.imag };
+        const T &a{ real }, &b{ imag }, &c{ rhs.real }, &d{ rhs.imag };
         return { a*c - b*d, b*c + a*d };
     }
 
     inline constexpr complex operator/( const complex& rhs ) const
     {
-        const T a{ real }, b{ imag }, c{ rhs.real }, d{ rhs.imag };
+        const T &a{ real }, &b{ imag }, &c{ rhs.real }, &d{ rhs.imag };
         const T denom{ c*c + d*d };
         return { (a*c + b*d)/denom, (b*c - a*d)/denom };
     }

@@ -106,7 +106,7 @@ namespace openpiv::core {
         class iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_t >
         {
         public:
-            explicit iterator( image_view iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
+            explicit iterator( image_view& iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
             iterator& operator++() { ++i_; return *this; }
             iterator operator++(int) { iterator result = *this; operator++(); return result; }
             iterator& operator--() { --i_; return *this; }
@@ -125,14 +125,14 @@ namespace openpiv::core {
             }
 
         private:
-            image_view<T> iv_;
+            image_view& iv_;
             index_t i_ = {};
         };
 
         class const_iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_t >
         {
         public:
-            explicit const_iterator( image_view iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
+            explicit const_iterator( const image_view& iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
             const_iterator& operator++() { ++i_; return *this; }
             const_iterator operator++(int) { const_iterator result = *this; operator++(); return result; }
             const_iterator& operator--() { --i_; return *this; }
@@ -140,7 +140,7 @@ namespace openpiv::core {
             bool operator==(const const_iterator& rhs) const { return iv_ == rhs.iv_ && i_ == rhs.i_; }
             bool operator!=(const const_iterator& rhs) const { return !operator==(rhs); }
 
-            pixel_t& operator*()
+            const pixel_t& operator*()
             {
                 if ( i_ < 0 || i_ >= iv_.pixel_count() )
                     core::exception_builder< std::out_of_range >()
@@ -151,7 +151,7 @@ namespace openpiv::core {
             }
 
         private:
-            image_view<T> iv_;
+            const image_view& iv_;
             index_t i_ = {};
         };
 

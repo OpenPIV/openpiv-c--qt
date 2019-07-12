@@ -1,6 +1,10 @@
 
 #pragma once
 
+// std
+#include <memory>
+
+
 namespace openpiv::core {
 
 template <typename T>
@@ -23,6 +27,18 @@ void* typed_memcpy( void* dest, const T* src, size_t count, size_t stride )
     }
 }
 
+template <typename T>
+void* typed_memset( void* dest, const T& src, size_t count )
+{
+    T* d = reinterpret_cast<T*>(dest);
+    return std::uninitialized_fill_n(d, count, src);
+}
+
+template <typename T>
+int typed_memcmp( const T* s1, const T* s2, size_t count )
+{
+    return memcmp( s1, s2, count*sizeof(T) );
+}
 
 template <typename To, typename From>
 constexpr

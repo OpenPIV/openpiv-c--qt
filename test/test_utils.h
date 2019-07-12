@@ -52,7 +52,7 @@ template < typename T >
 typename std::enable_if_t< is_pixeltype_v<T>, std::tuple< image<T>, T > >
 create_and_fill( const size& s, T v )
 {
-    image<T> result(s.width(), s.height());
+    image<T> result( s );
     fill( result, v );
 
     return std::make_tuple( result, v );

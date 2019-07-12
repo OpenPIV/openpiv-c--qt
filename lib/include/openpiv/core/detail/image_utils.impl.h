@@ -71,7 +71,7 @@ template <typename ContainedT,
 result_t fit_simple_gaussian( const image_view<ContainedT>& im )
 {
     if ( im.size() != size{3, 3} )
-        exception_builder<std::runtime_error>() << "fit_simple_guassian: input must be 3x3";
+        exception_builder<std::runtime_error>() << "fit_simple_gaussian: input must be 3x3";
 
     auto f = []( auto l, auto c, auto r ) {
                  double num = log(l) - log(r);

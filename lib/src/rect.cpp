@@ -85,7 +85,8 @@ bool rect::contains( const rect& r1 ) const
 /// { {0, 0}, {10, 10} }.dilate(2) -> { {-2, -2}, {14, 14} }
 rect rect::dilate( int32_t d ) const
 {
-    if ( -d >= width()/2 || -d >= height()/2 )
+    if ( -d >= checked_unsigned_conversion<int32_t>( width()/2 ) ||
+         -d >= checked_unsigned_conversion<int32_t>( height()/2 ) )
         core::exception_builder<std::runtime_error>()
             << "unable to dilate rect " << *this << " as dilation is too large";
 
