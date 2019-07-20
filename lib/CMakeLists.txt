@@ -24,7 +24,7 @@ if(TIFF_FOUND)
     ${TIFF_LIBRARIES})
 
   include_directories(${TIFF_EXTERNAL_LIBRARY_CXX})
-  include_directories(TIFF_INCLUDE_DIR)
+  include_directories(${TIFF_INCLUDE_DIR})
 endif()
 
 find_package(Threads REQUIRED)
