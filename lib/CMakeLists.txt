@@ -33,6 +33,7 @@ set(LIBS ${LIBS} Threads::Threads)
 set(LIBNAME openpivcore)
 add_compile_options(-ffast-math)
 add_library(${LIBNAME} SHARED ${SOURCE})
+target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
 target_link_libraries(${LIBNAME} ${LIBS})
 
 # install
