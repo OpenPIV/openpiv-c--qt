@@ -13,6 +13,12 @@ set(openpiv-c++_VERSION_PATCH 0)
 
 enable_testing()
 
+if(WIN32)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif(WIN32)
+
 add_subdirectory(lib)
 add_subdirectory(test)
 add_subdirectory(examples)

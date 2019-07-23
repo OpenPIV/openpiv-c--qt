@@ -16,13 +16,18 @@ matrix:
       dist: bionic
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
-    
+    - os: windows
+      env:
+        - VCPKG_DEFAULT_TRIPLET="x64-windows"
+        - CMAKE_BUILD_EXTRA_ARGS="--config Debug"
+        - CTEST_EXTRA_ARGS="-C Debug"
 
 before_install:
     - eval "${MATRIX_EVAL}"
 
 install:
-- ./.ci/setup-vcpkg.sh
+- sh ./.ci/windows-upgrade-to-vs2019.sh
+- sh ./.ci/setup-vcpkg.sh
 
 cache:
   directories:
@@ -32,6 +37,6 @@ script:
 - mkdir build
 - cd build
 - cmake -DCMAKE_TOOLCHAIN_FILE=../external/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-- make
-- ctest
+- cmake --build . ${CMAKE_BUILD_EXTRA_ARGS}
+- ctest ${CTEST_EXTRA_ARGS}
 
