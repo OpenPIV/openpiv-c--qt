@@ -64,7 +64,7 @@ TEST_CASE("image_test - pnm_load_save_test")
     // write data
     std::shared_ptr<image_loader> writer{ image_loader::find_loader("image/x-portable-anymap") };
     {
-        std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
+        std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
         writer->save( os, im );
     }
 
@@ -79,7 +79,7 @@ TEST_CASE("image_test - pnm_load_save_test")
     loader->load( is, reloaded );
 
     {
-        std::ofstream os( "reloaded.pgm", std::ios_base::trunc | std::ios_base::out );
+        std::ofstream os( "reloaded.pgm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
         writer->save( os, reloaded );
     }
 
@@ -143,7 +143,7 @@ TEST_CASE("image_test - rgba_join_test")
     rgba16_image rgba = join_from_channels( r, g, b, a);
 
     std::shared_ptr<image_loader> writer{ image_loader::find_loader("image/x-portable-anymap") };
-    std::fstream os( "test-rgbjoin.ppm", std::ios_base::trunc | std::ios_base::out );
+    std::fstream os( "test-rgbjoin.ppm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
     writer->save( os, rgba );
 }
 

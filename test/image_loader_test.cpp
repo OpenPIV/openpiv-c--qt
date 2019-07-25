@@ -63,7 +63,7 @@ TEST_CASE("image_loader_test - pnm_loader_save_p5")
     REQUIRE(!!writer);
     REQUIRE(writer->name() == std::string("image/x-portable-anymap") );
 
-    std::fstream os( "test-mono.pgm", std::ios_base::trunc | std::ios_base::out );
+    std::fstream os( "test-mono.pgm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
     writer->save( os, im );
 }
 
@@ -83,6 +83,6 @@ TEST_CASE("image_loader_test - pnm_loader_save_p6")
     REQUIRE(!!writer);
     REQUIRE(writer->name() == std::string("image/x-portable-anymap") );
 
-    std::fstream os( "test-rgb.ppm", std::ios_base::trunc | std::ios_base::out );
+    std::fstream os( "test-rgb.ppm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
     writer->save( os, im );
 }
