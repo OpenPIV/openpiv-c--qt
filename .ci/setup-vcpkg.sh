@@ -9,7 +9,7 @@ required="catch2 tiff spdlog benchmark asyncplusplus cxxopts"
 cd ./external/vcpkg
 
 if [ "${TRAVIS_OS_NAME}" = "linux" ] || [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-  ./bootstrap-vcpkg.sh
+  env CC=gcc-7 CXX=g++-7 ./bootstrap-vcpkg.sh
 else
   cmd "/C bootstrap-vcpkg.bat"
 fi

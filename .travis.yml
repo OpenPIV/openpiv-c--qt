@@ -16,6 +16,10 @@ matrix:
       dist: bionic
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
+    - os: osx
+      osx_image: xcode10.2
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
     - os: windows
       env:
         - VCPKG_DEFAULT_TRIPLET="x64-windows"
@@ -26,6 +30,7 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 install:
+- sh ./.ci/osx-install-gcc.sh
 - sh ./.ci/windows-upgrade-to-vs2019.sh
 - sh ./.ci/setup-vcpkg.sh
 
