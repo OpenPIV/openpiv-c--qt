@@ -17,6 +17,14 @@
 // openpiv
 #include "core/exception_builder.h"
 
+// define POSIX-style endianness constants for MSVC
+// (to be replaced w/ C++20 std::endian)
+#ifdef _MSC_VER
+  #define __ORDER_LITTLE_ENDIAN__ 1
+  #define __ORDER_BIG_ENDIAN__ 0
+  #define __BYTE_ORDER__ 1
+#endif
+
 namespace openpiv::core {
 
 /// strongly typed memcpy with ability to stride over data

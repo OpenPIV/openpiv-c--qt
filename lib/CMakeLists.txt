@@ -24,7 +24,7 @@ if(TIFF_FOUND)
     ${TIFF_LIBRARIES})
 
   include_directories(${TIFF_EXTERNAL_LIBRARY_CXX})
-  include_directories(TIFF_INCLUDE_DIR)
+  include_directories(${TIFF_INCLUDE_DIR})
 endif()
 
 find_package(Threads REQUIRED)
@@ -33,6 +33,7 @@ set(LIBS ${LIBS} Threads::Threads)
 set(LIBNAME openpivcore)
 add_compile_options(-ffast-math)
 add_library(${LIBNAME} SHARED ${SOURCE})
+target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
 target_link_libraries(${LIBNAME} ${LIBS})
 
 # install

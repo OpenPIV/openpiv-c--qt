@@ -190,7 +190,7 @@ TEST_CASE("image_test - scale_test")
     REQUIRE(!!writer);
     REQUIRE(writer->name() == "image/x-portable-anymap");
 
-    std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out );
+    std::fstream os( "A_00001_a.pgm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
     writer->save( os, im );
 }
 
