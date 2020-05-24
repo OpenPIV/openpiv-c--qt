@@ -53,3 +53,11 @@ Installation instructions for Windows
  * Download and install fftw3 for developers:
 2. Compile OpenPIV
 3. Run OpenPIV
+
+
+How to cite this work
+=====================
+
+Taylor, Z.J.; Gurka, R.; Kopp, G.A.; Liberzon, A. , Long-Duration Time-Resolved PIV to Study Unsteady Aerodynamics, Instrumentation and Measurement, IEEE Transactions on , vol.59, no.12, pp.3262-3269, Dec. 2010
+doi: 10.1109/TIM.2010.2047149
+URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5464317&isnumber=5609237
