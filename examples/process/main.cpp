@@ -10,6 +10,7 @@
 // utils
 #include <cxxopts.hpp>
 #include <async++.h>
+#include "threadpool.hpp"
 
 // openpiv
 #include "algos/fft.h"
@@ -51,6 +52,7 @@ int main( int argc, char* argv[] )
     uint32_t size;
     double overlap;
     std::vector<std::string> input_files;
+    std::string execution;
 
     try
     {
@@ -59,7 +61,8 @@ int main( int argc, char* argv[] )
             ("h, help", "help", cxxopts::value<bool>())
             ("s, size", "interrogation size", cxxopts::value<uint32_t>(size)->default_value("32"))
             ("o, overlap", "interrogation overlap", cxxopts::value<double>(overlap)->default_value("0.5"))
-            ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files));
+            ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files))
+            ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("async++"));
 
         options.parse_positional({"input"});
         auto result = options.parse(argc, argv);
@@ -86,6 +89,7 @@ int main( int argc, char* argv[] )
     std::cout << "size: " << size << "x" << size << "\n";
     std::cout << "overlap: " << overlap << "\n";
     std::cout << "input files: " << input_files << "\n";
+    std::cout << "execution: " << execution << "\n";
 
     // get images
     std::vector<core::gf_image> images;
@@ -96,7 +100,7 @@ int main( int argc, char* argv[] )
             if ( !is.is_open() )
                 core::exception_builder<std::runtime_error>() << "failed to open " << input_file;
 
-            auto loader{ core::image_loader::find_loader(is) };
+            auto loader{ core::image_loader_registry::find(is) };
             if ( !loader )
                 core::exception_builder<std::runtime_error>() << "failed to find loader for " << input_file;
 
@@ -133,39 +137,55 @@ int main( int argc, char* argv[] )
     std::vector<point_vector> found_peaks( grid.size() );
     std::atomic<int> peak_count = 0;
     auto fft = algos::FFT( ia );
-    async::parallel_for( grid,
-                         [&images, &fft, &found_peaks, &peak_count]( const core::rect& ia )
+    auto processor = [&images, &fft, &found_peaks, &peak_count]( const core::rect& ia )
+                     {
+                         // auto view_a{ core::create_image_view( images[0], ia ) };
+                         // auto view_b{ core::create_image_view( images[1], ia ) };
+                         auto view_a{ core::extract( images[0], ia ) };
+                         auto view_b{ core::extract( images[1], ia ) };
+
+                         // prepare & correlate
+                         core::gf_image output{ fft.cross_correlate( view_a, view_b ) };
+
+                         // find peaks
+                         core::peaks_t<core::g_f> peaks = core::find_peaks( output, 1, 1 );
+
+                         // sub-pixel fitting
+                         if ( peaks.empty() )
                          {
-                             // auto view_a{ core::create_image_view( images[0], ia ) };
-                             // auto view_b{ core::create_image_view( images[1], ia ) };
-                             auto view_a{ core::extract( images[0], ia ) };
-                             auto view_b{ core::extract( images[1], ia ) };
+                             std::cerr << "failed to find a peak for ia: " << ia << "\n";
+                             return;
+                         }
 
-                             // prepare & correlate
-                             core::gf_image output{ fft.cross_correlate( view_a, view_b ) };
+                         point_vector result;
+                         result.xy = ia.midpoint();
+                         result.vxy =
+                             core::fit_simple_gaussian( peaks[0] ) -
+                             core::point2<double>{ ia.width()/2, ia.height()/2 };
 
-                             // find peaks
-                             core::peaks_t<core::g_f> peaks = core::find_peaks( output, 1, 1 );
+                         // convert from image normal cartesian
+                         result.xy[1] = images[0].height() - result.xy[1];
+                         result.vxy[1] = -result.vxy[1];
 
-                             // sub-pixel fitting
-                             if ( peaks.empty() )
-                             {
-                                 std::cerr << "failed to find a peak for ia: " << ia << "\n";
-                                 return;
-                             }
+                         found_peaks[peak_count++] = std::move(result);
+                     };
 
-                             point_vector result;
-                             result.xy = ia.midpoint();
-                             result.vxy =
-                                 core::fit_simple_gaussian( peaks[0] ) -
-                                 core::point2<double>{ ia.width()/2, ia.height()/2 };
+    // check execution
+    if ( execution == "async++" )
+    {
+        async::parallel_for( grid, processor );
+    }
+    else if ( execution == "pool" )
+    {
+        ThreadPool pool( std::thread::hardware_concurrency()-1 );
 
-                             // convert from image normal cartesian
-                             result.xy[1] = images[0].height() - result.xy[1];
-                             result.vxy[1] = -result.vxy[1];
+        for ( const auto& ia : grid )
+            pool.enqueue( processor, ia );
 
-                             found_peaks[peak_count++] = std::move(result);
-                         } );
+        using namespace std::chrono_literals;
+        while ( peak_count < grid.size() )
+            std::this_thread::sleep_for(10ms);
+    }
 
     // dump output
     for ( const auto& pv : found_peaks )
