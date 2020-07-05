@@ -5,6 +5,7 @@
 #include <exception>
 #include <functional>
 #include <thread>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -43,7 +44,7 @@ namespace openpiv::algos {
         const scaling_map_t reverse_scaling_;
 
         /// storage for intermediate data
-        struct data
+        struct data_t
         {
             cf_image output;
             std::vector< c_f > fft_buffer;
@@ -51,41 +52,32 @@ namespace openpiv::algos {
         };
 
         /// helpers to allow TLS for intermediate storage
-        /// and appropriate cleanup
-        using cleanup_t = std::vector<std::function<void()>>;
-        mutable cleanup_t cleanup_;
-
-        using storage_t = std::unordered_map<FFT*, data>;
+        using storage_t = std::vector< std::tuple<FFT*, data_t> >;
         storage_t& storage() const
         {
-            thread_local static std::unordered_map<FFT*, data> static_data;
+            thread_local static storage_t static_data;
             return static_data;
         }
 
         /// \fn cache contains a per-thread, per-instance copy of data
         /// that is lazily initialized; this allows a single instance
         /// of FFT to be called from multiple threads without locking
-        data& cache() const
+        data_t& cache() const
         {
             FFT* self = const_cast<FFT*>(this);
-            if ( !storage().count(self) )
+            for ( auto& [fft, data] : storage() )
             {
-                auto& d = storage()[self];
-                size_t N{ maximal_size( size_ ).width() };
-                d.output.resize( size_ );
-                d.temp.resize( transpose(size_) );
-                d.fft_buffer.resize( N );
-
-                cleanup_.emplace_back( [&s = storage(), self](){ s.erase(self); } );
+                if ( fft == self )
+                    return data;
             }
 
-            return storage().at(self);
-        }
+            auto& [fft, data] = storage().emplace_back(self, data_t{});
+            size_t N{ maximal_size( size_ ).width() };
+            data.output.resize( size_ );
+            data.temp.resize( transpose(size_) );
+            data.fft_buffer.resize( N );
 
-        void clear_cache() const
-        {
-            for ( const auto& c : cleanup_ )
-                c();
+            return data;
         }
 
     public:
@@ -97,11 +89,6 @@ namespace openpiv::algos {
             // ensure power-of-two sizes
             if ( !(is_pow2(size_.width()) && is_pow2(size_.height()) ) )
                 exception_builder<std::runtime_error>() << "dimensions must be power of 2: " << size_;
-        }
-
-        ~FFT()
-        {
-            clear_cache();
         }
 
         /// Perform a 2-D FFT; will always produce a complex floating point image output
@@ -119,13 +106,13 @@ namespace openpiv::algos {
             }
 
             // copy data, converting to complex
-            cache().output.operator=( input );
+            cache().output = input;
 
             // iterate over rows first
             for ( uint32_t h = 0; h < cache().output.height(); ++h )
                 fft( cache().output.line(h), cache().output.width(), d );
 
-            // transpose outout -> temp
+            // transpose output -> temp
             transpose( cache().output, cache().temp );
 
             // now do columns
