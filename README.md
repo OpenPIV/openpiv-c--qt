@@ -37,15 +37,21 @@ TODO
 
 * build
   * [x] travis/CI
-  * [ ] add clang/windows/OS X build
+  * [x] add clang/windows/OS X build
 * core
   * [ ] logging
-  * [x] load/save PNM files
-    * [x] save double image
   * [ ] iostream ops for ImageLoaders
   * [ ] image allocator support
     * [ ] shared memory
     * [ ] pooled memory
+  * [ ] image loading
+    * [x] load/save PNM files
+      * [x] save double image
+    * [x] support loading multiple images from files: modify loader interface to read header, report number of images, extract indexed images
+    * [ ] memory map files - check performance for large files
+    * [ ] PNG - lodepng
+    * [ ] RAW - libraw looks less than ideal but no alternative?
+    * [ ] b16/PCO
   * utilities
     * [x] split RGB to 4xgreyscale
     * [x] join 4xgreyscale to RGB
@@ -62,8 +68,8 @@ TODO
     * [ ] optimize
     * [ ] openCL
     * [ ] apply kernel in Fourier space
-    * [ ] use SIMD
-    * [ ] real -> complex FFT
+    * [ ] use SIMD?
+    * [ ] real -> complex FFT/correlation of real data
   * [ ] direct correlation
   * [x] peak detection
   * [x] peak fitting
@@ -77,6 +83,8 @@ TODO
   * [ ] further grid generators
   * [ ] processing
   * [ ] marking
+  * [ ] iterative analysis
+  * [ ] PIV guided PTV?
 * data output
   * [ ] ASCII/CSV
   * [ ] gnuplot/pyplot?
