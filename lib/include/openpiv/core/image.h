@@ -207,11 +207,11 @@ public:
     const_reverse_iterator rend() const { return std::rend( data_ ); }
 
     /// geometry accessors
-    inline const uint32_t width() const { return width_; }
-    inline const uint32_t height() const { return height_; }
-    inline const core::size size() const { return { width_, height_ }; }
-    inline const index_t pixel_count() const { return width_ * height_; }
-    inline core::rect rect() const { return core::rect{ {}, { width_, height_ } }; }
+    inline constexpr uint32_t width() const { return width_; }
+    inline constexpr uint32_t height() const { return height_; }
+    inline constexpr core::size size() const { return { width_, height_ }; }
+    inline constexpr index_t pixel_count() const { return width_ * height_; }
+    inline constexpr core::rect rect() const { return core::rect{ {}, { width_, height_ } }; }
 
     /// swap
     void swap( image& rhs )

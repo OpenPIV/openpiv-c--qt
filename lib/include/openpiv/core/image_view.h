@@ -83,8 +83,9 @@ namespace openpiv::core {
                 core::exception_builder<std::out_of_range>() << "index outside of allowed area: " << i << " > " << r_.area();
 
             const point2<int32_t> bl{ r_.bottomLeft() };
-            auto x = bl[0] + i % r_.width();
-            auto y = bl[1] + i / r_.width();
+            auto i_div_width = i / r_.width();
+            auto x = bl[0] + (i - i_div_width * r_.width());
+            auto y = bl[1] + i_div_width;
             return im_->operator[]( {x, y} );
         }
         inline const T& operator[](size_t i) const { return const_cast<image_view<T>*>(this)->operator[](i); }
