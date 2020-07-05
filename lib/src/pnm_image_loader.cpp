@@ -13,7 +13,9 @@
 #include "core/util.h"
 #include "algos/stats.h"
 
-namespace openpiv::core {
+namespace {
+
+    using namespace openpiv::core;
 
     template <int> constexpr uint16_t stobe( uint16_t v );
     template <> inline constexpr uint16_t stobe<__ORDER_BIG_ENDIAN__>( uint16_t v )
@@ -31,21 +33,23 @@ namespace openpiv::core {
         return stobe<E>(v);
     }
 
+    /// support chomping comment lines
+    struct comment_tag {};
+    comment_tag comment() { return {}; }
+    std::istream& operator>>( std::istream& is, const comment_tag& )
+    {
+        while ( is.peek() == '#' )
+            is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
 
-    static const bool registeredloader = image_loader::register_loader< pnm_image_loader >();
-
-    pnm_image_loader::~pnm_image_loader()
-    {}
+        return is;
+    }
 
     /// extract header info along with a flag to
     /// indicate if the header is valid
     std::tuple<bool, uint8_t> get_header_info( char* b )
     {
-        bool result = b[0] == 'P';
-        uint8_t type = b[1];
-        result &= '5' <= type && type <= '6';
-
-        return std::tuple<bool, uint8_t>{ result, type - '0' };
+        bool result = (b[0] == 'P' && (b[1] == '5' || b[1] == '6'));
+        return std::tuple<bool, uint8_t>{ result, b[1] - '0' };
     }
 
     /// check if \a b contains "P5" or "P6"; ignore binary pbm images
@@ -57,31 +61,7 @@ namespace openpiv::core {
         return result;
     }
 
-    bool pnm_image_loader::can_load( std::istream& is ) const
-    {
-        if ( !is.good() )
-            exception_builder<image_loader_exception>() << "input stream is not ready for reading";
-
-        // record position
-        peeker peek(is);
-
-        // fetch header data
-        std::array<char, 2> header;
-        is.read(&header[0], sizeof(header));
-        if ( !is.good() )
-            exception_builder<image_loader_exception>() << "input stream doesn't contain enough data";
-
-        if ( is_supported(&header[0]) )
-            return true;
-
-        return false;
-    }
-
-    bool pnm_image_loader::can_save() const
-    {
-        return true;
-    }
-
+    ///
     template < typename PixelT, uint16_t SampleN, uint16_t BitsPerSample >
     image<PixelT> copy(std::istream& is, uint32_t width, uint32_t height);
 
@@ -191,79 +171,156 @@ namespace openpiv::core {
         return im;
     }
 
+    /// register this loader
+    static const bool registeredloader = image_loader_registry::add< pnm_image_loader >();
+}
 
-    // support chomping comment lines
-    struct comment_tag {};
-    comment_tag comment() { return {}; }
-    std::istream& operator>>( std::istream& is, const comment_tag& )
+namespace openpiv::core {
+
+    ///
+    struct pnm_image_loader::impl
     {
-        if ( is.peek() == '#' )
-            is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
+        bool valid      = false;
+        uint8_t type    = 0;
+        uint32_t width  = 0;
+        uint32_t height = 0;
+        uint16_t depth  = 0;
+        std::istream& is;
 
-        return is;
+        impl( std::istream& is_ )
+            : is(is_)
+        {}
+
+        // \a is must be placed after header data
+        template <typename PixelT>
+        bool extract( image<PixelT>& im ) const
+        {
+            if ( !valid )
+                return false;
+
+            // get image data
+            if ( type == 5 )
+            {
+                // binary greyscale
+                if ( depth > 255 )
+                    im = copy<g_16, 1, 16>( is, width, height );
+                else
+                    im = copy<g_16, 1, 8>( is, width, height );
+            }
+            else
+            {
+                // binary RGB
+                if ( depth > 255 )
+                    im = copy<rgba_16, 3, 16>( is, width, height );
+                else
+                    im = copy<rgba_16, 3, 8>( is, width, height );
+            }
+
+            return true;
+        }
+    };
+
+    ///
+    pnm_image_loader::pnm_image_loader()
+    {}
+
+    pnm_image_loader::~pnm_image_loader()
+    {}
+
+    std::string pnm_image_loader::name() const
+    {
+        return "image/x-portable-anymap";
     }
 
-    template <typename PixelT>
-    static void load_( std::istream& is, image<PixelT>& im )
+    int pnm_image_loader::priority() const
     {
+        return 1;
+    }
+
+    image_loader_ptr_t pnm_image_loader::clone() const
+    {
+        return std::make_unique<pnm_image_loader>();
+    }
+
+    bool pnm_image_loader::can_load( std::istream& is ) const
+    {
+        if ( !is.good() )
+            exception_builder<image_loader_exception>() << "input stream is not ready for reading";
+
+        // record position
+        peeker peek(is);
+
+        // fetch header data
+        std::array<char, 2> header;
+        is.read(&header[0], sizeof(header));
+        if ( !is.good() )
+            exception_builder<image_loader_exception>() << "input stream doesn't contain enough data";
+
+        if ( is_supported(&header[0]) )
+            return true;
+
+        return false;
+    }
+
+    bool pnm_image_loader::can_save() const
+    {
+        return true;
+    }
+
+    size_t pnm_image_loader::num_images() const
+    {
+        /// PNM files only ever contain a single image
+        return 1;
+    }
+
+    bool pnm_image_loader::open( std::istream& is )
+    {
+        impl_ = std::make_unique<impl>(is);
+
         // PPM header is very simple:
         // P6
         // # CREATOR: GIMP PNM Filter Version 1.1
         // 1920 1080
         // 255
         char buffer[ 1024 ];
-        is.getline( &buffer[0], sizeof( buffer ) );
+        impl_->is.getline( &buffer[0], sizeof( buffer ) );
 
-        bool isValid;
-        uint8_t type;
-        std::tie( isValid, type ) = get_header_info( buffer );
+        std::tie( impl_->valid, impl_->type ) = get_header_info( buffer );
 
-        if ( !isValid )
-            exception_builder<image_loader_exception>() << "image type not supported: " << std::string( buffer, 2 );
+        if ( !impl_->valid )
+        {
+            // exception_builder<image_loader_exception>() << "image type not supported: " << std::string( buffer, 2 );
+            // todo: add logging
+            std::cerr << "image type not supported: " << std::string( buffer, 2 ) << "\n";
+            return false;
+        }
 
         // get dimensions & depth
-        uint32_t width{};
-        uint32_t height{};
-        uint16_t depth{};
-
-        is >> comment() >> width >> comment() >> height >> comment() >> depth;
+        impl_->is >> comment() >> impl_->width
+                  >> comment() >> impl_->height
+                  >> comment() >> impl_->depth;
         // ensure we chomp any remaining whitespace to EOL
-        is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
+        impl_->is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
 
-        std::cout << "PNM" << std::to_string(type) << "[" << width << ", " << height << "], " << depth << "\n";
-
-        // get image data
-        if ( type == 5 )
-        {
-            // binary greyscale
-            if ( depth > 255 )
-                im = copy<g_16, 1, 16>( is, width, height );
-            else
-                im = copy<g_16, 1, 8>( is, width, height );
-        }
-        else
-        {
-            // binary RGB
-            if ( depth > 255 )
-                im = copy<rgba_16, 3, 16>( is, width, height );
-            else
-                im = copy<rgba_16, 3, 8>( is, width, height );
-        }
+        std::cout << "PNM" << std::to_string(impl_->type)
+                  << "[" << impl_->width << ", " << impl_->height << "], "
+                  << impl_->depth << "\n";
+        return true;
     }
 
-    void pnm_image_loader::load( std::istream& is, g16_image& im ) const
+    bool pnm_image_loader::extract( size_t, g16_image& im )
     {
-        load_(is, im);
+        return impl_->extract(im);
     }
 
-    void pnm_image_loader::load( std::istream& is, gf_image& im ) const
+    bool pnm_image_loader::extract( size_t, gf_image& im )
     {
-        load_(is, im);
+        return impl_->extract(im);
     }
 
-    void pnm_image_loader::load( std::istream& is, rgba16_image& im ) const
+    bool pnm_image_loader::extract( size_t, rgba16_image& im )
     {
-        load_(is, im);
+        return impl_->extract(im);
     }
 
     template < template <typename> class ImageT,
@@ -392,16 +449,6 @@ namespace openpiv::core {
     void pnm_image_loader::save( std::ostream& os, const rgba16_image_view& im ) const
     {
         save_( os, im );
-    }
-
-    std::string pnm_image_loader::name() const
-    {
-        return "image/x-portable-anymap";
-    }
-
-    int pnm_image_loader::priority() const
-    {
-        return 1;
     }
 
 }

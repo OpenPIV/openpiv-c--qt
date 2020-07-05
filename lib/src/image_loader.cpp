@@ -11,7 +11,7 @@
 
 namespace openpiv::core {
 
-    using  image_loader_container = std::vector< std::shared_ptr< image_loader > >;
+    using image_loader_container = std::vector<image_loader_ptr_t>;
 
     static image_loader_container& loaders()
     {
@@ -19,30 +19,31 @@ namespace openpiv::core {
         return static_loaders;
     }
 
-    std::shared_ptr< image_loader > image_loader::find_loader( std::istream& s )
+    image_loader_ptr_t image_loader_registry::find( std::istream& s )
     {
         for ( auto& loader: loaders() )
             if ( loader->can_load( s ) )
-                return loader;
+                return loader->clone();
 
-        return std::shared_ptr< image_loader >();
+        return {};
     }
 
-    std::shared_ptr< image_loader > image_loader::find_loader( const std::string& n )
+    image_loader_ptr_t image_loader_registry::find( const std::string& n )
     {
         for ( auto& loader: loaders() )
             if ( loader->name() == n )
-                return loader;
+                return loader->clone();
 
-        return std::shared_ptr< image_loader >();
+        return {};
     }
 
-    bool image_loader::register_loader( std::shared_ptr<image_loader> loader )
+    bool image_loader_registry::add( image_loader_ptr_t&& loader )
     {
         if ( !loader )
             exception_builder<std::runtime_error>() << "attempting to register null image loader";
 
-        loaders().push_back( loader );
+        auto name{ loader->name() };
+        loaders().emplace_back( std::move(loader) );
         std::sort( loaders().begin(), loaders().end(),
                    []( const auto& lhs, const auto& rhs ) -> bool
                    {
@@ -50,7 +51,7 @@ namespace openpiv::core {
                    }
             );
 
-        std::cout << "registered " << loader->name() << "\n";
+        std::cout << "registered " << name << "\n";
         return true;
     }
 

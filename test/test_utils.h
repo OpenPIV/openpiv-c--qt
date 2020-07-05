@@ -21,7 +21,7 @@ image< ContainedT > load_from_file( const std::string& filename )
     if ( !is.is_open() )
         exception_builder<std::runtime_error>() << "failed to open " << filename;
 
-    std::shared_ptr<image_loader> loader{ image_loader::find_loader(is) };
+    std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     if ( !loader )
         exception_builder<std::runtime_error>() << "failed to find loader for " << filename;
 
@@ -38,7 +38,7 @@ template < template<typename> class ImageT,
                std::is_same_v< ImageT<ContainedT>, image_view<ContainedT> > > >
 bool save_to_file( const std::string& filename, const ImageT< ContainedT >& im )
 {
-    std::shared_ptr<image_loader> writer{ image_loader::find_loader("image/x-portable-anymap") };
+    std::shared_ptr<image_loader> writer{ image_loader_registry::find("image/x-portable-anymap") };
     if ( !writer )
         exception_builder<std::runtime_error>() << "failed to find image writer";
 

@@ -30,8 +30,10 @@ using namespace openpiv::algos;
 TEST_CASE("image_test - int_test")
 {
     g8_image im( 200, 100 );
-    REQUIRE( im.width()  == 200 );
-    REQUIRE( im.height() == 100 );
+    CHECK( im.width()  == 200 );
+    CHECK( im.height() == 100 );
+    CHECK( im.pixel_count() == 100*200 );
+    CHECK( std::distance( im.begin(), im.end() ) == im.pixel_count() );
 }
 
 TEST_CASE("image_test - resize_test")
@@ -168,7 +170,7 @@ TEST_CASE("image_test - scale_test")
     std::ifstream is("A_00001_a.tif", std::ios::binary);
     REQUIRE(is.is_open());
 
-    std::shared_ptr<image_loader> loader{ image_loader::find_loader(is) };
+    std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     REQUIRE(!!loader);
 
     g16_image im;
@@ -186,7 +188,7 @@ TEST_CASE("image_test - scale_test")
     std::cout << "min: " << min << ", max: " << max << "\n";
 
     // write data
-    std::shared_ptr<image_loader> writer{ image_loader::find_loader("image/x-portable-anymap") };
+    std::shared_ptr<image_loader> writer{ image_loader_registry::find("image/x-portable-anymap") };
     REQUIRE(!!writer);
     REQUIRE(writer->name() == "image/x-portable-anymap");
 
