@@ -50,7 +50,7 @@ To checked_unsigned_conversion(const From& v)
     }
     else if constexpr ( std::is_signed_v<To> && std::is_unsigned_v<From> && (sizeof(To) == sizeof(From)) )
     {
-        if (v>std::numeric_limits<To>::max())
+        if (v>static_cast<From>(std::numeric_limits<To>::max()))
             exception_builder<std::range_error>()
                 << "unable to convert " << v
                 << " to " << typeid(To).name() << " as value would be truncated";
