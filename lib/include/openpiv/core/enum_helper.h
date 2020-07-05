@@ -31,7 +31,7 @@ public:
 };
 
 #define DECLARE_ENUM_HELPER( E, ... )                                   \
-    static const auto e##EnumHelper__ = EnumHelper<E>::init( __VA_ARGS__ ); \
+    static const auto E##EnumHelper__initialize__ = EnumHelper<E>::init( __VA_ARGS__ ); \
     std::ostream& operator<<( std::ostream& os, E e )                   \
     {                                                                   \
         if ( !EnumHelper<E>::storage().count(e) )                       \
