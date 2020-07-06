@@ -31,11 +31,17 @@ find_package(Threads REQUIRED)
 set(LIBS ${LIBS} Threads::Threads)
 
 set(LIBNAME openpivcore)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -g -O3 -ffast-math")
+
 add_library(${LIBNAME} SHARED ${SOURCE})
 target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
 target_link_libraries(${LIBNAME} ${LIBS})
+
+if(MSVC)
+  target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+else()
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+  set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -g -O3 -ffast-math")
+endif()
 
 # install
 #install(TARGETS ${LIBNAME} DESTINATION lib/${LIBNAME})
