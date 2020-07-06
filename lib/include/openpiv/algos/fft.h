@@ -107,6 +107,7 @@ namespace openpiv::algos {
 
             // copy data, converting to complex
             cache().output = input;
+            cache().temp.resize( input.size() );
 
             // iterate over rows first
             for ( uint32_t h = 0; h < cache().output.height(); ++h )
