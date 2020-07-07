@@ -37,7 +37,7 @@ target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
 target_link_libraries(${LIBNAME} ${LIBS})
 
 if(MSVC)
-  target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+  set(CMAKE_CXX_FLAGS "/EHsc /W3 /WX")
 else()
   set(CMAKE_CXX_FLAGS "-Wall -Wextra")
   set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -g -O3 -ffast-math")

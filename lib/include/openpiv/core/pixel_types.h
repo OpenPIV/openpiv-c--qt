@@ -245,6 +245,7 @@ std::ostream& operator<<(std::ostream& os, const complex<T>& v )
 }
 
 
+#pragma warning(disable: 4244) // conversion from U to T, possible loss of data
 // greyscale
 template < typename T >
 struct g
@@ -270,6 +271,7 @@ struct g
 
     T v{};
 };
+#pragma warning(default: 4244)
 
 // greyscale
 using g_8  = g<uint8_t>;

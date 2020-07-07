@@ -48,7 +48,7 @@ namespace {
         std::vector<g_8> buf(bytesPerLine);
 
         // copy the data
-        for (size_t h=0; h<height; ++h)
+        for (uint32_t h=0; h<height; ++h)
         {
             // Reading the data line by line; source and destination match so just memcpy
             TIFFReadScanline(tiff, &buf[0], h, 0);
@@ -68,7 +68,7 @@ namespace {
         g16_image im(width, height, 0);
 
         // copy the data
-        for (size_t h=0; h<height; ++h)
+        for (uint32_t h=0; h<height; ++h)
         {
             // Reading the data line by line; source and destination match so just memcpy
             TIFFReadScanline(tiff, im.line(h), h, 0);
@@ -88,7 +88,7 @@ namespace {
         std::vector<g_16> buf(bytesPerLine >> 1);
 
         // copy the data
-        for (size_t h=0; h<height; ++h)
+        for (uint32_t h=0; h<height; ++h)
         {
             TIFFReadScanline(tiff, &buf[0], h, 0);
             rgba_16* destp = im.line(h);
@@ -116,7 +116,7 @@ namespace {
         std::vector<g_8> buf(bytesPerLine);
 
         // copy the data
-        for (size_t h=0; h<height; ++h)
+        for (uint32_t h=0; h<height; ++h)
         {
             TIFFReadScanline(tiff, &buf[0], h, 0);
             rgba_16* destp = im.line(h);
@@ -211,7 +211,7 @@ namespace openpiv::core {
             }
 
             // get correct image
-            if ( TIFFSetDirectory( tiff.get(), index ) == 0 )
+            if ( TIFFSetDirectory( tiff.get(), (uint16_t)index ) == 0 )
             {
                 std::cerr << "failed to set directory to: " << index << "\n";
                 return false;

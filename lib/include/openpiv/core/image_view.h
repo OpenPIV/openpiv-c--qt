@@ -104,9 +104,15 @@ namespace openpiv::core {
         inline index_t pixel_count() const { return r_.area(); }
         inline core::rect rect() const { return r_; }
 
-        class iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_t >
+        class iterator
         {
         public:
+            using iterator_category = std::bidirectional_iterator_tag;
+            using value_type = pixel_t;
+            using difference_type = typename image<T>::data_t::difference_type;
+            using pointer = pixel_t*;
+            using reference = pixel_t&;
+
             explicit iterator( image_view& iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
             iterator& operator++() { ++i_; return *this; }
             iterator operator++(int) { iterator result = *this; operator++(); return result; }
@@ -130,9 +136,15 @@ namespace openpiv::core {
             index_t i_ = {};
         };
 
-        class const_iterator : public std::iterator< std::bidirectional_iterator_tag, pixel_t >
+        class const_iterator
         {
         public:
+            using iterator_category = std::bidirectional_iterator_tag;
+            using value_type = pixel_t;
+            using difference_type = typename image<T>::data_t::difference_type;
+            using pointer = pixel_t*;
+            using reference = pixel_t&;
+
             explicit const_iterator( const image_view& iv, index_t i = 0 ) : iv_( iv ), i_( i ) {}
             const_iterator& operator++() { ++i_; return *this; }
             const_iterator operator++(int) { const_iterator result = *this; operator++(); return result; }

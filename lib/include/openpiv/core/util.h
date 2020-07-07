@@ -63,11 +63,13 @@ public:
 # define DECLARE_ENTRY_EXIT_STREAM(s)
 #endif
 
+#pragma warning(disable: 4146) // unary minus operator applied to unsigned type, result still unsigned
 /// determine if \a v is a power of two
 inline constexpr bool is_pow2( uint64_t v )
 {
     return v && (v == (v&-v));
 }
+#pragma warning(default: 4146)
 
 /// simple RAII for std::istream multi-char peek; allows caller
 /// to "peek" at multiple bytes and will restore stream upon destruction:
