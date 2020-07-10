@@ -32,7 +32,7 @@ TEST_CASE("util_test - typed_memcpy - stride 1")
 
     static constexpr size_t count = 20;
     std::array<s, count> in{ {} };
-    std::array<std::byte, sizeof(s) * count> out{ 0 };
+    std::array<uint8_t, sizeof(s) * count> out{ 0 };
 
     typed_memcpy(&out[0], &in[0], count);
     int result = memcmp(&in[0], &out[0], out.size());
@@ -51,7 +51,7 @@ TEST_CASE("util_test - typed_memcpy - stride 2")
 
     static constexpr size_t count = 20;
     std::array<s, 2*count> in{ {} };
-    std::array<std::byte, sizeof(s) * count> out{ 0 };
+    std::array<uint8_t, sizeof(s) * count> out{ 0 };
 
     typed_memcpy(&out[0], &in[0], count, 2);
     int result = memcmp(&in[0], &out[0], out.size());
