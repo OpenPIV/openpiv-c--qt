@@ -7,7 +7,8 @@
 
 namespace openpiv::core {
 
-template <typename T>
+template <typename T,
+          typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
 void* typed_memcpy( void* dest, const T* src, size_t count, size_t stride )
 {
     if ( stride == 1 )

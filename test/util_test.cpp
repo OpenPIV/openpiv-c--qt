@@ -3,7 +3,10 @@
 #include <catch2/catch.hpp>
 
 // std
+#include <array>
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <sstream>
 #include <string>
@@ -16,6 +19,44 @@
 
 using namespace Catch;
 using namespace openpiv::core;
+
+TEST_CASE("util_test - typed_memcpy - stride 1")
+{
+#pragma pack(push, 1)
+    struct s {
+        uint8_t a = 1;
+        uint32_t b = 2;
+        double c = 3.141;
+    };
+#pragma pack(pop)
+
+    static constexpr size_t count = 20;
+    std::array<s, count> in{ {} };
+    std::array<std::byte, sizeof(s) * count> out{ 0 };
+
+    typed_memcpy(&out[0], &in[0], count);
+    int result = memcmp(&in[0], &out[0], out.size());
+    REQUIRE(result == 0);
+}
+
+TEST_CASE("util_test - typed_memcpy - stride 2")
+{
+#pragma pack(push, 1)
+    struct s {
+        uint8_t a = 1;
+        uint32_t b = 2;
+        double c = 3.141;
+    };
+#pragma pack(pop)
+
+    static constexpr size_t count = 20;
+    std::array<s, 2*count> in{ {} };
+    std::array<std::byte, sizeof(s) * count> out{ 0 };
+
+    typed_memcpy(&out[0], &in[0], count, 2);
+    int result = memcmp(&in[0], &out[0], out.size());
+    REQUIRE(result == 0);
+}
 
 TEST_CASE("util_test - is_pow2_test")
 {

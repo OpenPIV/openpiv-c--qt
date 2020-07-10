@@ -67,17 +67,18 @@ namespace openpiv::algos {
             FFT* self = const_cast<FFT*>(this);
             for ( auto& [fft, data] : storage() )
             {
-                if ( fft == self )
+                if ( fft == self && data.output.size() == size_ )
                     return data;
             }
 
-            auto& [fft, data] = storage().emplace_back(self, data_t{});
+            data_t data;
             size_t N{ maximal_size( size_ ).width() };
             data.output.resize( size_ );
             data.temp.resize( transpose(size_) );
             data.fft_buffer.resize( N );
+            auto& [fft, result] = storage().emplace_back(self, std::move(data));
 
-            return data;
+            return result;
         }
 
     public:
@@ -182,9 +183,9 @@ namespace openpiv::algos {
         {
             DECLARE_ENTRY_EXIT
 
-            typed_memcpy( &cache().fft_buffer[0], in, n, stride );
+            typed_memcpy( cache().fft_buffer.data(), in, n, stride );
             const auto& scaling = (d == direction::FORWARD ? forward_scaling_ : reverse_scaling_).at(n);
-            fft_inner( in, &cache().fft_buffer[0], &scaling[0], n, 1, d );
+            fft_inner( in, cache().fft_buffer.data(), &scaling[0], n, 1, d );
         }
 
         static scaling_map_t generate_scaling_factors( const core::size& size, direction d )
