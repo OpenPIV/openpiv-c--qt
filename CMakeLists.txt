@@ -19,7 +19,7 @@ if(WIN32)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif(WIN32)
 
-add_subdirectory(lib)
+add_subdirectory(openpiv)
 add_subdirectory(test)
 add_subdirectory(examples)
 

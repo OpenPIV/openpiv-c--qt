@@ -1,12 +1,12 @@
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/openpiv)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set( SOURCE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/image_loader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/pnm_image_loader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/size.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/rect.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/util.cpp )
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/size.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/rect.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/util.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/loaders/image_loader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/loaders/pnm_image_loader.cpp )
 set( LIBS )
 
 find_package(TIFF)
@@ -17,7 +17,7 @@ if(TIFF_FOUND)
   set(SOURCE
     ${SOURCE}
     ${TIFF_EXTERNAL_LIBRARY_CXX}/tif_stream.cxx
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tiff_image_loader.cpp )
+    ${CMAKE_CURRENT_SOURCE_DIR}/loaders/tiff_image_loader.cpp )
 
   set(LIBS
     ${LIBS}

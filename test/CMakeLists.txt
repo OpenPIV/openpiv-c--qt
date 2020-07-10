@@ -18,7 +18,7 @@ foreach(SOURCE ${SOURCES})
 
   # include openpivcore, catch2
   get_target_property(CATCH2_INCLUDE_DIRECTORIES Catch2::Catch2 INTERFACE_INCLUDE_DIRECTORIES)
-  include_directories(${CMAKE_SOURCE_DIR}/lib/include/openpiv ${CATCH2_INCLUDE_DIRECTORIES})
+  include_directories(${CMAKE_SOURCE_DIR}/openpiv ${CATCH2_INCLUDE_DIRECTORIES})
   target_link_libraries(${OUTPUT} catch-main openpivcore)
 
   # add as a test
@@ -44,6 +44,6 @@ foreach(BM_SOURCE ${BM_SOURCES})
   add_executable(${OUTPUT} ${BM_SOURCE})
 
   # include openpivcore
-  include_directories(${CMAKE_SOURCE_DIR}/lib/include)
+  include_directories(${CMAKE_SOURCE_DIR})
   target_link_libraries(${OUTPUT} openpivcore benchmark::benchmark benchmark::benchmark_main)
 endforeach()

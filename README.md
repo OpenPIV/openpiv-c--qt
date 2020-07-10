@@ -81,6 +81,7 @@ TODO
 * processing framework
   * [x] cartesian grid generator
   * [ ] further grid generators
+  * [ ] median validation with secondary peak check and interpolation
   * [ ] processing
   * [ ] marking
   * [ ] iterative analysis
