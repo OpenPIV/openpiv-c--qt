@@ -7,7 +7,7 @@ peak and then write the data out.
 
 To use, only image pairs are required:
 
-```
+```sh
 ./process -i exp1_001_a.tiff exp1_002_b.tiff
 
 registered image/x-portable-anymap

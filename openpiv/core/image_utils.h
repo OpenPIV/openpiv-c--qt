@@ -30,7 +30,8 @@ const image<ContainedT>& get_underlying( const image_view<ContainedT>& iv );
 template <typename ContainedT>
 using peaks_t = std::vector<image_view<ContainedT>>;
 
-/// Find highest \a num_peaks peaks in an image and return a vector of peaks.
+/// Find highest \a num_peaks peaks in an image and return a
+/// sorted vector of peaks.
 /// The peaks are returned as \sa ImageView and the size of the
 /// ImageView can be adjusted by setting \a peak_radius
 template < template<typename> class ImageT,
@@ -45,7 +46,29 @@ template < typename ContainedT,
            typename result_t = point2<double>>
 result_t fit_simple_guassian( const image_view<ContainedT>& );
 
-/// apply a function to each pixel
+/// apply a function to each pixel; op is of form:
+///
+/// using index_t = ImageT<ContainedT>::index_t;
+/// using pixel_t = ImageT<ContainedT>::pixel_t;
+/// pixel_t op( index_t index, const pixel_t& )
+///
+/// index is supplied to allow for e.g. image fill
+/// operations:
+///
+/// ```c++
+///     gf_image im{ 100, 100 };
+///
+///     apply(
+///         im,
+///         [w=im.width(), h=im.height()]( auto i, auto v )
+///         {
+///             g_f x = ( i % w ) < w/2 ? 1 : 2;
+///             g_f y = ( i / w ) < h/2 ? 1 : 4;
+///
+///             return x*y;
+///         }
+///        );
+/// ```
 template < template<typename> class ImageT,
            typename ContainedT,
            typename OpT,
