@@ -26,8 +26,12 @@
 //
 //    3. This notice may not be removed or altered from any source
 //    distribution.
+//
+// Modified to remove std::future usage i.e. no returns, and to propagate
+// exceptions
 
 // std
+#include <exception>
 #include <vector>
 #include <queue>
 #include <memory>
@@ -49,24 +53,32 @@ public:
             {
                 while(true)
                 {
-                    std::function<void()> task;
-
+                    try
                     {
-                        std::unique_lock<std::mutex> lock(this->queue_mutex);
+                        std::function<void()> task;
+                        {
+                            std::unique_lock<std::mutex> lock(this->queue_mutex);
 
-                        // wait and check if we actually have work to do upon wakeup
-                        this->condition.wait(lock, [this]{ return this->stop || !this->tasks.empty(); });
+                            // wait and check if we actually have work to do upon wakeup
+                            this->condition.wait(lock, [this]{ return this->stop || !this->tasks.empty(); });
 
-                        // if we've been signalled to stop, only do so once the queue is empty
-                        if(this->stop && this->tasks.empty())
-                            return;
+                            // if we've been signalled to stop, only do so once the queue is empty
+                            if(this->stop && this->tasks.empty())
+                                return;
 
-                        // take a task and pop
-                        task = std::move(this->tasks.front());
-                        this->tasks.pop();
+                            // take a task and pop
+                            task = std::move(this->tasks.front());
+                            this->tasks.pop();
+                        }
+
+                        task();
                     }
-
-                    task();
+                    catch (std::exception& e)
+                    {
+                        std::cerr << e.what() << "\n";
+                        std::abort();
+                        // ... or save the exception and check later
+                    }
                 }
             };
 
@@ -86,27 +98,20 @@ public:
             worker.join();
     }
 
-    template<typename F, typename... Args>
-    auto enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>
+    template <typename F>
+    auto enqueue(F&& task) -> std::enable_if_t<std::is_invocable_v<decltype(task)>>
     {
-        using return_type = typename std::result_of<F(Args...)>::type;
-
-        auto task = std::make_shared< std::packaged_task<return_type()> >(
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-            );
-
-        std::future<return_type> res = task->get_future();
         {
             std::unique_lock<std::mutex> lock(queue_mutex);
 
             // don't allow enqueueing after stopping the pool
-            if(stop)
+            if (stop)
                 throw std::runtime_error("enqueue on stopped ThreadPool");
 
-            tasks.emplace([task](){ (*task)(); });
+            tasks.emplace(task);
         }
+
         condition.notify_one();
-        return res;
     }
 
 private:

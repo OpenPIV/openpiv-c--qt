@@ -9,8 +9,11 @@
 
 // utils
 #include <cxxopts.hpp>
-#include <async++.h>
 #include "threadpool.hpp"
+
+#if defined(ASYNCPLUSPLUS)
+#  include <async++.h>
+#endif
 
 // openpiv
 #include "algos/fft.h"
@@ -53,6 +56,7 @@ int main( int argc, char* argv[] )
     double overlap;
     std::vector<std::string> input_files;
     std::string execution;
+    uint8_t thread_count = std::thread::hardware_concurrency()-1;
 
     try
     {
@@ -62,7 +66,8 @@ int main( int argc, char* argv[] )
             ("s, size", "interrogation size", cxxopts::value<uint32_t>(size)->default_value("32"))
             ("o, overlap", "interrogation overlap", cxxopts::value<double>(overlap)->default_value("0.5"))
             ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files))
-            ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("async++"));
+            ("t, thread-count", "pool thread count", cxxopts::value<uint8_t>(thread_count)->default_value(std::to_string(thread_count)))
+            ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"));
 
         options.parse_positional({"input"});
         auto result = options.parse(argc, argv);
@@ -127,12 +132,15 @@ int main( int argc, char* argv[] )
     // create a grid for processing
     auto ia = core::size{size, size};
     auto grid{ core::generate_cartesian_grid( images[0].size(), ia, overlap ) };
+    std::cout << "generated grid for image size: " << images[0].size() << ", ia: " << ia << " (" << overlap*100 << "% overlap)\n";
+    std::cout << "grid count: " << grid.size() << "\n";
 
     // process!
     struct point_vector
     {
         core::point2<double> xy;
         core::vector2<double> vxy;
+        double sn = 0.0;
     };
     std::vector<point_vector> found_peaks( grid.size() );
     std::atomic<int> peak_count = 0;
@@ -148,12 +156,15 @@ int main( int argc, char* argv[] )
                          core::gf_image output{ fft.cross_correlate( view_a, view_b ) };
 
                          // find peaks
-                         core::peaks_t<core::g_f> peaks = core::find_peaks( output, 1, 1 );
+                         constexpr uint16_t num_peaks = 2;
+                         constexpr uint16_t radius = 1;
+                         core::peaks_t<core::g_f> peaks = core::find_peaks( output, num_peaks, radius );
 
                          // sub-pixel fitting
-                         if ( peaks.empty() )
+                         if ( peaks.size() != num_peaks )
                          {
                              std::cerr << "failed to find a peak for ia: " << ia << "\n";
+                             peak_count++;
                              return;
                          }
 
@@ -166,30 +177,38 @@ int main( int argc, char* argv[] )
                          // convert from image normal cartesian
                          result.xy[1] = images[0].height() - result.xy[1];
                          result.vxy[1] = -result.vxy[1];
+                         if ( peaks[1][ {1, 1} ] > 0 )
+                             result.sn = peaks[0][ {1, 1} ]/peaks[1][ {1, 1} ];
 
                          found_peaks[peak_count++] = std::move(result);
                      };
 
     // check execution
+#if defined(ASYNCPLUSPLUS)
     if ( execution == "async++" )
     {
+        std::cout << "processing using async++\n";
         async::parallel_for( grid, processor );
     }
-    else if ( execution == "pool" )
+    else
+#endif
     {
-        ThreadPool pool( std::thread::hardware_concurrency()-1 );
+        std::cout << "processing using thread pool\n";
+        ThreadPool pool( thread_count );
 
-        for ( const auto& ia : grid )
-            pool.enqueue( processor, ia );
+        for ( auto ia : grid )
+            pool.enqueue( [ia, &processor](){ processor(ia); } );
 
         using namespace std::chrono_literals;
         while ( peak_count < grid.size() )
+        {
             std::this_thread::sleep_for(10ms);
+        }
     }
 
     // dump output
     for ( const auto& pv : found_peaks )
-        std::cout << pv.xy[0] << ", " << pv.xy[1] << ", " << pv.vxy[0] << ", " << pv.vxy[1] << "\n";
+        std::cout << pv.xy[0] << ", " << pv.xy[1] << ", " << pv.vxy[0] << ", " << pv.vxy[1] << ", " << pv.sn << "\n";
 
 
     return 0;
