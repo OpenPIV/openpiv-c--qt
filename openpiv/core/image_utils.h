@@ -28,7 +28,7 @@ template < typename ContainedT >
 const image<ContainedT>& get_underlying( const image_view<ContainedT>& iv );
 
 template <typename ContainedT>
-using peaks_t = std::vector<image_view<ContainedT>>;
+using peaks_t = std::vector<image<ContainedT>>;
 
 /// Find highest \a num_peaks peaks in an image and return a
 /// sorted vector of peaks.
@@ -42,8 +42,10 @@ template < template<typename> class ImageT,
 ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t peak_radius );
 
 /// Fit two one-dimensional Gaussian curves to a peak
-template < typename ContainedT,
-           typename result_t = point2<double>>
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename result_t = point2<double>
+           >
 result_t fit_simple_guassian( const image_view<ContainedT>& );
 
 /// apply a function to each pixel; op is of form:

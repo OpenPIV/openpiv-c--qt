@@ -39,36 +39,33 @@ public:
     using const_reverse_iterator = typename data_t::const_reverse_iterator;
 
     // ctor
-    image()
-        : width_( 0 )
-        , height_( 0 )
-        {}
-
+    image() = default;
     image( const image& ) = default;
     image( image&& ) = default;
 
     /// empty image
     image( uint32_t w, uint32_t h )
-        : width_( w )
-        , height_( h )
-        , data_( w*h )
+        : image( w, h, T{} )
     {}
     image( const core::size& s )
-        : width_( s.width() )
-        , height_( s.height() )
-        , data_( s.area() )
+        : image( s, T{} )
+    {}
+    image( const core::rect& r )
+        : image( r, T{} )
     {}
 
     /// image with default value
     image( uint32_t w, uint32_t h, T value )
-        : width_( w )
-        , height_( h )
+        : r_( rect::from_size( {w, h} ) )
         , data_( w*h, value )
     {}
     image( const core::size& s, T value )
-        : width_( s.width() )
-        , height_( s.height() )
+        : r_( rect::from_size(s) )
         , data_( s.area(), value )
+    {}
+    image( const core::rect& r, T value )
+        : r_( r )
+        , data_( r.area(), value )
     {}
 
     /// conversion from another similar image; expensive!
@@ -79,8 +76,7 @@ public:
                    is_imagetype_v< ImageT<ContainedT> > >
                >
     explicit image( const ImageT<ContainedT>& p )
-        : width_( p.width() )
-        , height_( p.height() )
+        : r_( rect::from_size(p.size()) )
         , data_( p.pixel_count() )
     {
         *this = p;
@@ -97,27 +93,25 @@ public:
     /// after a re-size should be considered invalid
     void resize( uint32_t w, uint32_t h )
     {
-        if ( w == width_ && h == height_ )
-            return;
-
-        width_ = w;
-        height_ = h;
-        data_.resize( pixel_count() );
+        resize( {w, h} );
     }
 
     /// resize the image; this is destructive and any data contained
     /// after a re-size should be considered invalid
     void resize( const core::size& s )
     {
-        resize( s.width(), s.height() );
+        if ( s == r_.size() )
+            return;
+
+        r_ = core::rect( r_.bottomLeft(), s );
+        data_.resize( pixel_count() );
     }
 
 
     /// assignment
     image& operator=(const image& rhs)
     {
-        width_ = rhs.width();
-        height_ = rhs.height();
+        r_ = rhs.r_;
         data_ = rhs.data_;
         return *this;
     }
@@ -125,9 +119,8 @@ public:
     /// move assignment
     image& operator=(image&& rhs)
     {
-        data_   = std::move(rhs.data_);
-        width_  = std::move(rhs.width_);
-        height_ = std::move(rhs.height_);
+        data_ = std::move(rhs.data_);
+        r_    = std::move(rhs.r_);
 
         return *this;
     }
@@ -165,8 +158,7 @@ public:
     inline bool operator==(const image& rhs) const
     {
         return
-            width_ == rhs.width_ &&
-            height_ == rhs.height_ &&
+            r_ == rhs.r_ &&
             data_ == rhs.data_;
     }
     inline bool operator!=(const image& rhs) const { return !operator==(rhs); }
@@ -176,7 +168,7 @@ public:
     inline const T& operator[](size_t i) const { return const_cast<image*>(this)->operator[](i); }
 
     /// pixel accessor by point
-    inline T& operator[]( const point2<uint32_t>& xy ) { return data_[xy[1]*width_ + xy[0]]; }
+    inline T& operator[]( const point2<uint32_t>& xy ) { return data_[xy[1]*r_.width() + xy[0]]; }
     inline const T& operator[]( const point2<uint32_t>& xy ) const
     {
         return const_cast<image*>(this)->operator[](xy);
@@ -189,10 +181,10 @@ public:
     /// raw data by line
     inline T* line( size_t i )
     {
-        if (i>height_)
-            exception_builder<std::range_error>() << "line out of range (" << i << ", max is: " << height_ << ")";
+        if (i>r_.height())
+            exception_builder<std::range_error>() << "line out of range (" << i << ", max is: " << r_.height() << ")";
 
-        return &data_[i*width_];
+        return &data_[i*r_.width()];
     }
     inline const T* line( size_t i ) const { return const_cast<image*>(this)->line(i); }
 
@@ -207,23 +199,21 @@ public:
     const_reverse_iterator rend() const { return std::rend( data_ ); }
 
     /// geometry accessors
-    inline constexpr uint32_t width() const { return width_; }
-    inline constexpr uint32_t height() const { return height_; }
-    inline constexpr core::size size() const { return { width_, height_ }; }
-    inline constexpr index_t pixel_count() const { return width_ * height_; }
-    inline constexpr core::rect rect() const { return core::rect{ {}, { width_, height_ } }; }
+    inline constexpr uint32_t width() const { return r_.width(); }
+    inline constexpr uint32_t height() const { return r_.height(); }
+    inline constexpr core::size size() const { return r_.size(); }
+    inline constexpr index_t pixel_count() const { return r_.area(); }
+    inline constexpr core::rect rect() const { return r_; }
 
     /// swap
     void swap( image& rhs )
     {
-        std::swap( width_, rhs.width_ );
-        std::swap( height_, rhs.height_ );
+        std::swap( r_, rhs.r_ );
         std::swap( data_, rhs.data_ );
     }
 
 private:
-    uint32_t width_ = {};
-    uint32_t height_ = {};
+    core::rect r_;
     data_t data_;
 };
 

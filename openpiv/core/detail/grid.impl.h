@@ -21,7 +21,7 @@ namespace openpiv::core {
         uint32_t y_overlap = interrogation_size.height() * percentage_overlap;
 
         if ( percentage_overlap < 0.0 || percentage_overlap > 1.0 || x_overlap == 0 || y_overlap == 0 )
-            core::exception_builder<std::runtime_error>() << "overlaps must be non-zero";
+            core::exception_builder<std::runtime_error>() << "overlaps must be between 0.0 and 1.0";
 
         if ( interrogation_size.width() > image_size.width() ||
              interrogation_size.height() > image_size.height() )

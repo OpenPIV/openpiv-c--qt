@@ -135,10 +135,10 @@ TEST_CASE("image_test - rgba_join_test")
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     size output_size = im.size() - size(40, 40);
-    image_view< g_16 > r{ im, rect{ { 0,  0}, output_size } };
-    image_view< g_16 > g{ im, rect{ {10, 10}, output_size } };
-    image_view< g_16 > b{ im, rect{ {20, 20}, output_size } };
-    image_view< g_16 > a{ im, rect{ {30, 30}, output_size } };
+    auto r = create_image_view( im, rect{ { 0,  0}, output_size } );
+    auto g = create_image_view( im, rect{ {10, 10}, output_size } );
+    auto b = create_image_view( im, rect{ {20, 20}, output_size } );
+    auto a = create_image_view( im, rect{ {30, 30}, output_size } );
 
     rgba16_image rgba = join_from_channels( r, g, b, a);
 
@@ -221,10 +221,10 @@ TEST_CASE("image_test - swap_quadrants_test")
     REQUIRE( save_to_file( "swap_quadrants_input.pgm", im ) );
 
     size s{ im.width()/2, im.height()/2 };
-    gf_image_view q1{ im, { {0, 0}, s } };
-    gf_image_view q2{ im, { {50, 0}, s } };
-    gf_image_view q3{ im, { {0, 50}, s } };
-    gf_image_view q4{ im, { {50, 50}, s } };
+    auto q1 = create_image_view( im, { {0, 0}, s } );
+    auto q2 = create_image_view( im, { {50, 0}, s } );
+    auto q3 = create_image_view( im, { {0, 50}, s } );
+    auto q4 = create_image_view( im, { {50, 50}, s } );
 
     REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
     REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
@@ -254,10 +254,31 @@ TEST_CASE("image_test - peak_find_test")
     // find the peaks - in order
     auto peaks{ find_peaks( im, 3, 1 ) };
     REQUIRE( peaks.size() == 3 );
-    REQUIRE( peaks[0].rect().midpoint() == rect::point_t( 50, 50 ) );
-    REQUIRE( peaks[1].rect().midpoint() == rect::point_t( 40, 40 ) );
-    REQUIRE( peaks[2].rect().midpoint() == rect::point_t( 30, 30 ) );
+    CHECK( peaks[0].rect().midpoint() == rect::point_t( 50, 50 ) );
+    CHECK( peaks[1].rect().midpoint() == rect::point_t( 40, 40 ) );
+    CHECK( peaks[2].rect().midpoint() == rect::point_t( 30, 30 ) );
+    CHECK( peaks[0].rect().size() == size( 3, 3 ) );
+
+    CHECK( peaks[0][ {1, 1} ] == 50.0 );
+    CHECK( peaks[1][ {1, 1} ] == 40.0 );
+    CHECK( peaks[2][ {1, 1} ] == 30.0 );
+}
+
+TEST_CASE("image_test - peak_find_test - empty")
+{
+    gf_image im{ 100, 100 };
+
+    // find the peaks - in order
+    auto peaks{ find_peaks( im, 3, 1 ) };
+    REQUIRE( peaks.size() == 3 );
+    REQUIRE( peaks[0].rect().midpoint() == rect::point_t( 1, 1 ) );
+    REQUIRE( peaks[1].rect().midpoint() == rect::point_t( 1, 1 ) );
+    REQUIRE( peaks[2].rect().midpoint() == rect::point_t( 1, 1 ) );
     REQUIRE( peaks[0].rect().size() == size( 3, 3 ) );
+
+    REQUIRE( peaks[0][ {1, 1} ] == 0.0 );
+    REQUIRE( peaks[1][ {1, 1} ] == 0.0 );
+    REQUIRE( peaks[2][ {1, 1} ] == 0.0 );
 }
 
 TEST_CASE("image_test - extract_test")

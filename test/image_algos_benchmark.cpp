@@ -19,8 +19,8 @@ static void fft_cross_correlation_benchmark(benchmark::State& state)
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
 
-    cf_image_view view_a{ im_a, rect{ {}, s } };
-    cf_image_view view_b{ im_b, rect{ {}, s } };
+    auto view_a = create_image_view( im_a, rect{ {}, s } );
+    auto view_b = create_image_view( im_b, rect{ {}, s } );
 
     for (auto _ : state)
     {
@@ -41,7 +41,7 @@ static void fft_auto_correlation_benchmark(benchmark::State& state)
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
 
-    cf_image_view view_a{ im_a, rect{ {}, s } };
+    auto view_a = create_image_view( im_a, rect{ {}, s } );
 
     for (auto _ : state)
     {

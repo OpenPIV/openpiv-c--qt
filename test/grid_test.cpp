@@ -152,5 +152,4 @@ TEST_CASE("grid_test - cartesian grid")
         CHECK( generated.size() == expected.size() );
         CHECK( (sort_grid( generated ) == sort_grid( expected )) );
     }
-
 }

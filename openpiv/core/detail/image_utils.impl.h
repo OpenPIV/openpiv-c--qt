@@ -39,7 +39,17 @@ template < template<typename> class ImageT,
 ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t peak_radius )
 {
     ReturnT result;
+    const uint32_t result_w = 2*peak_radius + 1;
+    const uint32_t result_h = result_w;
+
+    // fill with blank peaks
+    for (auto i=num_peaks; i>0; --i)
+    {
+        result.emplace_back( ImageT<ContainedT>(result_w, result_h) );
+    }
+
     auto bl = im.rect().bottomLeft();
+
     for ( uint32_t h=peak_radius; h<im.height()-2*peak_radius; ++h )
     {
         const ContainedT* above = im.line( h-1 );
@@ -49,10 +59,11 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
         for ( uint32_t w=peak_radius; w<im.width()-peak_radius; ++w )
             if ( line[w-1] < line[w] && line[w+1] < line[w] && above[w] < line[w]  && below[w] < line[w] )
                 result.emplace_back(
-                    create_image_view(
+                    extract(
                         im,
-                        rect( {bl[0] + w - peak_radius, bl[1] + h - peak_radius},
-                              {2*peak_radius + 1, 2*peak_radius + 1} ) ) );
+                        rect( {bl[0] + w - peak_radius, bl[1] + h - peak_radius}, {result_w, result_h} )
+                        )
+                    );
     }
 
     // sort and cull
@@ -66,9 +77,11 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
 }
 
 /// Fit two one-dimensional Gaussian curves to a peak
-template <typename ContainedT,
-          typename result_t = point2<double>>
-result_t fit_simple_gaussian( const image_view<ContainedT>& im )
+template < template<typename> class ImageT,
+           typename ContainedT,
+           typename result_t = point2<double>
+           >
+result_t fit_simple_gaussian( const ImageT<ContainedT>& im )
 {
     if ( im.size() != size{3, 3} )
         exception_builder<std::runtime_error>() << "fit_simple_gaussian: input must be 3x3";
@@ -376,14 +389,21 @@ ReturnT& swap_quadrants( ImageT<ContainedT>& in )
 }
 
 /// extract a new image from existing image; similar to forming an
-/// image_view but actually copying the data
+/// image_view but actually copying the data; this maintains the
+/// extracting rectangle information to allow images to be used for
+/// e.g. peak containement
 template < typename  ContainedT >
 image<ContainedT> extract( const image<ContainedT>& im, core::rect r )
 {
+    rect image_rect_without_origin = rect::from_size(im.size());
+    if ( !image_rect_without_origin.contains(r) )
+        exception_builder<std::runtime_error>() << "extract: rectangle to extract is too large for image";
+
+    // copying the entire image
     if ( r.bottomLeft() == core::rect::point_t{} && r.size() == im.size() )
         return im;
 
-    image<ContainedT> result{ r.size() };
+    image<ContainedT> result{ r };
     for ( size_t h=0; h<r.height(); ++h )
     {
         typed_memcpy<ContainedT>( result.line(h), im.line( r.bottom() + h ) + r.left(), r.width() );

@@ -10,7 +10,8 @@
 
 namespace openpiv::core {
 
-/// basic 2D integer rectangle defined in terms of an origin (bottom right) and size
+/// basic 2D integer rectangle defined in terms of an origin (bottom left) and size.
+/// bottom left in this case means the minimum of x and y.
 class rect
 {
 public:

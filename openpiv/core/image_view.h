@@ -33,20 +33,6 @@ namespace openpiv::core {
         image_view() = default;
         image_view( const image_view& ) = default;
         image_view( image_view&& ) = default;
-        image_view( image<T>& im, const core::rect& r )
-            : im_(&im),
-              r_( r )
-        {
-            // check that view makes sense
-            core::rect image_rect{ core::rect::from_size( {im.width(), im.height()} ) };
-            if ( !image_rect.contains( r ) )
-                core::exception_builder<std::out_of_range>()
-                    << "image view (" << r << ") not contained within image (" << image_rect << ")";
-        }
-
-        image_view( const image<T>& im, const core::rect& r )
-            : image_view( const_cast< image<T>& >( im ), r )
-        {}
 
         /// resize the image view; this may throw as the resized
         /// view would exceed the bounds of the source image; this
@@ -180,6 +166,28 @@ namespace openpiv::core {
         const image<T>& underlying() const { return *im_; }
 
     private:
+        image_view( image<T>& im, const core::rect& r )
+            : im_(&im),
+              r_( r )
+        {
+            // check that view makes sense
+            core::rect image_rect{ core::rect::from_size( {im.width(), im.height()} ) };
+            if ( !image_rect.contains( r ) )
+                core::exception_builder<std::out_of_range>()
+                    << "image view (" << r << ") not contained within image (" << image_rect << ")";
+        }
+
+        image_view( const image<T>& im, const core::rect& r )
+            : image_view( const_cast< image<T>& >( im ), r )
+        {}
+
+        // create friends to allow access to constructors
+        template <typename U>
+        friend image_view<U> create_image_view( image<U>& im, core::rect r );
+
+        template <typename U>
+        friend const image_view<U> create_image_view( const image<U>& im, core::rect r );
+
         propagate_const<image<T>> im_;
         core::rect r_;
     };
