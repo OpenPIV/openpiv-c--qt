@@ -13,7 +13,7 @@ Building uses cmake; to build (linux example):
 
 * mkdir build
 * cd build
-* cmake -DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake ..
+* cmake ..
 * make
 
 To run tests:
@@ -74,14 +74,16 @@ TODO
   * [x] peak detection
   * [x] peak fitting
 * image processing
-  * [ ] change image_view to use array of pointers for each row
+  * [ ] change image_view to use array of pointers for each row?
   * [ ] low/high pass filter
 * examples
   * [x] parallel cross-correlate
+  * [x] image processing
 * processing framework
   * [x] cartesian grid generator
   * [ ] further grid generators
   * [ ] median validation with secondary peak check and interpolation
+  * [ ] store signal/noise value
   * [ ] processing
   * [ ] marking
   * [ ] iterative analysis
