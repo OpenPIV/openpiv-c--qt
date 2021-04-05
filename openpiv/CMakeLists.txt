@@ -9,32 +9,37 @@ set( SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/loaders/pnm_image_loader.cpp )
 set( LIBS )
 
+set(LIBNAME openpivcore)
+add_library(${LIBNAME} SHARED ${SOURCE})
+target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
+
+# include packages
 find_package(TIFF)
 if(TIFF_FOUND)
+  message("found libtiff")
   # no reliable way to get libtiffxx so build local copy of
   # tif_stream.cxx
   set(TIFF_EXTERNAL_LIBRARY_CXX ${PROJECT_SOURCE_DIR}/external/libtiff/4.0.10)
-  set(SOURCE
-    ${SOURCE}
+  target_sources(
+    ${LIBNAME}
+    PRIVATE
     ${TIFF_EXTERNAL_LIBRARY_CXX}/tif_stream.cxx
     ${CMAKE_CURRENT_SOURCE_DIR}/loaders/tiff_image_loader.cpp )
 
-  set(LIBS
-    ${LIBS}
-    ${TIFF_LIBRARIES})
-
   include_directories(${TIFF_EXTERNAL_LIBRARY_CXX})
   include_directories(${TIFF_INCLUDE_DIR})
+
+  target_link_libraries(${LIBNAME} PRIVATE ${TIFF_LIBRARIES})
 endif()
 
 find_package(Threads REQUIRED)
-set(LIBS ${LIBS} Threads::Threads)
+target_link_libraries(${LIBNAME} PRIVATE Threads::Threads)
 
-set(LIBNAME openpivcore)
-
-add_library(${LIBNAME} SHARED ${SOURCE})
-target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
-target_link_libraries(${LIBNAME} ${LIBS})
+find_package(spdlog CONFIG)
+if(spdlog_FOUND)
+  message("found spdlog")
+  target_link_libraries(${LIBNAME} PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
+endif()
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS "/EHsc /W3 /WX")
