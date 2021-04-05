@@ -41,7 +41,7 @@ cache:
 script:
 - mkdir build
 - cd build
-- cmake -DCMAKE_TOOLCHAIN_FILE=../external/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+- cmake ..
 - cmake --build . ${CMAKE_BUILD_EXTRA_ARGS}
 - ctest ${CTEST_EXTRA_ARGS}
 
