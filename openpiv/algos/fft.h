@@ -95,7 +95,7 @@ namespace openpiv::algos {
         /// Perform a 2-D FFT; will always produce a complex floating point image output
         template < template <typename> class ImageT,
                    typename ContainedT,
-                   typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+                   typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
         const cf_image& transform( const ImageT<ContainedT>& input, direction d = direction::FORWARD ) const
         {
@@ -129,7 +129,7 @@ namespace openpiv::algos {
 
         template < template <typename> class ImageT,
                    typename ContainedT,
-                   typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+                   typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
         const cf_image& cross_correlate( const ImageT<ContainedT>& a, const ImageT<ContainedT>& b ) const
         {
@@ -145,7 +145,7 @@ namespace openpiv::algos {
 
         template < template <typename> class ImageT,
                    typename ContainedT,
-                   typename = typename std::enable_if_t< is_imagetype<ImageT<ContainedT>>::value >
+                   typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
         const cf_image& auto_correlate( const ImageT<ContainedT>& a ) const
         {
