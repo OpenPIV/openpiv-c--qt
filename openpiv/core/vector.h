@@ -117,6 +117,34 @@ vector<N,T> operator+(const vector<N,T>& v1, const vector<N,T>& v2)
     return apply<std::plus<T>>( v1.data(), v2.data(), std::make_index_sequence<N>() );
 }
 
+template <typename Op,
+          typename T,
+          typename C,
+          std::size_t... Is>
+constexpr T apply( const T& lhs, C c, std::index_sequence<Is...> )
+{
+    Op op;
+    return T{ op(lhs[Is], c)... };
+}
+
+template < size_t N,
+           typename T,
+           typename C,
+           typename = std::enable_if_t<std::is_convertible_v<C, T>> >
+vector<N,T> operator*(const vector<N,T>& v1, C v)
+{
+    return apply<std::multiplies<T>>( v1.data(), v, std::make_index_sequence<N>() );
+}
+
+template < size_t N,
+           typename T,
+           typename C,
+           typename = std::enable_if_t<std::is_convertible_v<C, T>> >
+vector<N,T> operator/(const vector<N,T>& v1, C v)
+{
+    return apply<std::divides<T>>( v1.data(), v, std::make_index_sequence<N>() );
+}
+
 
 /// specialization for common dimensions
 template < typename T >

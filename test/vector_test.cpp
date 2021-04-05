@@ -132,3 +132,30 @@ TEST_CASE("vector_test - vector - vector")
     auto v = vector_t{ 20.0, 10.5 } - vector_t{ 10.2, -3.1 };
     CHECK( v == vector_t{ 9.8, 13.6 } );
 }
+
+TEST_CASE("vector_test - vector * const")
+{
+    using vector_t = vector2<double>;
+    auto v = vector_t{ 20.0, 10.0 } * 2.5;
+    CHECK( v == vector_t{ 50.0, 25.0 } );
+}
+
+TEST_CASE("vector_test - vector / const")
+{
+    using vector_t = vector2<double>;
+    auto v = vector_t{ 22.0, 11.0 } / 1.1;
+    CHECK( v == vector_t{ 20.0, 10.0 } );
+}
+
+TEST_CASE("vector_test - split difference and move points")
+{
+    using vector_t = vector2<double>;
+    auto v = vector_t{ 4.0, 2.0 } / 2;
+
+    using point_t = point2<double>;
+    point_t p = { 50, 50 };
+    auto p1 = p - v;
+    auto p2 = p + v;
+    CHECK( p1 == point_t{ 48, 49 } );
+    CHECK( p2 == point_t{ 52, 51 } );
+}
