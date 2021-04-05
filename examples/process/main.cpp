@@ -187,7 +187,12 @@ int main( int argc, char* argv[] )
     if ( execution == "async++" )
     {
         std::cout << "processing using async++\n";
-        async::parallel_for( grid, processor );
+        std::atomic<size_t> i = 0;
+        async::parallel_for( grid,
+                             [&i, processor] (const core::rect& ia)
+                             {
+                                 processor(i++, ia);
+                             } );
     }
     else
 #endif
