@@ -110,7 +110,7 @@ int main( int argc, char* argv[] )
 
     // check image sizes
     core::size s = images[0].size();
-    for ( const auto& [i, im] : enumerate(images) )
+    for ( const auto& [i, im] : core::enumerate(images) )
     {
         if ( im.size() != s )
         {
@@ -138,7 +138,7 @@ int main( int argc, char* argv[] )
     }
 
     // iterate over all images, subtract average and write
-    for ( auto [i, im] : enumerate(images) )
+    for ( auto [i, im] : core::enumerate(images) )
     {
         im = im - avg;
         std::fstream os( input_files[i] + ".avg_sub.pnm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
