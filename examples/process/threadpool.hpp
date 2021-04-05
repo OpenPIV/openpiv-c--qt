@@ -114,6 +114,13 @@ public:
         condition.notify_one();
     }
 
+    // are there any tasks left?
+    bool is_idle() const
+    {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        return tasks.empty();
+    }
+
 private:
     // need to keep track of threads so we can join them
     std::vector<std::thread> workers;
@@ -121,7 +128,7 @@ private:
     std::queue< std::function<void()> > tasks;
 
     // synchronization
-    std::mutex queue_mutex;
+    mutable std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop = false;
 };

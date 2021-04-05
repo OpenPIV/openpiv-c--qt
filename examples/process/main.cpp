@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 // utils
 #include <cxxopts.hpp>
@@ -18,9 +19,9 @@
 // openpiv
 #include "algos/fft.h"
 #include "loaders/image_loader.h"
+#include "core/enumerate.h"
 #include "core/grid.h"
 #include "core/image.h"
-#include "core/image_view.h"
 #include "core/image_utils.h"
 #include "core/vector.h"
 
@@ -28,7 +29,7 @@ using namespace openpiv;
 
 namespace std {
     template <typename T>
-    std::ostream& operator<<(std::ostream& os, const std::vector<T>& ts)
+    ostream& operator<<(ostream& os, const vector<T>& ts)
     {
         os << "[";
         static const char separator[] = ", ";
@@ -131,7 +132,7 @@ int main( int argc, char* argv[] )
 
     // create a grid for processing
     auto ia = core::size{size, size};
-    auto grid{ core::generate_cartesian_grid( images[0].size(), ia, overlap ) };
+    auto grid = core::generate_cartesian_grid( images[0].size(), ia, overlap );
     std::cout << "generated grid for image size: " << images[0].size() << ", ia: " << ia << " (" << overlap*100 << "% overlap)\n";
     std::cout << "grid count: " << grid.size() << "\n";
 
@@ -143,9 +144,8 @@ int main( int argc, char* argv[] )
         double sn = 0.0;
     };
     std::vector<point_vector> found_peaks( grid.size() );
-    std::atomic<int> peak_count = 0;
     auto fft = algos::FFT( ia );
-    auto processor = [&images, &fft, &found_peaks, &peak_count]( const core::rect& ia )
+    auto processor = [&images, &fft, &found_peaks]( size_t i, const core::rect& ia )
                      {
                          // auto view_a{ core::create_image_view( images[0], ia ) };
                          // auto view_b{ core::create_image_view( images[1], ia ) };
@@ -164,7 +164,6 @@ int main( int argc, char* argv[] )
                          if ( peaks.size() != num_peaks )
                          {
                              std::cerr << "failed to find a peak for ia: " << ia << "\n";
-                             peak_count++;
                              return;
                          }
 
@@ -180,7 +179,7 @@ int main( int argc, char* argv[] )
                          if ( peaks[1][ {1, 1} ] > 0 )
                              result.sn = peaks[0][ {1, 1} ]/peaks[1][ {1, 1} ];
 
-                         found_peaks[peak_count++] = std::move(result);
+                         found_peaks[i] = std::move(result);
                      };
 
     // check execution
@@ -196,13 +195,13 @@ int main( int argc, char* argv[] )
         std::cout << "processing using thread pool\n";
         ThreadPool pool( thread_count );
 
-        for ( auto ia : grid )
-            pool.enqueue( [ia, &processor](){ processor(ia); } );
+        for ( const auto& [i, ia] : core::enumerate(grid) )
+            pool.enqueue( [i, ia, &processor](){ processor(i, ia); } );
 
         using namespace std::chrono_literals;
-        while ( peak_count < grid.size() )
+        while ( !pool.is_idle() )
         {
-            std::this_thread::sleep_for(10ms);
+            std::this_thread::sleep_for(1ms);
         }
     }
 
