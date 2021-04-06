@@ -200,8 +200,12 @@ int main( int argc, char* argv[] )
         std::cout << "processing using thread pool\n";
         ThreadPool pool( thread_count );
 
-        for ( const auto& [i, ia] : core::enumerate(grid) )
+        size_t i = 0;
+        for ( const auto& ia : grid )
+        {
             pool.enqueue( [i, ia, &processor](){ processor(i, ia); } );
+            ++i;
+        }
 
         using namespace std::chrono_literals;
         while ( !pool.is_idle() )
