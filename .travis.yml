@@ -25,10 +25,6 @@ install:
 - sh ./.ci/windows-upgrade-to-vs2019.sh
 - sh ./.ci/setup-vcpkg.sh
 
-cache:
-  directories:
-  - external/vcpkg
-
 script:
 - mkdir build
 - cd build
