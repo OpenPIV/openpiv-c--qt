@@ -34,9 +34,9 @@ namespace openpiv::core {
         auto y_offset = (image_size.height() - interrogation_size.height() - (y_overlap * (y_count-1)))/2;
 
         std::vector<core::rect> result;
-        for ( size_t x=0; x < x_count; ++x )
+        for ( size_t y=0; y < y_count; ++y )
         {
-            for ( size_t y=0; y < y_count; ++y )
+            for ( size_t x=0; x < x_count; ++x )
             {
                 rect r{ {x_offset + x * x_overlap, y_offset + y * y_overlap}, interrogation_size };
                 result.emplace_back( std::move(r) );

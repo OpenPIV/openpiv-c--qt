@@ -1,13 +1,13 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set( SOURCE
+set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/core/size.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/core/rect.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/core/util.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/loaders/image_loader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/loaders/pnm_image_loader.cpp )
-set( LIBS )
+  ${CMAKE_CURRENT_SOURCE_DIR}/loaders/pnm_image_loader.cpp)
+set(LIBS)
 
 set(LIBNAME openpivcore)
 add_library(${LIBNAME} SHARED ${SOURCE})
@@ -33,21 +33,21 @@ if(TIFF_FOUND)
 endif()
 
 find_package(Threads REQUIRED)
-target_link_libraries(${LIBNAME} PRIVATE Threads::Threads)
-
-find_package(spdlog CONFIG)
-if(spdlog_FOUND)
-  message("found spdlog")
-  target_link_libraries(${LIBNAME} PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
-endif()
+find_package(spdlog CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(
+  ${LIBNAME}
+  PRIVATE spdlog::spdlog spdlog::spdlog_header_only
+  PRIVATE fmt::fmt-header-only
+  PRIVATE Threads::Threads)
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS "/EHsc /W3 /WX")
 else()
   #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
   #set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unknown-pragmas")
-  set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -g -O3 -ffast-math")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG -g -O3 -ffast-math")
 endif()
 
 # install

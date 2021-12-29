@@ -42,7 +42,9 @@ namespace openpiv::core {
         /// anything about the allocation/ownership of the loader.
         template < typename T >
         static
-        typename std::enable_if_t< std::is_base_of_v< image_loader, T >, bool >
+        typename std::enable_if_t<
+            std::is_base_of_v< image_loader, T >,
+            bool >
         add()
         {
             return add( std::make_unique<T>() );

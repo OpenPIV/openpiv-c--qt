@@ -6,35 +6,29 @@
 
 // utils
 #include <cxxopts.hpp>
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
+#include "spdlog/fmt/ostr.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 // openpiv
 #include "loaders/image_loader.h"
 #include "core/enumerate.h"
 #include "core/image.h"
 #include "core/image_utils.h"
+#include "core/stream_utils.h"
 
 using namespace openpiv;
 
-namespace std {
-    template <typename T>
-    std::ostream& operator<<(std::ostream& os, const std::vector<T>& ts)
-    {
-        os << "[";
-        static const char separator[] = ", ";
-        const char* ps = nullptr;
-        for ( const auto& t : ts )
-        {
-            os << ( ps ? ps : "") << t;
-            ps = separator;
-        }
-        os << "]";
-
-        return os;
-    }
-}
-
 int main( int argc, char* argv[] )
 {
+    // setup logger
+    auto logger = spdlog::stderr_color_mt("console");
+    logger->set_level(spdlog::level::info);
+    spdlog::set_pattern("[%H:%M:%S %z] [%l] [thread %t] %v");
+    spdlog::set_default_logger(logger);
+    spdlog::cfg::load_env_levels();
+
     // get arguments
     cxxopts::Options options(argv[0]);
     options
@@ -63,7 +57,7 @@ int main( int argc, char* argv[] )
 
         if (result.count("input") < 2)
         {
-            std::cerr << "require two or more input images\n";
+            spdlog::error("require two or more input images");
             return 1;
         }
 
@@ -71,12 +65,12 @@ int main( int argc, char* argv[] )
     }
     catch (const cxxopts::OptionException& e)
     {
-        std::cerr << "error parsing options: " << e.what() << "\n";
+        spdlog::error("error parsing options: {}", e.what());
         return 1;
     }
 
     // load, process
-    std::cout << "input files: " << input_files << "\n";
+    spdlog::info("input files: {}", input_files);
     // std::cout << "using memory: " << std::boolalpha << use_memory << "\n";
 
     // get images
@@ -98,13 +92,13 @@ int main( int argc, char* argv[] )
         }
         catch ( std::exception& e )
         {
-            std::cerr << "failed to load image: " << e.what() << "\n";
+            spdlog::error("failed to load image: {}", e.what());
         }
     }
 
     if ( images.empty() )
     {
-        std::cerr << "failed to load any files!\n";
+        spdlog::error("failed to load any files!");
         return 1;
     }
 
@@ -114,12 +108,13 @@ int main( int argc, char* argv[] )
     {
         if ( im.size() != s )
         {
-            std::cerr << "image size doesn't match (image " << i << ": " << input_files[i] << "): got " << im.size() << ", expected " << s << "\n";
+            spdlog::error("image size doesn't match (image {}: {}): got {}, expected {}",
+                          i, input_files[i], im.size(), s);
             return 1;
         }
     }
 
-    std::cout << "loaded images\n";
+    spdlog::info("loaded images");
 
     // process:
     // - find average
@@ -133,7 +128,7 @@ int main( int argc, char* argv[] )
     std::shared_ptr<core::image_loader> writer{ core::image_loader_registry::find("image/x-portable-anymap") };
     if ( !writer )
     {
-        std::cerr << "failed to find loader for pnm\n";
+        spdlog::error("failed to find loader for pnm");
         return 1;
     }
 

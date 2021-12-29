@@ -7,6 +7,9 @@
 #include <ostream>
 #include <memory>
 
+// utils
+#include "spdlog/spdlog.h"
+
 // local
 #include "core/image.h"
 #include "core/image_type_traits.h"
@@ -302,9 +305,7 @@ namespace openpiv::core {
         // ensure we chomp any remaining whitespace to EOL
         impl_->is.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
 
-        std::cout << "PNM" << std::to_string(impl_->type)
-                  << "[" << impl_->width << ", " << impl_->height << "], "
-                  << impl_->depth << "\n";
+        spdlog::debug("PNM{} [{}, {}], {}", impl_->type, impl_->width, impl_->height, impl_->depth);
         return true;
     }
 

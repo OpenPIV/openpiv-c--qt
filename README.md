@@ -27,10 +27,24 @@ Dependencies
 * [vcpkg](https://github.com/Microsoft/vcpkg)
   * catch2: unit test framework: vcpkg install catch2
   * libtiff: TIFF IO support: vcpkg install tiff
-  * spdlog: logging framework (not yet required): vcpkg install spdlog
+  * spdlog: logging framework: vcpkg install spdlog
   * benchmark: used to run performance benchmarks: vcpkg install benchmark
-  * async++: implements c++17 parallel algoriths: vcpkg install asyncplusplus
+  * async++ (optional): implements c++17 parallel algorithms: vcpkg install asyncplusplus
   * cxxopts: nice command line parsing: vcpkg install cxxopts
+
+Examples
+--------
+
+* under build/examples are two simple applications:
+  * process: a straight-forward PIV cross correlator
+  * average_subtract: a utility to read in n images, find the average and write
+    out n new images with the mean subtracted
+
+Logging
+-------
+
+Logging is done via [spdlog](https://github.com/gabime/spdlog), to change the
+log level you can use the environmental variable `SPDLOG_LEVEL=<level>`.
 
 TODO
 ----
@@ -39,7 +53,7 @@ TODO
   * [x] travis/CI
   * [x] add clang/windows/OS X build
 * core
-  * [ ] logging
+  * [x] logging
   * [ ] iostream ops for ImageLoaders
   * [ ] image allocator support
     * [ ] shared memory

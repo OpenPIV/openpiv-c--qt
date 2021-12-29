@@ -6,6 +6,9 @@
 #include <memory>
 #include <vector>
 
+// utils
+#include "spdlog/spdlog.h"
+
 // local
 #include "core/util.h"
 
@@ -51,7 +54,7 @@ namespace openpiv::core {
                    }
             );
 
-        std::cout << "registered " << name << "\n";
+        spdlog::info("registered: {}", name);
         return true;
     }
 

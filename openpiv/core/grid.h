@@ -21,9 +21,10 @@ namespace openpiv::core {
     ///            (2, 17), (18, 17), (34, 17), (50, 17), (66, 17)]
     /// (66, 1) -> rectangle from (66, 1) -> (98, 33)
     /// (2, 17) -> rectangle from (2, 17) -> (34, 49)
-    std::vector<core::rect> generate_cartesian_grid( const core::size& image_size,
-                                                     const core::size& interrogation_size,
-                                                     double percentage_overlap );
+    std::vector<core::rect>
+    generate_cartesian_grid( const core::size& image_size,
+                             const core::size& interrogation_size,
+                             double percentage_overlap );
 
 } // end of namespace
 
