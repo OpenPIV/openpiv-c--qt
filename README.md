@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/timdewhirst/openpiv-c--qt.svg?branch=master)](https://travis-ci.org/timdewhirst/openpiv-c--qt)
+![Build Status](https://github.com/timdewhirst/openpiv-c--qt/actions/workflows/cmake.yml/badge.svg)
 
 OpenPIV (c++)
 =============
