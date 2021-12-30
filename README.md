@@ -9,16 +9,24 @@ the implementation requires a c++17 compliant compiler.
 Build
 -----
 
+There are some external dependencies under external/, so when cloneing use:
+
+```git clone --recursive-submodules <path to git repo>```
+
 Building uses cmake; to build (linux example):
 
-* mkdir build
-* cd build
+* cd to cloned source directory
+* mkdir build; cd build
 * cmake ..
 * make
 
 To run tests:
 
 * make test
+
+To enable a release build:
+
+```cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..```
 
 Dependencies
 ------------
@@ -36,9 +44,9 @@ Examples
 --------
 
 * under build/examples are two simple applications:
-  * process: a straight-forward PIV cross correlator
-  * average_subtract: a utility to read in n images, find the average and write
-    out n new images with the mean subtracted
+  * [process](examples/process/README.md): a straight-forward PIV cross correlator
+  * [average_subtract](examples/average_subtract/README.md): a utility to read in n
+    images, find the average and write out n new images with the mean subtracted
 
 Logging
 -------
@@ -103,6 +111,7 @@ TODO
   * [ ] iterative analysis
   * [ ] PIV guided PTV?
 * data output
+  * [ ] output registry
   * [ ] ASCII/CSV
   * [ ] gnuplot/pyplot?
   * [ ] tecplot
