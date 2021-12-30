@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup vcpkg
-      run: ${{github.workspace}/.ci/setup-vcpkg.sh
+      run: ${{github.workspace}}/.ci/setup-vcpkg.sh
       shell: bash
       env:
         TRAVIS_OS_NAME: linux
