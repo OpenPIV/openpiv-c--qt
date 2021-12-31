@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
 # pickup environment to get vcpkg cmake files
-set(vcpkg_root ${CMAKE_CURRENT_SOURCE_DIR}/external/vcpkg)
-include(cmake/utils.cmake)
-setup_vcpkg_before_project()
+#set(vcpkg_root ${CMAKE_CURRENT_SOURCE_DIR}/external/vcpkg)
+#include(cmake/utils.cmake)
+#setup_vcpkg_before_project()
 
 project(openpiv-c++)
 
