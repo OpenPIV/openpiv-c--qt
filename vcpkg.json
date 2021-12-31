@@ -1,5 +1,5 @@
 {
-    "name": "openpiv-c++",
+    "name": "openpiv-cplusplus",
     "version-string": "latest",
     "dependencies": [
 	"catch2",
