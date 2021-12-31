@@ -11,22 +11,29 @@ Build
 
 There are some external dependencies under external/, so when cloneing use:
 
-```git clone --recursive-submodules <path to git repo>```
+```git clone --recursive <path to git repo>```
 
-Building uses cmake; to build (linux example):
+Building uses cmake and vcpkg, and is simplified by using a vcpkg manifest to specify
+the dependent packages. To build (linux example):
 
-* cd to cloned source directory
-* mkdir build; cd build
-* cmake ..
-* make
+* cmake -B build -S .
+* cmake --build build
 
 To run tests:
 
-* make test
+* cd build
+* ctest
 
-To enable a release build:
+To change the build type, add `-DCMAKE_BUILD_TYPE` e.g.
+`cmake -DCMAKE_BUILD_TYPE=RelWithDebugInfo -B build -S .`.
 
-```cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..```
+The binaries are located in the build directory:
+* build
+  * test -> *_test
+  * examples
+    * process
+    * average_subtract
+  * openpiv -> libopenpivcore.so
 
 Dependencies
 ------------
@@ -58,7 +65,7 @@ TODO
 ----
 
 * build
-  * [x] travis/CI
+  * [x] travis/github actions/CI
   * [x] add clang/windows/OS X build
 * core
   * [x] logging
