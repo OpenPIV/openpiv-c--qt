@@ -94,7 +94,7 @@ $ time ./process -s 32 -i ../../../examples/images/F_00001.tif ../../../examples
 
 real    0m1.248s
 user    0m3.249s
-sys	    0m0.109s
+sys     0m0.109s
 ```
 
 This is about 1ms per interrogation area (3 cores, 3969 interrogation areas, 1.248s).
@@ -158,7 +158,7 @@ $ time ./process -s 32 -i ../../../examples/images/F_00001.tif ../../../examples
 
 real    0m0.122s
 user    0m0.649s
-sys	    0m0.020s
+sys     0m0.020s
 ```
 
 This is about 230us per interrogation area (7 cores, 3696 interrogation areas, 0.122s)

@@ -13,6 +13,8 @@ namespace openpiv::core {
     {
     public:
         exception_builder() = default;
+
+        #pragma warning(disable: 4722)
         ~exception_builder() noexcept(false)
         {
             throw E(ss.str());
