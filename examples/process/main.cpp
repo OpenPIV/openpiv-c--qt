@@ -215,7 +215,7 @@ int main( int argc, char* argv[] )
         std::vector<size_t> chunk_sizes( thread_count, chunk_size );
         chunk_sizes.back() = grid.size() - (thread_count-1)*chunk_size;
 
-        spdlog::debug("chunk sizes: {}", chunk_sizes);
+        spdlog::debug("chunk sizes: {}", core::join(chunk_sizes, ", "));
 
         size_t i = 0;
         for ( const auto& chunk_size_ : chunk_sizes )
