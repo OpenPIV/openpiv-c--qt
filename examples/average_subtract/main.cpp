@@ -70,7 +70,7 @@ int main( int argc, char* argv[] )
     }
 
     // load, process
-    spdlog::info("input files: {}", input_files);
+    spdlog::info("input files: {}", core::join(input_files, ", "));
     // std::cout << "using memory: " << std::boolalpha << use_memory << "\n";
 
     // get images
