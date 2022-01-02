@@ -17,8 +17,8 @@ namespace openpiv::core {
         if ( interrogation_size.area() == 0 )
             core::exception_builder<std::runtime_error>() << "interrogation size must be non-zero";
 
-        uint32_t x_overlap = interrogation_size.width() * percentage_overlap;
-        uint32_t y_overlap = interrogation_size.height() * percentage_overlap;
+        auto x_overlap = (uint32_t)(interrogation_size.width() * percentage_overlap);
+        auto y_overlap = (uint32_t)(interrogation_size.height() * percentage_overlap);
 
         if ( percentage_overlap < 0.0 || percentage_overlap > 1.0 || x_overlap == 0 || y_overlap == 0 )
             core::exception_builder<std::runtime_error>() << "overlaps must be between 0.0 and 1.0";

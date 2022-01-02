@@ -10,7 +10,7 @@
 namespace openpiv::core {
 
     template <typename T,
-              template<typename> class C,
+              template<typename, typename=std::allocator<T>> class C,
               typename = std::enable_if_t<
                   std::is_same_v<C<T>, std::list<T>> ||
                   std::is_same_v<C<T>, std::vector<T>>>>
