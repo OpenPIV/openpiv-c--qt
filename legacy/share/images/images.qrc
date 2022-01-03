@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="images">
+    <file>openpiv.png</file>
+    <file>urapiv_icon.png</file>
+  </qresource>
+</RCC>

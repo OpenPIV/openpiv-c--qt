@@ -1,0 +1,32 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>system-help.png</file>
+    <file>applications-education.png</file>
+    <file>help.png</file>
+    <file>hist.png</file>
+    <file>filesaveas.png</file>
+    <file>filenew.png</file>
+    <file>fileopen.png</file>
+    <file>filesave.png</file>
+    <file>edit-node.png</file>
+    <file>player_pause.png</file>
+    <file>player_play.png</file>
+    <file>bookmark-2.png</file>
+    <file>arrow-down-double-3_small.png</file>
+    <file>exit.png</file>
+    <file>viewmagfit.png</file>
+    <file>viewmag-.png</file>
+    <file>viewmag+.png</file>
+    <file>colour.png</file>
+    <file>player_rew.png</file>
+    <file>player_fwd.png</file>
+    <file>LUT.png</file>
+    <file>correlate.png</file>
+    <file>edit.png</file>
+    <file>openpiv.png</file>
+    <file>import_image.png</file>
+    <file>image_mask.png</file>
+    <file>filter.png</file>
+    <file>kcmsystem.png</file>
+  </qresource>
+</RCC>

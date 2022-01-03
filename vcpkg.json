@@ -1,0 +1,12 @@
+{
+    "name": "openpiv-cplusplus",
+    "version-string": "latest",
+    "dependencies": [
+	"catch2",
+	"spdlog",
+	"cxxopts",
+	"tiff",
+	"benchmark",
+	"asyncplusplus"
+    ]
+}

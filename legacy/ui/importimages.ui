@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImportImages</class>
+ <widget class="QDialog" name="ImportImages">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>428</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Image Import</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../share/icons/icons.qrc">
+    <normaloff>:/icons/openpiv.png</normaloff>:/icons/openpiv.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="topLabel">
+     <property name="text">
+      <string>Recognized images in:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="dirEdit">
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ImportImageList" name="imageListWidget"/>
+   </item>
+   <item>
+    <widget class="QWidget" name="layoutWidget" native="true">
+     <layout class="QHBoxLayout" name="buttonLayout" stretch="0,0">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <item>
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cancelButton">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImportImageList</class>
+   <extends>QListWidget</extends>
+   <header>importimagelist.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../share/icons/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
