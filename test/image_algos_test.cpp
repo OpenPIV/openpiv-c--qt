@@ -39,19 +39,16 @@ TEST_CASE("image_algos_test - FFTTest")
             if ( x == 32 && y == 32 )
             {
                 auto p = point2<uint32_t>{ x, y };
-                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ] != c_f{}) );
             }
             else if ( x == 224 && y == 224 )
             {
                 auto p = point2<uint32_t>{ x, y };
-                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ] != c_f{}) );
             }
             else
             {
                 auto p = point2<uint32_t>{ x, y };
-                // std::cout << p << ": " << output[ p ] << "\n";
                 REQUIRE( (output[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
             }
 
@@ -61,6 +58,52 @@ TEST_CASE("image_algos_test - FFTTest")
     REQUIRE( save_to_file( "fft-reverse.pgm", g) );
 }
 
+TEST_CASE("image_algos_test - FFT two real images")
+{
+    // generate sinusoidal patterns
+    gf_image a{ 256, 256 };
+    fill( a, []( uint32_t w, uint32_t h ){ return 128 * std::sin( 2*M_PI*w/8 + 2*M_PI*h/8 ); } );
+
+    gf_image b{ 256, 256 };
+    fill( b,
+          [width=b.width()]( uint32_t w, uint32_t h ) {
+              return 128 * std::sin( 2*M_PI*(width-w)/8 + 2*M_PI*h/8 );
+          } );
+
+    // save
+    REQUIRE( save_to_file( "fft-real-input-a.pgm", a ) );
+    REQUIRE( save_to_file( "fft-real-input-b.pgm", b ) );
+
+    // transform
+    FFT fft( a.size() );
+    auto [a_fft, b_fft] = fft.transform_real( a, b, direction::FORWARD );
+
+    REQUIRE( save_to_file( "fft-real-output-a.pgm", gf_image( a_fft ) ) );
+    REQUIRE( save_to_file( "fft-real-output-b.pgm", gf_image( b_fft ) ) );
+
+    // two peaks; relies on quadrants being unswapped i.e. zero
+    // frequency is at edges
+    auto checker =
+        [](const cf_image& im, point2<uint32_t> a, point2<uint32_t> b)
+        {
+            for ( uint32_t y=0; y<im.height(); ++y )
+                for ( uint32_t x=0; x<im.width(); ++x )
+                {
+                    auto p = point2<uint32_t>{ x, y };
+                    if ( p == a || p == b )
+                    {
+                        REQUIRE( (im[ p ] != c_f{}) );
+                    }
+                    else
+                    {
+                        REQUIRE( (im[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
+                    }
+                }
+        };
+
+    checker(a_fft, {32, 32}, {224, 224});
+    checker(b_fft, {32, 224}, {224, 32});
+}
 
 TEST_CASE("image_algos_test - FFT Different Size")
 {

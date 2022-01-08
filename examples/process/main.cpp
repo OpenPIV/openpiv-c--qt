@@ -52,6 +52,7 @@ int main( int argc, char* argv[] )
     std::vector<std::string> input_files;
     std::string execution;
     uint8_t thread_count = std::thread::hardware_concurrency()-1;
+    std::string fft_type;
 
     try
     {
@@ -62,7 +63,8 @@ int main( int argc, char* argv[] )
             ("o, overlap", "interrogation overlap", cxxopts::value<double>(overlap)->default_value("0.5"))
             ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files))
             ("t, thread-count", "pool thread count", cxxopts::value<uint8_t>(thread_count)->default_value(std::to_string(thread_count)))
-            ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"));
+            ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"))
+            ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("real"));
 
         options.parse_positional({"input"});
         auto result = options.parse(argc, argv);
@@ -139,15 +141,17 @@ int main( int argc, char* argv[] )
     };
     std::vector<point_vector> found_peaks( grid.size() );
     auto fft = algos::FFT( ia );
-    auto processor = [&images, &fft, &found_peaks]( size_t i, const core::rect& ia )
+    auto correlator = &algos::FFT::cross_correlate_real<core::image, core::g_f>;
+    if (fft_type != "real")
+        correlator = &algos::FFT::cross_correlate<core::image, core::g_f>;
+
+    auto processor = [&images, &fft, &found_peaks, &correlator]( size_t i, const core::rect& ia )
                      {
-                         // auto view_a{ core::create_image_view( images[0], ia ) };
-                         // auto view_b{ core::create_image_view( images[1], ia ) };
                          auto view_a{ core::extract( images[0], ia ) };
                          auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
-                         core::gf_image output{ fft.cross_correlate( view_a, view_b ) };
+                         core::gf_image output{ (fft.*correlator)( view_a, view_b ) };
 
                          // find peaks
                          constexpr uint16_t num_peaks = 2;

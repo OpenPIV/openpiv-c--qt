@@ -127,15 +127,101 @@ namespace openpiv::algos {
             return cache().output;
         }
 
+        /// Perform a 2-D FFT of two real images; will produce two
+        /// output images
+        template < template <typename> class ImageT,
+                   typename ContainedT,
+                   typename = typename std::enable_if_t<
+                       is_imagetype_v<ImageT<ContainedT>> &&
+                       is_real_mono_pixeltype_v<ContainedT>
+                       >
+                   >
+        std::tuple<cf_image, cf_image>
+        transform_real( const ImageT<ContainedT>& a,
+                        const ImageT<ContainedT>& b,
+                        direction d = direction::FORWARD ) const
+        {
+            DECLARE_ENTRY_EXIT
+            if ( a.size() != size_ || b.size() != size_ )
+            {
+                exception_builder< std::runtime_error >()
+                    << "image size is different from expected: " << a.size()
+                    << ", " << size_;
+            }
+
+            // copy data to (real, imag), converting to complex
+            cache().output = join_from_channels(a, b);
+            cache().temp.resize( cache().output.size() );
+
+            // iterate over rows first
+            for ( uint32_t h = 0; h < cache().output.height(); ++h )
+                fft( cache().output.line(h), cache().output.width(), d );
+
+            // transpose output -> temp
+            transpose( cache().output, cache().temp );
+
+            // now do columns
+            for ( uint32_t h = 0; h < cache().temp.height(); ++h )
+                fft( cache().temp.line(h), cache().temp.width(), d );
+
+            // flip back: temp -> output
+            transpose( cache().temp, cache().output );
+
+            // and unravel
+            const auto& transformed = cache().output;
+            auto out_a = cf_image( transformed.size() );
+            auto out_b = cf_image( transformed.size() );
+
+            const auto width = transformed.width();
+            const auto height = transformed.height();
+            for ( uint32_t h=1; h<height/2; ++h)
+            {
+                for (uint32_t w=1; w<width; ++w)
+                {
+                    const auto t1 = transformed[ {w, h} ];
+                    const auto t2 = transformed[ {width - w, height - h} ];
+                    auto a = 0.5*(t1 + t2.conj());
+                    out_a[ {w, h} ] = a;
+                    out_a[ {width - w, height - h} ] = a.conj();
+
+                    auto b = 0.5*(t1 - t2.conj());
+                    b = c_f(b.imag, -1.0 * b.real);
+                    out_b[ {w, h} ] = b;
+                    out_b[ {width - w, height - h} ] = b.conj();
+                }
+            }
+
+            return { out_a, out_b };
+        }
+
         template < template <typename> class ImageT,
                    typename ContainedT,
                    typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
-        const cf_image& cross_correlate( const ImageT<ContainedT>& a, const ImageT<ContainedT>& b ) const
+        const cf_image& cross_correlate( const ImageT<ContainedT>& a,
+                                         const ImageT<ContainedT>& b ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
             const cf_image& b_fft = transform( b, direction::FORWARD );
 
+            a_fft = b_fft * conj( a_fft );
+            cache().output = real( transform( a_fft, direction::REVERSE ) );
+            swap_quadrants( cache().output );
+
+            return cache().output;
+        }
+
+        template < template <typename> class ImageT,
+                   typename ContainedT,
+                   typename = typename std::enable_if_t<
+                       is_imagetype_v<ImageT<ContainedT>> &&
+                       is_real_mono_pixeltype_v<ContainedT>
+                       >
+                   >
+        const cf_image& cross_correlate_real( const ImageT<ContainedT>& a,
+                                              const ImageT<ContainedT>& b ) const
+        {
+            auto [a_fft, b_fft] = transform_real( a, b, direction::FORWARD );
             a_fft = b_fft * conj( a_fft );
             cache().output = real( transform( a_fft, direction::REVERSE ) );
             swap_quadrants( cache().output );
@@ -159,15 +245,15 @@ namespace openpiv::algos {
         }
 
     private:
-        void fft_inner( c_f* in, c_f* out, const c_f* scaling, size_t n, size_t step, direction d ) const
+        void fft_inner( c_f* in, c_f* out, const c_f* scaling, size_t n, size_t step ) const
         {
             DECLARE_ENTRY_EXIT
 
             if (step < n)
             {
                 const size_t doublestep{ 2*step };
-                fft_inner(out,        in,        scaling, n, doublestep, d);
-                fft_inner(out + step, in + step, scaling, n, doublestep, d);
+                fft_inner(out,        in,        scaling, n, doublestep);
+                fft_inner(out + step, in + step, scaling, n, doublestep);
 
                 for ( size_t i=0; i<n; i+=doublestep )
                 {
@@ -185,7 +271,7 @@ namespace openpiv::algos {
 
             typed_memcpy( cache().fft_buffer.data(), in, n, stride );
             const auto& scaling = (d == direction::FORWARD ? forward_scaling_ : reverse_scaling_).at(n);
-            fft_inner( in, cache().fft_buffer.data(), &scaling[0], n, 1, d );
+            fft_inner( in, cache().fft_buffer.data(), &scaling[0], n, 1 );
         }
 
         static scaling_map_t generate_scaling_factors( const core::size& size, direction d )
@@ -198,7 +284,7 @@ namespace openpiv::algos {
                 std::generate(
                     std::begin(twiddle),
                     std::end(twiddle),
-                    [i=0, n, d, scaling]() mutable {
+                    [i=0, n, scaling]() mutable {
                         const double theta = (scaling * M_PI * i++)/n;
                         return c_f{ std::cos( theta ), std::sin( theta ) };
                     } );
