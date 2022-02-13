@@ -8,6 +8,6 @@
         "tiff",
         "benchmark",
         "asyncplusplus",
-        "mimalloc"
+        { "name": "mimalloc", "platform": "!(arm | uwp)" }
     ]
 }

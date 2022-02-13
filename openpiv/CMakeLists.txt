@@ -32,13 +32,19 @@ if(TIFF_FOUND)
   target_link_libraries(${LIBNAME} PRIVATE ${TIFF_LIBRARIES})
 endif()
 
+find_package(mimalloc CONFIG)
+if(mimalloc_FOUND)
+  message("found mimalloc")
+  target_link_libraries(
+    ${LIBNAME}
+    PRIVATE mimalloc mimalloc-static)
+endif()
+
 find_package(Threads REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
-find_package(mimalloc CONFIG REQUIRED)
 target_link_libraries(
   ${LIBNAME}
-  PRIVATE mimalloc mimalloc-static
   PRIVATE spdlog::spdlog spdlog::spdlog_header_only
   PRIVATE fmt::fmt-header-only
   PRIVATE Threads::Threads)
