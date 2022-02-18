@@ -27,7 +27,7 @@ if(TIFF_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/loaders/tiff_image_loader.cpp )
 
   include_directories(${TIFF_EXTERNAL_LIBRARY_CXX})
-  include_directories(${TIFF_INCLUDE_DIR})
+  include_directories(BEFORE ${TIFF_INCLUDE_DIR})
 
   target_link_libraries(${LIBNAME} PRIVATE ${TIFF_LIBRARIES})
 endif()
