@@ -41,8 +41,10 @@
 #include <functional>
 #include <stdexcept>
 
-// libs
-#include "spdlog/spdlog.h"
+// core
+#include "core/log.h"
+
+namespace logger = openpiv::core::logger;
 
 class ThreadPool
 {
@@ -64,7 +66,7 @@ public:
                             // wait and check if we actually have work to do upon wakeup
                             this->queue_condition.wait(
                                 lock,
-                                [this]{
+                                [this](){
                                     return
                                         this->stop ||
                                         !this->tasks.empty();
@@ -73,7 +75,7 @@ public:
                             // check if the queue is empty
                             if(this->tasks.empty() && this->stop)
                             {
-                                spdlog::debug("pool thread finishing");
+                                logger::debug("pool thread finishing");
                                 return;
                             }
 
@@ -93,7 +95,7 @@ public:
                 }
             };
 
-        spdlog::debug("starting pool");
+        logger::debug("starting pool");
 
         // add threads
         for (size_t i = 0;i<threads;++i)

@@ -10,10 +10,6 @@
 
 // utils
 #include <cxxopts.hpp>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-#include "spdlog/fmt/ostr.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
 #include "threadpool.hpp"
 
 #if defined(ASYNCPLUSPLUS)
@@ -27,19 +23,25 @@
 #include "core/grid.h"
 #include "core/image.h"
 #include "core/image_utils.h"
+#include "core/log.h"
 #include "core/stream_utils.h"
 #include "core/vector.h"
 
 using namespace openpiv;
+namespace logger = openpiv::core::logger;
 
 int main( int argc, char* argv[] )
 {
-    // setup logger
-    auto logger = spdlog::stderr_color_mt("console");
-    logger->set_level(spdlog::level::info);
-    spdlog::set_pattern("[%H:%M:%S %z] [%l] [thread %t] %v");
-    spdlog::set_default_logger(logger);
-    spdlog::cfg::load_env_levels();
+    // log to stderr, up to INFO
+    logger::Logger::instance().add_sink(
+        [](logger::Level l, const std::string& m) -> bool
+        {
+            if ( l > logger::Level::INFO )
+                return true;
+
+            std::cerr << m << "\n";
+            return true;
+        });
 
     // get arguments
     cxxopts::Options options(argv[0]);
@@ -77,21 +79,21 @@ int main( int argc, char* argv[] )
 
         if (result.count("input") != 2)
         {
-            spdlog::error("require two input images");
+            logger::error("require two input images");
             return 1;
         }
     }
     catch (const cxxopts::OptionException& e)
     {
-        spdlog::error("error parsing options: {}", e.what());
+        logger::error("error parsing options: {}", e.what());
         return 1;
     }
 
     // load, process
-    spdlog::info("size: {0} x {0}", size);
-    spdlog::info("overlap: {}", overlap);
-    spdlog::info("input files: {}", core::join(input_files, ", "));
-    spdlog::info("execution: {}", execution);
+    logger::info("size: {0} x {0}", size);
+    logger::info("overlap: {}", overlap);
+    logger::info("input files: {}", core::join(input_files, ", "));
+    logger::info("execution: {}", execution);
 
     // get images
     std::vector<core::gf_image> images;
@@ -113,24 +115,24 @@ int main( int argc, char* argv[] )
     }
     catch ( std::exception& e )
     {
-        spdlog::error("failed to load image: {}", e.what());
+        logger::error("failed to load image: {}", e.what());
         return 1;
     }
 
     // check image sizes
     if ( images[0].size() != images[1].size() )
     {
-        spdlog::error("image sizes don't match: {}, {}", images[0].size(), images[1].size());
+        logger::error("image sizes don't match: {}, {}", images[0].size(), images[1].size());
         return 1;
     }
 
-    spdlog::info("loaded images: {}", images[0].size());
+    logger::info("loaded images have size: {}", images[0].size());
 
     // create a grid for processing
     auto ia = core::size{size, size};
     auto grid = core::generate_cartesian_grid( images[0].size(), ia, overlap );
-    spdlog::info("generated grid for image size: {}, ia: {} ({}% overlap)", images[0].size(), ia, overlap*100);
-    spdlog::info("grid count: {}", grid.size());
+    logger::info("generated grid for image size: {}, ia: {} ({}% overlap)", images[0].size(), ia, overlap*100);
+    logger::info("grid count: {}", grid.size());
 
     // process!
     struct point_vector
@@ -161,7 +163,7 @@ int main( int argc, char* argv[] )
                          // sub-pixel fitting
                          if ( peaks.size() != num_peaks )
                          {
-                             spdlog::error("failed to find a peak for ia: {}", ia);
+                             logger::error("failed to find a peak for ia: {}", ia);
                              return;
                          }
 
@@ -184,7 +186,7 @@ int main( int argc, char* argv[] )
 #if defined(ASYNCPLUSPLUS)
     if ( execution == "async++" )
     {
-        spdlog::info("processing using async++");
+        logger::info("processing using async++");
         std::atomic<size_t> i = 0;
         async::parallel_for( grid,
                              [&i, processor] (const core::rect& ia)
@@ -196,7 +198,7 @@ int main( int argc, char* argv[] )
 #endif
     if ( execution == "pool" )
     {
-        spdlog::info("processing using thread pool");
+        logger::info("processing using thread pool");
         ThreadPool pool( thread_count );
 
         size_t i = 0;
@@ -208,7 +210,7 @@ int main( int argc, char* argv[] )
     }
     else if ( execution == "bulk-pool" )
     {
-        spdlog::info("processing using thread pool with bulk split");
+        logger::info("processing using thread pool with bulk split");
         ThreadPool pool( thread_count );
 
         // - split the grid into thread_count chunks
@@ -219,7 +221,7 @@ int main( int argc, char* argv[] )
         std::vector<size_t> chunk_sizes( thread_count, chunk_size );
         chunk_sizes.back() = grid.size() - (thread_count-1)*chunk_size;
 
-        spdlog::debug("chunk sizes: {}", core::join(chunk_sizes, ", "));
+        logger::debug("chunk sizes: {}", core::join(chunk_sizes, ", "));
 
         size_t i = 0;
         for ( const auto& chunk_size_ : chunk_sizes )

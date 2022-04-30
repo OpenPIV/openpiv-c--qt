@@ -6,28 +6,54 @@
 
 // utils
 #include <cxxopts.hpp>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-#include "spdlog/fmt/ostr.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
 
 // openpiv
 #include "loaders/image_loader.h"
 #include "core/enumerate.h"
 #include "core/image.h"
 #include "core/image_utils.h"
+#include "core/log.h"
 #include "core/stream_utils.h"
+#include "algos/stats.h"
 
 using namespace openpiv;
+namespace logger = openpiv::core::logger;
+
+core::gf_image load_from_file(const std::string& filename)
+{
+    try {
+        std::ifstream is(filename, std::ios::binary);
+        if ( !is.is_open() )
+            core::exception_builder<std::runtime_error>() << "failed to open " << filename;
+
+        auto loader{ core::image_loader_registry::find(is) };
+        if ( !loader )
+            core::exception_builder<std::runtime_error>() << "failed to find loader for " << filename;
+
+        core::gf_image image;
+        loader->load( is, image );
+        return image;
+    }
+    catch ( std::exception& e )
+    {
+        logger::error("failed to load image: {}", e.what());
+    }
+
+    return {};
+}
 
 int main( int argc, char* argv[] )
 {
-    // setup logger
-    auto logger = spdlog::stderr_color_mt("console");
-    logger->set_level(spdlog::level::info);
-    spdlog::set_pattern("[%H:%M:%S %z] [%l] [thread %t] %v");
-    spdlog::set_default_logger(logger);
-    spdlog::cfg::load_env_levels();
+    // log to stderr, up to INFO
+    logger::Logger::instance().add_sink(
+        [](logger::Level l, const std::string& m) -> bool
+        {
+            if ( l > logger::Level::INFO )
+                return true;
+
+            std::cerr << m << "\n";
+            return true;
+        });
 
     // get arguments
     cxxopts::Options options(argv[0]);
@@ -36,14 +62,12 @@ int main( int argc, char* argv[] )
         .show_positional_help();
 
     std::vector<std::string> input_files;
-    bool use_memory = true;
 
     try
     {
         options
             .add_options()
             ("h, help", "help", cxxopts::value<bool>())
-            ("m, usememory", "keep images in memory", cxxopts::value<bool>())
             ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files));
 
         options.parse_positional({"input"});
@@ -57,87 +81,81 @@ int main( int argc, char* argv[] )
 
         if (result.count("input") < 2)
         {
-            spdlog::error("require two or more input images");
+            logger::error("require two or more input images");
             return 1;
         }
 
-        use_memory = result.count("usememory");
     }
     catch (const cxxopts::OptionException& e)
     {
-        spdlog::error("error parsing options: {}", e.what());
+        logger::error("error parsing options: {}", e.what());
         return 1;
     }
 
     // load, process
-    spdlog::info("input files: {}", core::join(input_files, ", "));
-    // std::cout << "using memory: " << std::boolalpha << use_memory << "\n";
+    logger::info("input files: {}", core::join(input_files, ", "));
 
-    // get images
-    std::vector<core::gf_image> images;
-    for ( const auto& input_file : input_files )
-    {
-        try {
-            std::ifstream is(input_file, std::ios::binary);
-            if ( !is.is_open() )
-                core::exception_builder<std::runtime_error>() << "failed to open " << input_file;
+    // process: find average
+    core::size s;
+    core::gf_image avg;
+    size_t processed = 0;
 
-            auto loader{ core::image_loader_registry::find(is) };
-            if ( !loader )
-                core::exception_builder<std::runtime_error>() << "failed to find loader for " << input_file;
-
-            core::gf_image image;
-            loader->load( is, image );
-            images.emplace_back(std::move(image));
-        }
-        catch ( std::exception& e )
-        {
-            spdlog::error("failed to load image: {}", e.what());
-        }
+    try {
+        auto image = load_from_file(input_files[0]);
+        s = image.size();
+        avg.resize(s);
     }
-
-    if ( images.empty() )
+    catch (std::exception& e)
     {
-        spdlog::error("failed to load any files!");
+        logger::error("failed to load first image: {}", e.what());
         return 1;
     }
 
-    // check image sizes
-    core::size s = images[0].size();
-    for ( const auto& [i, im] : core::enumerate(images) )
+    for ( size_t i=1; i<input_files.size(); ++i)
     {
-        if ( im.size() != s )
+        try {
+            auto image = load_from_file(input_files[i]);
+            avg = avg + image;
+            ++processed;
+        }
+        catch ( std::exception& e )
         {
-            spdlog::error("image size doesn't match (image {}: {}): got {}, expected {}",
-                          i, input_files[i], im.size(), s);
-            return 1;
+            logger::error("failed to load image: {}", e.what());
         }
     }
 
-    spdlog::info("loaded images");
+    if ( processed == 0 )
+    {
+        logger::error("failed to load any files!");
+        return 1;
+    }
 
-    // process:
-    // - find average
-    // - for each image, subtract average and write as <name>.sub
-    core::gf_image avg{s};
-    for ( const auto& im : images )
-        avg = avg + im;
+    // normalize
+    avg = avg / core::g_f{processed};
 
-    avg = avg / core::g_f{images.size()};
+    logger::info("found average; processed {} image files", processed);
 
+    // process: for each image, subtract average and write as <name>.sub
     std::shared_ptr<core::image_loader> writer{ core::image_loader_registry::find("image/x-portable-anymap") };
     if ( !writer )
     {
-        spdlog::error("failed to find loader for pnm");
+        logger::error("failed to find loader for pnm");
         return 1;
     }
 
     // iterate over all images, subtract average and write
-    for ( auto [i, im] : core::enumerate(images) )
+    for ( size_t i=0; i<input_files.size(); ++i )
     {
-        im = im - avg;
-        std::fstream os( input_files[i] + ".avg_sub.pnm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
-        writer->save( os, im );
+        try {
+            auto image = load_from_file(input_files[i]);
+            image = image - avg;
+            std::fstream os(
+                input_files[i] + ".avg_sub.pnm",
+                std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
+            writer->save( os, image );
+        }
+        catch ( std::exception& )
+        {}
     }
 
     return 0;

@@ -19,7 +19,16 @@ foreach(SOURCE ${SOURCES})
   # include openpivcore, catch2
   get_target_property(CATCH2_INCLUDE_DIRECTORIES Catch2::Catch2 INTERFACE_INCLUDE_DIRECTORIES)
   include_directories(${CMAKE_SOURCE_DIR}/openpiv ${CATCH2_INCLUDE_DIRECTORIES})
-  target_link_libraries(${OUTPUT} catch-main openpivcore)
+  # target_link_libraries(${OUTPUT} catch-main openpivcore)
+
+  find_package(Threads REQUIRED)
+  find_package(fmt CONFIG REQUIRED)
+  target_link_libraries(
+    ${OUTPUT}
+    PRIVATE catch-main
+    PRIVATE openpivcore
+    PRIVATE fmt::fmt-header-only
+    PRIVATE Threads::Threads)
 
   # add as a test
   add_test(
