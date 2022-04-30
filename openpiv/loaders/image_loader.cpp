@@ -6,11 +6,9 @@
 #include <memory>
 #include <vector>
 
-// utils
-#include "spdlog/spdlog.h"
-
 // local
 #include "core/util.h"
+#include "core/log.h"
 
 namespace openpiv::core {
 
@@ -54,7 +52,7 @@ namespace openpiv::core {
                    }
             );
 
-        spdlog::info("registered: {}", name);
+        logger::info("registered: {}", name);
         return true;
     }
 

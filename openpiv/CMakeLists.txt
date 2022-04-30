@@ -2,7 +2,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # ensure we check local libs first
-set(CMAKE_FIND_FRAMEWORK "Last")
+set(CMAKE_FIND_FRAMEWORK LAST)
 
 set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/core/size.cpp
@@ -44,11 +44,9 @@ if(mimalloc_FOUND)
 endif()
 
 find_package(Threads REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(
   ${LIBNAME}
-  PRIVATE spdlog::spdlog spdlog::spdlog_header_only
   PRIVATE fmt::fmt-header-only
   PRIVATE Threads::Threads)
 
