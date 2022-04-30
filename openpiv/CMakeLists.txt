@@ -2,7 +2,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # ensure we check local libs first
-set(CMAKE_FIND_FRAMEWORK "Last")
+set(CMAKE_FIND_FRAMEWORK LAST)
 
 set(SOURCE
   ${CMAKE_CURRENT_SOURCE_DIR}/core/size.cpp
