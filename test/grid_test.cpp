@@ -61,7 +61,7 @@ TEST_CASE("grid_test - cartesian grid")
 
         for ( const auto& tl :
                   { point_t(2, 1),  point_t(18, 1),  point_t(34, 1),  point_t(50, 1),  point_t(66, 1),
-                          point_t(2, 17), point_t(18, 17), point_t(34, 17), point_t(50, 17), point_t(66, 17) } )
+                    point_t(2, 17), point_t(18, 17), point_t(34, 17), point_t(50, 17), point_t(66, 17) } )
             expected.emplace_back( rect(tl, interrogation) );
 
         INFO( "generated: " << sort_grid(generated) );
@@ -152,4 +152,68 @@ TEST_CASE("grid_test - cartesian grid")
         CHECK( generated.size() == expected.size() );
         CHECK( (sort_grid( generated ) == sort_grid( expected )) );
     }
+
+    SECTION("exact 3x3, 50% pixel offset")
+    {
+        auto generated = generate_cartesian_grid( {64, 64}, interrogation, {16, 16} );
+
+        for ( const auto& tl :
+                  { point_t(0, 0),   point_t(16, 0),  point_t(32, 0),
+                    point_t(0, 16),  point_t(16, 16), point_t(32, 16),
+                    point_t(0, 32),  point_t(16, 32), point_t(32, 32) } )
+            expected.emplace_back( rect(tl, interrogation) );
+
+        INFO( "generated: " << sort_grid(generated) );
+        INFO( "expected:  " << sort_grid(expected) );
+
+        CHECK( generated.size() == expected.size() );
+        CHECK( (sort_grid( generated ) == sort_grid( expected )) );
+    }
+
+    SECTION("exact 3x5, 50/25% pixel offset")
+    {
+        auto generated = generate_cartesian_grid( {64, 64}, interrogation, {16, 8} );
+
+        for ( const auto& tl :
+                  { point_t(0, 0),   point_t(16, 0),  point_t(32, 0),
+                    point_t(0, 8),   point_t(16, 8),  point_t(32, 8),
+                    point_t(0, 16),  point_t(16, 16), point_t(32, 16),
+                    point_t(0, 24),  point_t(16, 24), point_t(32, 24),
+                    point_t(0, 32),  point_t(16, 32), point_t(32, 32) } )
+            expected.emplace_back( rect(tl, interrogation) );
+
+        INFO( "generated: " << sort_grid(generated) );
+        INFO( "expected:  " << sort_grid(expected) );
+
+        CHECK( generated.size() == expected.size() );
+        CHECK( (sort_grid( generated ) == sort_grid( expected )) );
+    }
+
+    SECTION("exact 3x7, 50/50% pixel offset, non-square interrogation")
+    {
+        auto interrogation = size(32, 16);
+        auto generated = generate_cartesian_grid(
+            {64, 64}, // image size
+            interrogation, // interrogation size
+            {16, 8}   // offset
+            );
+
+        for ( const auto& tl :
+                  { point_t(0, 0),   point_t(16, 0),  point_t(32, 0),
+                    point_t(0, 8),   point_t(16, 8),  point_t(32, 8),
+                    point_t(0, 16),  point_t(16, 16), point_t(32, 16),
+                    point_t(0, 24),  point_t(16, 24), point_t(32, 24),
+                    point_t(0, 32),  point_t(16, 32), point_t(32, 32),
+                    point_t(0, 40),  point_t(16, 40), point_t(32, 40),
+                    point_t(0, 48),  point_t(16, 48), point_t(32, 48)
+                  } )
+            expected.emplace_back( rect(tl, interrogation) );
+
+        INFO( "generated: " << sort_grid(generated) );
+        INFO( "expected:  " << sort_grid(expected) );
+
+        CHECK( generated.size() == expected.size() );
+        CHECK( (sort_grid( generated ) == sort_grid( expected )) );
+    }
+
 }
