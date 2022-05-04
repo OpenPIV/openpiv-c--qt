@@ -171,7 +171,6 @@ These are captured in `vcpkg.json`:
 * [vcpkg](https://github.com/Microsoft/vcpkg)
   * catch2: unit test framework
   * libtiff: TIFF IO support
-  * spdlog: logging framework
   * benchmark: used to run performance benchmarks
   * async++ (optional): implements c++17 parallel algorithms
   * cxxopts: nice command line parsing
@@ -182,11 +181,6 @@ These are captured in `vcpkg.json`:
   * [process](examples/process/README.md): a straight-forward PIV cross correlator
   * [average_subtract](examples/average_subtract/README.md): a utility to read in n
     images, find the average and write out n new images with the mean subtracted
-
-## Logging
-
-Logging is done via [spdlog](https://github.com/gabime/spdlog), to change the
-log level you can use the environmental variable `SPDLOG_LEVEL=<level>`.
 
 # TODO
 
