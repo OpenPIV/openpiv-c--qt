@@ -6,5 +6,5 @@ TAGS
 *.so
 .vscode/
 .idea/
-test/
+!test/*.cpp
 build/

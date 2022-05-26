@@ -59,6 +59,8 @@ else()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG -g -O3 -ffast-math")
 endif()
 
+add_subdirectory(pybind)
+
 # install
 #install(TARGETS ${LIBNAME} DESTINATION lib/${LIBNAME})
 
