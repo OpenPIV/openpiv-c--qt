@@ -183,6 +183,16 @@ int main( int argc, char* argv[] )
                      };
 
     // check execution
+    if (thread_count <= 1)
+    {
+        logger::info("processing using single thread");
+        size_t i = 0;
+        for ( const auto& ia : grid )
+        {
+            processor(i++, ia);
+        }
+    }
+    else
 #if defined(ASYNCPLUSPLUS)
     if ( execution == "async++" )
     {
