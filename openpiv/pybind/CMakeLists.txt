@@ -3,7 +3,9 @@
 find_package(pybind11 CONFIG REQUIRED)
 pybind11_add_module(
   pyopenpivcore
-  core/bindings.cpp
+  core/module.cpp
+  core/size.cpp
+  core/point.cpp
 )
 target_link_libraries(
   pyopenpivcore

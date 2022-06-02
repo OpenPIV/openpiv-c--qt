@@ -15,19 +15,8 @@ using namespace openpiv::core;
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pyopenpivcore, m) {
-    m.doc() = R"pbdoc(
-        openpivcore python plugin
-        -------------------------
-
-        .. currentmodule:: pyopenpivcore
-
-        .. autosummary::
-           :toctree: _generate
-
-        size
-    )pbdoc";
-
+void add_size(py::module& m)
+{
     // size
     py::class_<size>(m, "size")
         .def(py::init())
@@ -40,6 +29,8 @@ PYBIND11_MODULE(pyopenpivcore, m) {
         .def(py::self + py::self)
         .def(py::self -= py::self)
         .def(py::self - py::self)
+        .def(py::self == py::self)
+        .def(py::self != py::self)
         .def("__repr__",
              [](const size& s) {
                  std::ostringstream ss;
@@ -49,10 +40,4 @@ PYBIND11_MODULE(pyopenpivcore, m) {
     m.def("maximal_size", &maximal_size);
     m.def("minimal_size", &minimal_size);
     m.def("transpose", &transpose);
-
-#ifdef VERSION_INFO
-    m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
-#else
-    m.attr("__version__") = "dev";
-#endif
 }
