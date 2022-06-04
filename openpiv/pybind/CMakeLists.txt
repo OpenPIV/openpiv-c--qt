@@ -6,6 +6,7 @@ pybind11_add_module(
   core/module.cpp
   core/size.cpp
   core/point.cpp
+  core/vector.cpp
 )
 target_link_libraries(
   pyopenpivcore
