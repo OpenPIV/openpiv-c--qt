@@ -19,12 +19,15 @@ namespace {
     using namespace openpiv::core;
 
     template <int> constexpr uint16_t stobe( uint16_t v );
-    template <> inline constexpr uint16_t stobe<__ORDER_BIG_ENDIAN__>( uint16_t v )
+    template <>
+    [[maybe_unused]]
+    inline constexpr uint16_t stobe<__ORDER_BIG_ENDIAN__>( uint16_t v )
     {
         return v;
     }
 
-    template <> inline constexpr uint16_t stobe<__ORDER_LITTLE_ENDIAN__>( uint16_t v )
+    template <>
+    inline constexpr uint16_t stobe<__ORDER_LITTLE_ENDIAN__>( uint16_t v )
     {
         return (v>>8) | (v<<8);
     }
