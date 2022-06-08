@@ -191,8 +191,9 @@ ReturnT& swap_quadrants( ImageT<ContainedT>& in );
 
 /// extract a new image from existing image; similar to forming an
 /// image_view but actually copying the data
-template < typename  ContainedT >
-image<ContainedT> extract( const image<ContainedT>& im, core::rect r );
+template < template<typename> class ImageT,
+           typename  ContainedT >
+image<ContainedT> extract( const ImageT<ContainedT>& im, core::rect r );
 
 }
 
