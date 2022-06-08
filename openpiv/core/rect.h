@@ -58,6 +58,16 @@ public:
     /// { {0, 0}, {10, 10} }.dilate(2) -> { {-2, -2}, {14, 14} }
     rect dilate( int32_t d ) const;
 
+    /// construct a dilated rectangle; positive values of d will grow
+    /// the rectangle, negative will shrink:
+    ///
+    /// - value is an absolute percentage of the width, height
+    /// - 0 is the largest contraction
+    /// - 1 is a nullop
+    ///
+    /// { {0, 0}, {10, 10} }.dilate(1.2) -> { {-1, -1}, {12, 12} }
+    rect dilate( double d ) const;
+
 private:
     point_t bottomLeft_;
     core::size size_;

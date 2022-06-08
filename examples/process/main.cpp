@@ -54,6 +54,7 @@ int main( int argc, char* argv[] )
     std::vector<std::string> input_files;
     std::string execution;
     uint8_t thread_count = std::thread::hardware_concurrency()-1;
+    bool limit_search = false;
     std::string fft_type;
 
     try
@@ -66,6 +67,7 @@ int main( int argc, char* argv[] )
             ("i, input", "input files", cxxopts::value<std::vector<std::string>>(input_files))
             ("t, thread-count", "pool thread count", cxxopts::value<uint8_t>(thread_count)->default_value(std::to_string(thread_count)))
             ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"))
+            ("l, limit-search", "limit peak search to central 25% of interrogation area", cxxopts::value<bool>(limit_search))
             ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("real"));
 
         options.parse_positional({"input"});
@@ -147,18 +149,29 @@ int main( int argc, char* argv[] )
     if (fft_type != "real")
         correlator = &algos::FFT::cross_correlate<core::image, core::g_f>;
 
-    auto processor = [&images, &fft, &found_peaks, &correlator]( size_t i, const core::rect& ia )
+    auto processor = [&images, &fft, &found_peaks, &correlator, limit_search]( size_t i, const core::rect& ia )
                      {
                          auto view_a{ core::extract( images[0], ia ) };
                          auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
-                         core::gf_image output{ (fft.*correlator)( view_a, view_b ) };
+                         const core::gf_image output{ (fft.*correlator)( view_a, view_b ) };
 
                          // find peaks
                          constexpr uint16_t num_peaks = 2;
                          constexpr uint16_t radius = 1;
-                         core::peaks_t<core::g_f> peaks = core::find_peaks( output, num_peaks, radius );
+
+                         core::peaks_t<core::g_f> peaks;
+
+                         if (limit_search)
+                         {
+                             // reduce search radius
+                             auto centre = core::create_image_view( output, output.rect().dilate(0.5) );
+                             peaks = core::find_peaks( centre, num_peaks, radius );
+                         } else {
+                             peaks = core::find_peaks( output, num_peaks, radius );
+                         }
+
 
                          // sub-pixel fitting
                          if ( peaks.size() != num_peaks )

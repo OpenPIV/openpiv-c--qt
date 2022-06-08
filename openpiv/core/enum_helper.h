@@ -44,7 +44,7 @@ public:
         return EnumHelper<E>::storage().at(e);                          \
     }                                                                   \
                                                                         \
-    static std::ostream& operator<<( std::ostream& os, E e )            \
+    [[maybe_unused]] static std::ostream& operator<<( std::ostream& os, E e ) \
     {                                                                   \
         return os << to_string(e);                                      \
     }

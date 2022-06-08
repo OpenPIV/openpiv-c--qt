@@ -3,9 +3,11 @@
 
 // std
 #include <iostream>
+#include <cmath>
 
 // local
 #include "core/exception_builder.h"
+#include "core/util.h"
 
 namespace openpiv::core {
 
@@ -93,6 +95,33 @@ rect rect::dilate( int32_t d ) const
     return {
         {bottomLeft_[0]-d, bottomLeft_[1]-d},
         {size_.width() + 2*d, size_.height() + 2*d}
+    };
+}
+
+/// construct a dilated rectangle; positive values of d will grow
+/// the rectangle, negative will shrink:
+///
+/// - value is an absolute percentage of the width, height
+/// - 0 is the largest contraction
+/// - 1 is a nullop
+///
+/// { {0, 0}, {10, 10} }.dilate(1.2) -> { {-1, -1}, {12, 12} }
+rect rect::dilate( double d ) const
+{
+    if ( d < 0.0 )
+        core::exception_builder<std::runtime_error>()
+            << "unable to dilate rect " << *this << " as dilation is negative";
+
+    const point_t::value_t w = width();
+    const point_t::value_t h = height();
+    const point_t::value_t rw = lround( d * w );
+    const point_t::value_t rh = lround( d * h );
+    const point_t::value_t dw = (w - rw)/2;
+    const point_t::value_t dh = (h - rh)/2;
+
+    return {
+        {bottomLeft_[0] + dw, bottomLeft_[1] + dh},
+        {static_cast<size::component_t>(rw), static_cast<size::component_t>(rh)}
     };
 }
 
