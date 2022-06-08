@@ -95,6 +95,16 @@ TEST_CASE("rect_test - edge_test")
     CHECK( r.top() == 17 );
 }
 
+TEST_CASE("rect_test - dilate_test")
+{
+    rect r( {0, 0}, {10, 20} );
+    CHECK( r.dilate(2) == rect( {-2, -2}, {14, 24} ) );
+    CHECK( r.dilate(-2) == rect( {2, 2}, {6, 16} ) );
+    CHECK( r.dilate(1.0) == rect( {0, 0}, {10, 20} ) );
+    CHECK( r.dilate(1.2) == rect( {-1, -2}, {12, 24} ) );
+    CHECK( rect( {}, {32, 32} ).dilate(0.5) == rect( {8, 8}, {16, 16} ) );
+}
+
 TEST_CASE("rect_test - ostream_test")
 {
     std::stringstream ss;

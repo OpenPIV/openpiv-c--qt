@@ -319,3 +319,37 @@ TEST_CASE("image_test - extract_test")
     REQUIRE( pixel_sum( q3 ) == 4 * q3.pixel_count() );
     REQUIRE( pixel_sum( q4 ) == 8 * q4.pixel_count() );
 }
+
+
+TEST_CASE("image_test - extract_image_view_test")
+{
+    gf_image im{ 100, 100 };
+
+    // fill central 25% with 1 else 0
+    apply(
+        im,
+        [w=im.width(), h=im.height()]( auto i, auto v )
+        {
+            auto x = ( i % w );
+            auto y = ( i / w );
+
+            if ( x >= w/4 && x < 3*w/4 &&
+                 y >= h/4 && y < 3*h/4 )
+                return 1;
+
+            return 0;
+        }
+        );
+
+    size s{ im.width()/2, im.height()/2 };
+    gf_image c1 = extract(im, { {25, 25}, s });
+    gf_image c2 = extract(
+        create_image_view(im, im.rect().dilate(0.5)),
+        { {}, s }
+        );
+
+    // check we've extracted only the part of the
+    // original we wanted
+    REQUIRE( pixel_sum( c1 ) == 1 * c1.pixel_count() );
+    REQUIRE( pixel_sum( c2 ) == 1 * c2.pixel_count() );
+}

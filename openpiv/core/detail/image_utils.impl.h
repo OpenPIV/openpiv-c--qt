@@ -45,10 +45,10 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
     // fill with blank peaks
     for (auto i=num_peaks; i>0; --i)
     {
-        result.emplace_back( ImageT<ContainedT>(result_w, result_h) );
+        result.emplace_back( image<ContainedT>(result_w, result_h) );
     }
 
-    auto bl = im.rect().bottomLeft();
+    auto bl = core::rect( {}, im.size() ).bottomLeft();
 
     for ( uint32_t h=peak_radius; h<im.height()-2*peak_radius; ++h )
     {
@@ -392,16 +392,25 @@ ReturnT& swap_quadrants( ImageT<ContainedT>& in )
 /// image_view but actually copying the data; this maintains the
 /// extracting rectangle information to allow images to be used for
 /// e.g. peak containement
-template < typename  ContainedT >
-image<ContainedT> extract( const image<ContainedT>& im, core::rect r )
+template < template<typename> class ImageT,
+           typename  ContainedT >
+image<ContainedT> extract( const ImageT<ContainedT>& im, core::rect r )
 {
     rect image_rect_without_origin = rect::from_size(im.size());
     if ( !image_rect_without_origin.contains(r) )
-        exception_builder<std::runtime_error>() << "extract: rectangle to extract is too large for image";
+        exception_builder<std::runtime_error>()
+            << "extract: rectangle to extract is too large for image: "
+            << "image: " << im.rect() << " "
+            << "r: " << r;
 
     // copying the entire image
     if ( r.bottomLeft() == core::rect::point_t{} && r.size() == im.size() )
-        return im;
+    {
+        if constexpr (!std::is_same_v<image<ContainedT>, ImageT<ContainedT>> )
+            return image<ContainedT>(im);
+        else
+            return im;
+    }
 
     image<ContainedT> result{ r };
     for ( size_t h=0; h<r.height(); ++h )
