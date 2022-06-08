@@ -37,7 +37,6 @@ template <typename T>
 bool add_vector_type(py::module& m)
 {
     using vector_t = vector2<T>;
-    using point_t = point2<T>;
     using value_t = typename vector_t::value_t;
 
     py::class_<vector_t>(m, vector_trait<T>::name())
