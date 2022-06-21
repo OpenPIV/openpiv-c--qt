@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <fstream>
@@ -23,7 +24,9 @@
 #include "loaders/image_loader.h"
 
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 using namespace openpiv::algos;
 
@@ -114,7 +117,9 @@ TEST_CASE("image_test - line_out_of_bounds_test")
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 100}, 128_g8 );
 
-    _REQUIRE_THROWS_MATCHES( im.line(101), std::range_error, Contains( "line out of range" ) );
+    _REQUIRE_THROWS_MATCHES( im.line(101),
+                             std::range_error,
+                             ContainsSubstring( "line out of range"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("image_test - line_test")

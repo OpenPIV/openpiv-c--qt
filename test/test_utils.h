@@ -66,7 +66,10 @@ create_and_fill( const size& s, T v )
         }                                                               \
         catch(ExceptionT& e)                                            \
         {                                                               \
-            caught = matcher.match( std::string( e.what() ) );          \
+            std::string what = e.what();                                \
+            caught = matcher.match( what );                             \
         }                                                               \
+        catch(...)                                                      \
+        {}                                                              \
         REQUIRE(caught);                                                \
     }

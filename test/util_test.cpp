@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <array>
@@ -17,7 +18,9 @@
 // to be tested
 #include "core/util.h"
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 
 TEST_CASE("util_test - typed_memcpy - stride 1")
@@ -85,7 +88,9 @@ TEST_CASE("util_test - exception_builderTest")
 {
     auto l = [](){ exception_builder<std::runtime_error>() << "die!"; };
 
-    _REQUIRE_THROWS_MATCHES( l(), std::runtime_error, Contains( "die!" ) );
+    _REQUIRE_THROWS_MATCHES( l(),
+                             std::runtime_error,
+                             ContainsSubstring( "die!"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("util_test - checked_unsigned_conversion_same_size_within_range")
@@ -103,7 +108,7 @@ TEST_CASE("util_test - checked_unsigned_conversion_same_size_outwith_range")
     _REQUIRE_THROWS_MATCHES(
         checked_unsigned_conversion<int32_t>(u),
         std::range_error,
-        Contains( "unable to convert" ) );
+        ContainsSubstring( "unable to convert"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("util_test - checked_unsigned_conversion_larger_size")

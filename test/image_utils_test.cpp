@@ -1,6 +1,6 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // std
 #include <fstream>
@@ -18,6 +18,7 @@
 #include "core/image_utils.h"
 #include "core/image_view.h"
 #include "core/range.h"
+#include "core/stream_utils.h"
 #include "core/util.h"
 #include "loaders/image_loader.h"
 #include "algos/stats.h"
@@ -25,6 +26,7 @@
 using namespace Catch;
 using namespace openpiv::core;
 using namespace openpiv::algos;
+namespace logger = openpiv::core::logger;
 
 TEST_CASE("image_utils_test - constant_fill_test")
 {
@@ -50,7 +52,7 @@ TEST_CASE("image_utils_test - generator_fill_test")
     REQUIRE( result );
 }
 
-TEST_CASE("image_test - pnm_load_save_test")
+TEST_CASE("image_utils_test - pnm_load_save_test")
 {
     std::ifstream is("A_00001_a.tif", std::ios::binary);
     REQUIRE(is.is_open());
@@ -87,7 +89,7 @@ TEST_CASE("image_test - pnm_load_save_test")
     REQUIRE( im == reloaded );
 }
 
-TEST_CASE("image_test - rgba_split_test")
+TEST_CASE("image_utils_test - rgba_split_test")
 {
     rgba16_image im{ 200, 200, rgba_16{100, 200, 300, 400} };
     auto [ r, g, b, a ] = split_to_channels(im);
@@ -117,7 +119,7 @@ TEST_CASE("image_test - rgba_split_test")
     }
 }
 
-TEST_CASE("image_test - rgba_join_test")
+TEST_CASE("image_utils_test - rgba_join_test")
 {
     std::ifstream is("test-mono.tiff", std::ios::binary);
     REQUIRE(is.is_open());
@@ -147,7 +149,7 @@ TEST_CASE("image_test - rgba_join_test")
     writer->save( os, rgba );
 }
 
-TEST_CASE("image_test - simple_transpose_test")
+TEST_CASE("image_utils_test - simple_transpose_test")
 {
     g16_image im{ 100, 200 };
     std::iota( std::begin( im ), std::end( im ), 0 );
@@ -164,7 +166,7 @@ TEST_CASE("image_test - simple_transpose_test")
         REQUIRE( *transposed.line(h) == h );
 }
 
-TEST_CASE("image_test - identity_transpose_test")
+TEST_CASE("image_utils_test - identity_transpose_test")
 {
     g16_image im{ 100, 200 };
     std::iota( std::begin( im ), std::end( im ), 0 );
@@ -182,7 +184,7 @@ TEST_CASE("image_test - identity_transpose_test")
     }
 }
 
-TEST_CASE("image_test - complex_transpose_test")
+TEST_CASE("image_utils_test - complex_transpose_test")
 {
     cf_image im{ 100, 200 };
     std::generate( std::begin( im ), std::end( im ),
@@ -203,7 +205,7 @@ TEST_CASE("image_test - complex_transpose_test")
     }
 }
 
-TEST_CASE("image_test - swap_quadrants_test")
+TEST_CASE("image_utils_test - swap_quadrants_test")
 {
     gf_image im{ 100, 100 };
 
@@ -241,7 +243,7 @@ TEST_CASE("image_test - swap_quadrants_test")
     REQUIRE( pixel_sum( q4 ) == 1 * q4.pixel_count() );
 }
 
-TEST_CASE("image_test - peak_find_test")
+TEST_CASE("image_utils_test - peak_find_test")
 {
     gf_image im{ 100, 100 };
 
@@ -264,24 +266,53 @@ TEST_CASE("image_test - peak_find_test")
     CHECK( peaks[2][ {1, 1} ] == 30.0 );
 }
 
-TEST_CASE("image_test - peak_find_test - empty")
+TEST_CASE("image_utils_test - peak_find_test_with_offset")
+{
+    logger::Logger::instance().add_sink(
+        [](logger::Level l, const std::string& m) -> bool
+            {
+                std::cout << m << "\n";
+                return true;
+            });
+
+    rect::point_t o{ 10, 10 };
+    size s{ 100, 100 };
+    const auto [ox, oy] = o.data();
+    gf_image im{ rect( o, s ) };
+    REQUIRE(im.rect() == rect( o, s ));
+
+    // add some peaks
+    im[ {20, 20} ] = 20.0;
+    im[ {30, 30} ] = 30.0;
+    im[ {40, 40} ] = 40.0;
+    im[ {50, 50} ] = 50.0;
+
+    // find the peaks - in order
+    auto peaks{ find_peaks( im, 3, 1 ) };
+    logger::debug("image: {}", im);
+    logger::debug("peaks: {}", peaks);
+    REQUIRE( peaks.size() == 3 );
+    logger::debug("mid: {}, found: {}", peaks[0].rect().midpoint(), rect::point_t( ox + 50, oy + 50 ));
+    CHECK( peaks[0].rect().midpoint() == rect::point_t( ox + 50, oy + 50 ) );
+    CHECK( peaks[1].rect().midpoint() == rect::point_t( ox + 40, oy + 40 ) );
+    CHECK( peaks[2].rect().midpoint() == rect::point_t( ox + 30, oy + 30 ) );
+    CHECK( peaks[0].rect().size() == size( 3, 3 ) );
+
+    CHECK( peaks[0][ {1, 1} ] == 50.0 );
+    CHECK( peaks[1][ {1, 1} ] == 40.0 );
+    CHECK( peaks[2][ {1, 1} ] == 30.0 );
+}
+
+TEST_CASE("image_utils_test - peak_find_test - empty")
 {
     gf_image im{ 100, 100 };
 
     // find the peaks - in order
     auto peaks{ find_peaks( im, 3, 1 ) };
-    REQUIRE( peaks.size() == 3 );
-    REQUIRE( peaks[0].rect().midpoint() == rect::point_t( 1, 1 ) );
-    REQUIRE( peaks[1].rect().midpoint() == rect::point_t( 1, 1 ) );
-    REQUIRE( peaks[2].rect().midpoint() == rect::point_t( 1, 1 ) );
-    REQUIRE( peaks[0].rect().size() == size( 3, 3 ) );
-
-    REQUIRE( peaks[0][ {1, 1} ] == 0.0 );
-    REQUIRE( peaks[1][ {1, 1} ] == 0.0 );
-    REQUIRE( peaks[2][ {1, 1} ] == 0.0 );
+    REQUIRE( peaks.size() == 0 );
 }
 
-TEST_CASE("image_test - extract_test")
+TEST_CASE("image_utils_test - extract_test")
 {
     gf_image im{ 100, 100 };
 
@@ -305,6 +336,11 @@ TEST_CASE("image_test - extract_test")
 
     // check we've extracted only the part of the
     // original we wanted
+    REQUIRE( q1.rect().bottomLeft() == rect::point_t{ 0, 0 } );
+    REQUIRE( q2.rect().bottomLeft() == rect::point_t{ 50, 0 } );
+    REQUIRE( q3.rect().bottomLeft() == rect::point_t{ 0, 50 } );
+    REQUIRE( q4.rect().bottomLeft() == rect::point_t{ 50, 50 } );
+
     REQUIRE( pixel_sum( q1 ) == 1 * q1.pixel_count() );
     REQUIRE( pixel_sum( q2 ) == 2 * q2.pixel_count() );
     REQUIRE( pixel_sum( q3 ) == 4 * q3.pixel_count() );
@@ -321,7 +357,7 @@ TEST_CASE("image_test - extract_test")
 }
 
 
-TEST_CASE("image_test - extract_image_view_test")
+TEST_CASE("image_utils_test - extract_image_view_test")
 {
     gf_image im{ 100, 100 };
 

@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <stdexcept>
@@ -13,7 +14,9 @@
 // local
 #include "test_utils.h"
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 
 TEST_CASE("size_test - default_test")
@@ -89,7 +92,9 @@ TEST_CASE("size_test - subtract_test")
     s1 -= s2;
     REQUIRE(s1 == size(0, 0));
 
-    _REQUIRE_THROWS_MATCHES( s1 -= s2, std::out_of_range, Contains( "sizes cannot be negative" ) );
+    _REQUIRE_THROWS_MATCHES( s1 -= s2,
+                             std::out_of_range,
+                             ContainsSubstring( "sizes cannot be negative"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("size_test - maximal_test")

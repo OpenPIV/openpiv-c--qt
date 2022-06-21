@@ -24,8 +24,3 @@ endif(WIN32)
 add_subdirectory(openpiv)
 add_subdirectory(test)
 add_subdirectory(examples)
-
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#  message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
