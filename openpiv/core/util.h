@@ -12,7 +12,6 @@
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 // openpiv
 #include "core/exception_builder.h"
