@@ -127,14 +127,14 @@ TEST_CASE("image_test - line_test")
 {
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {2, 2}, 0_g8 );
-    int64_t sum1 = pixel_sum(im) / im.pixel_count();
+    auto sum1 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum1 == 0);
 
     g_8* p = im.line(1);
     for ( size_t i=0; i<im.width(); ++i )
         *p++ = 128;
 
-    int64_t sum2 = pixel_sum(im) / im.pixel_count();
+    auto sum2 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum2 == 64);
 }
 
