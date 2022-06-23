@@ -25,7 +25,7 @@ namespace logger = openpiv::core::logger;
 
 static auto init = [](){
     return logger::Logger::instance().add_sink(
-        [](logger::Level l, const std::string& m) -> bool
+        [](logger::Level, const std::string& m) -> bool
         {
             std::cout << m << "\n";
             return true;
@@ -283,7 +283,7 @@ TEST_CASE("image_view_test - fill_test")
     std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? g_16::max() : g_16::max()/(max-min) };
 
-    apply( im, [&min, &scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [&min, &scale](auto, auto v){return scale*(v-min);} );
     REQUIRE( save_to_file( "view_fill_test.pgm", im ) );
 }
 

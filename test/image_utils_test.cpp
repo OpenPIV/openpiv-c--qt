@@ -42,7 +42,7 @@ TEST_CASE("image_utils_test - constant_fill_test")
 TEST_CASE("image_utils_test - generator_fill_test")
 {
     g8_image im{128, 128};
-    fill( im, [](auto x, auto y){ return y; } );
+    fill( im, [](auto, auto y){ return y; } );
 
     bool result = true;
     for ( uint32_t h=0; h<im.height(); ++h )
@@ -133,7 +133,7 @@ TEST_CASE("image_utils_test - rgba_join_test")
     g_16 min, max;
     std::tie(min, max) = find_image_range( im );
     auto scale = (max == min) ? g_16::max() : g_16::max()/(max-min);
-    apply( im, [min, scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [min, scale](auto, auto v){return scale*(v-min);} );
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
     size output_size = im.size() - size(40, 40);
@@ -211,7 +211,7 @@ TEST_CASE("image_utils_test - swap_quadrants_test")
 
     apply(
         im,
-        [w=im.width(), h=im.height()]( auto i, auto v )
+        [w=im.width(), h=im.height()]( auto i, auto )
         {
             g_f x = ( i % w ) < w/2 ? 1 : 2;
             g_f y = ( i / w ) < h/2 ? 1 : 4;
@@ -268,8 +268,8 @@ TEST_CASE("image_utils_test - peak_find_test")
 
 TEST_CASE("image_utils_test - peak_find_test_with_offset")
 {
-    logger::Logger::instance().add_sink(
-        [](logger::Level l, const std::string& m) -> bool
+    auto sink_id = logger::Logger::instance().add_sink(
+        [](logger::Level, const std::string& m) -> bool
             {
                 std::cout << m << "\n";
                 return true;
@@ -289,10 +289,9 @@ TEST_CASE("image_utils_test - peak_find_test_with_offset")
 
     // find the peaks - in order
     auto peaks{ find_peaks( im, 3, 1 ) };
-    logger::debug("image: {}", im);
-    logger::debug("peaks: {}", peaks);
+    logger::sync_debug("image: {}", &im);
+    logger::sync_debug("peaks: {}", peaks);
     REQUIRE( peaks.size() == 3 );
-    logger::debug("mid: {}, found: {}", peaks[0].rect().midpoint(), rect::point_t( ox + 50, oy + 50 ));
     CHECK( peaks[0].rect().midpoint() == rect::point_t( ox + 50, oy + 50 ) );
     CHECK( peaks[1].rect().midpoint() == rect::point_t( ox + 40, oy + 40 ) );
     CHECK( peaks[2].rect().midpoint() == rect::point_t( ox + 30, oy + 30 ) );
@@ -301,6 +300,8 @@ TEST_CASE("image_utils_test - peak_find_test_with_offset")
     CHECK( peaks[0][ {1, 1} ] == 50.0 );
     CHECK( peaks[1][ {1, 1} ] == 40.0 );
     CHECK( peaks[2][ {1, 1} ] == 30.0 );
+
+    logger::Logger::instance().remove_sink(sink_id);
 }
 
 TEST_CASE("image_utils_test - peak_find_test - empty")
@@ -319,7 +320,7 @@ TEST_CASE("image_utils_test - extract_test")
     // fill quadrants with values of 1, 2, 4, 8
     apply(
         im,
-        [w=im.width(), h=im.height()]( auto i, auto v )
+        [w=im.width(), h=im.height()]( auto i, auto )
         {
             g_f x = ( i % w ) < w/2 ? 1 : 2;
             g_f y = ( i / w ) < h/2 ? 1 : 4;
@@ -364,7 +365,7 @@ TEST_CASE("image_utils_test - extract_image_view_test")
     // fill central 25% with 1 else 0
     apply(
         im,
-        [w=im.width(), h=im.height()]( auto i, auto v )
+        [w=im.width(), h=im.height()]( auto i, auto )
         {
             auto x = ( i % w );
             auto y = ( i / w );

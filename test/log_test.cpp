@@ -22,7 +22,7 @@ TEST_CASE("log_test - add and remove sink")
     auto& logger = Logger::instance();
 
     auto sink =
-        [](Level l, const std::string& m) -> bool
+        [](Level, const std::string&) -> bool
         {
             return true;
         };
@@ -130,7 +130,7 @@ TEST_CASE("log_test - add multiple messages")
     auto& logger = Logger::instance();
 
     std::vector<std::string> msgs;
-    std::atomic<int> msg_count{};
+    std::atomic<size_t> msg_count{};
 
     auto sink =
         [&msgs, &msg_count](Level l, const std::string& m) -> bool

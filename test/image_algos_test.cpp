@@ -111,7 +111,7 @@ TEST_CASE("image_algos_test - FFT two real images")
 TEST_CASE("image_algos_test - FFT Different Size")
 {
     gf_image im{ 256, 256 };
-    fill( im, []( uint32_t w, uint32_t h ){ return (w/2)%2 ? 1.0 : 0.0; } );
+    fill( im, []( uint32_t w, uint32_t ){ return (w/2)%2 ? 1.0 : 0.0; } );
 
     FFT fft( { 512, 512 } );
     _REQUIRE_THROWS_MATCHES( fft.transform( im ),

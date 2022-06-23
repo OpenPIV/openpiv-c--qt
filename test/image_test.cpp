@@ -36,7 +36,7 @@ TEST_CASE("image_test - int_test")
     CHECK( im.width()  == 200 );
     CHECK( im.height() == 100 );
     CHECK( im.pixel_count() == 100*200 );
-    CHECK( std::distance( im.begin(), im.end() ) == im.pixel_count() );
+    CHECK( std::distance( im.begin(), im.end() ) == (ssize_t)im.pixel_count() );
 }
 
 TEST_CASE("image_test - resize_test")
@@ -162,7 +162,7 @@ TEST_CASE("image_test - apply_test")
     std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? g_8::max() : g_8::max()/(max-min) };
 
-    apply( im, [&min, &scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [&min, &scale](auto, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = find_image_range( im );
     REQUIRE(min == 0);
@@ -187,7 +187,7 @@ TEST_CASE("image_test - scale_test")
     auto scale{ (max == min) ? g_16::max() : g_16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
-    apply( im, [min, scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [min, scale](auto, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = find_image_range( im );
     std::cout << "min: " << min << ", max: " << max << "\n";
