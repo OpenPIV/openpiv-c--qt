@@ -12,6 +12,9 @@
 #include "core/image.h"
 #include "core/image_view.h"
 #include "core/image_type_traits.h"
+#include "core/log.h"
+
+namespace logger = openpiv::core::logger;
 
 namespace openpiv::core {
 
@@ -39,16 +42,8 @@ template < template<typename> class ImageT,
 ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t peak_radius )
 {
     ReturnT result;
-    const uint32_t result_w = 2*peak_radius + 1;
-    const uint32_t result_h = result_w;
-
-    // fill with blank peaks
-    for (auto i=num_peaks; i>0; --i)
-    {
-        result.emplace_back( image<ContainedT>(result_w, result_h) );
-    }
-
-    auto bl = core::rect( {}, im.size() ).bottomLeft();
+    const auto result_w = 2*peak_radius + 1;
+    const auto result_h = result_w;
 
     for ( uint32_t h=peak_radius; h<im.height()-2*peak_radius; ++h )
     {
@@ -57,21 +52,23 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
         const ContainedT* below = im.line( h+1 );
 
         for ( uint32_t w=peak_radius; w<im.width()-peak_radius; ++w )
+        {
+            // check we have peak on this line before checking above and below
             if ( line[w-1] < line[w] && line[w+1] < line[w] && above[w] < line[w]  && below[w] < line[w] )
-                result.emplace_back(
-                    extract(
-                        im,
-                        rect( {bl[0] + w - peak_radius, bl[1] + h - peak_radius}, {result_w, result_h} )
-                        )
-                    );
+            {
+                auto r = rect( {w - peak_radius, h - peak_radius}, {result_w, result_h} );
+                auto peak = create_image_view(im, r);
+                result.push_back( std::move(peak) );
+            }
+        }
     }
 
     // sort and cull
     std::sort( std::begin(result), std::end(result),
                [peak_radius](const auto& a, const auto& b) -> bool {
-                   return b[{peak_radius, peak_radius}] < a[{peak_radius, peak_radius}];
+                   return a[{peak_radius, peak_radius}] > b[{peak_radius, peak_radius}];
                } );
-    result.resize(num_peaks);
+    result.resize(std::min(result.size(), (size_t)num_peaks));
 
     return result;
 }

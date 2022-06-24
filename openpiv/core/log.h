@@ -68,7 +68,15 @@ namespace openpiv::core::logger {
     /// maximum
     ///
     /// conversion to string is done in an independent loging thread,
-    /// calls to Logger::add() should be cheap
+    /// calls to Logger::add() should be cheap(ish) - at the moment,
+    /// std::make_tuple is used to capture the arguments as a copy,
+    /// so if the argument passed is expensive to copy, the call to
+    /// Logger::add() will also be expensive.
+    ///
+    /// The use of std::make_tuple is to ensure that the arguments
+    /// exist at the point when the logged string is constructed; this
+    /// is done on a different thread and could well be beyond the life
+    /// of the argument being logged.
     class Logger
     {
     public:
@@ -84,10 +92,10 @@ namespace openpiv::core::logger {
         }
 
         template <typename... Ts>
-        void add(Level level, const std::string& fmt, Ts&&... args)
+        size_t add(Level level, const std::string& fmt, Ts&&... args)
         {
             if (stop)
-                return;
+                return {};
 
             auto now = std::chrono::high_resolution_clock::now();
             auto tid = std::this_thread::get_id();
@@ -108,6 +116,9 @@ namespace openpiv::core::logger {
                     return std::make_tuple(level, output);
                 };
 
+            // keep track of how many entries we've written
+            ++entries_logged;
+
             // insert into queue
             {
                 std::unique_lock<std::mutex> lock(entry_mutex);
@@ -116,6 +127,8 @@ namespace openpiv::core::logger {
                     entries.pop_front();
             }
             entry_condition.notify_one();
+
+            return entries_logged;
         }
 
         // sink
@@ -146,6 +159,15 @@ namespace openpiv::core::logger {
             max_entries = s;
         }
 
+        void wait_until_written(size_t entry_id) const
+        {
+            using namespace std::chrono_literals;
+            while (entry_id > entries_written)
+            {
+                std::this_thread::sleep_for(1ms);
+            }
+        }
+
     private:
         using entry_return_t = std::tuple<Level, std::string>;
         using entry_t = std::function<entry_return_t()>;
@@ -157,15 +179,17 @@ namespace openpiv::core::logger {
         std::unordered_map<sink_id_t, sink_t> sinks;
         std::atomic<size_t> sink_id{0};
         std::thread logger_thread;
+        std::atomic<size_t> entries_logged{0};
+        std::atomic<size_t> entries_written{0};
 
         Logger()
         {
             logger_thread = std::thread(
                 [this](){
+                    std::deque<entry_t> local_entries;
+
                     while (!this->stop)
                     {
-                        std::deque<entry_t> local_entries;
-
                         // lock/unlock and wait
                         {
                             std::unique_lock<std::mutex> lock(this->entry_mutex);
@@ -181,7 +205,7 @@ namespace openpiv::core::logger {
                             // get everything as quickly as possible
                             while (!this->entries.empty())
                             {
-                                local_entries.push_front(std::move(entries.front()));
+                                local_entries.push_back(std::move(entries.front()));
                                 entries.pop_front();
                             }
                         }
@@ -193,6 +217,11 @@ namespace openpiv::core::logger {
                             for (auto& [id, sink] : sinks)
                                 sink(level, log_line);
                         }
+
+                        // update how many entries we wrote
+                        entries_written += local_entries.size();
+
+                        local_entries.clear();
                     }
                 });
         }
@@ -233,6 +262,13 @@ namespace openpiv::core::logger {
     static void debug(const std::string& fmt, Ts&&... args)
     {
         Logger::instance().add(Level::DEBUG, fmt, std::forward<Ts>(args)...);
+    }
+
+    template <typename... Ts>
+    static void sync_debug(const std::string& fmt, Ts&&... args)
+    {
+        auto entry_id = Logger::instance().add(Level::DEBUG, fmt, std::forward<Ts>(args)...);
+        Logger::instance().wait_until_written(entry_id);
     }
 
 } //

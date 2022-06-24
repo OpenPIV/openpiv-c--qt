@@ -76,7 +76,7 @@ public:
                    is_imagetype_v< ImageT<ContainedT> > >
                >
     explicit image( const ImageT<ContainedT>& p )
-        : r_( rect::from_size(p.size()) )
+        : r_( p.rect() )
         , data_( p.pixel_count() )
     {
         *this = p;
@@ -228,7 +228,7 @@ void swap( image<PixelT>& lhs, image<PixelT>& rhs )
 template < typename T >
 std::ostream& operator<<( std::ostream& os, const image<T>& p )
 {
-    os << "image<" << typeid(T).name() << ">[" << p.width() << ", " << p.height() << "] "
+    os << "image<" << pixeltype_name<T>() << ">[" << p.rect() << "][" << (void*)&p << "] "
        << "data @ " << (void*)p.data();
 
     return os;

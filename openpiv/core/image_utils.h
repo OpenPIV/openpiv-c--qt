@@ -28,12 +28,12 @@ template < typename ContainedT >
 const image<ContainedT>& get_underlying( const image_view<ContainedT>& iv );
 
 template <typename ContainedT>
-using peaks_t = std::vector<image<ContainedT>>;
+using peaks_t = std::vector<image_view<ContainedT>>;
 
 /// Find highest \a num_peaks peaks in an image and return a
 /// sorted vector of peaks.
-/// The peaks are returned as \sa ImageView and the size of the
-/// ImageView can be adjusted by setting \a peak_radius
+/// The peaks are returned as \sa image_view and the size of the
+/// image_view can be adjusted by setting \a peak_radius
 template < template<typename> class ImageT,
            typename ContainedT,
            typename ReturnT = peaks_t<ContainedT>,

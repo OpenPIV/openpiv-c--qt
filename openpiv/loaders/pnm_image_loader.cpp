@@ -5,7 +5,6 @@
 #include <array>
 #include <istream>
 #include <ostream>
-#include <memory>
 
 // local
 #include "core/image.h"
@@ -340,12 +339,10 @@ namespace openpiv::core {
         std::vector<g_16> buffer( im.width() );
         for ( uint32_t h=0; h<im.height(); ++h )
         {
-            std::memcpy( &buffer[0], im.line(h), bytesPerLine );
-            g_16* p = &buffer[0];
+            const g_16* p = im.line(h);
             for ( uint32_t w=0; w<im.width(); ++w )
             {
-                *p = stobe<__BYTE_ORDER__>( *p );
-                ++p;
+                buffer[w] = stobe<__BYTE_ORDER__>( *(p + w) );
             }
 
             os.write( reinterpret_cast<const char*>( &buffer[0] ), bytesPerLine );
