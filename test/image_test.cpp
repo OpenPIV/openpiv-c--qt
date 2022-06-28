@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <fstream>
@@ -23,7 +24,9 @@
 #include "loaders/image_loader.h"
 
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 using namespace openpiv::algos;
 
@@ -33,7 +36,8 @@ TEST_CASE("image_test - int_test")
     CHECK( im.width()  == 200 );
     CHECK( im.height() == 100 );
     CHECK( im.pixel_count() == 100*200 );
-    CHECK( std::distance( im.begin(), im.end() ) == im.pixel_count() );
+    auto d = std::distance( im.begin(), im.end() );
+    CHECK( d == (decltype(d))im.pixel_count() );
 }
 
 TEST_CASE("image_test - resize_test")
@@ -114,21 +118,23 @@ TEST_CASE("image_test - line_out_of_bounds_test")
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 100}, 128_g8 );
 
-    _REQUIRE_THROWS_MATCHES( im.line(101), std::range_error, Contains( "line out of range" ) );
+    _REQUIRE_THROWS_MATCHES( im.line(101),
+                             std::range_error,
+                             ContainsSubstring( "line out of range"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("image_test - line_test")
 {
     g8_image im; g_8 v;
     std::tie( im, v ) = create_and_fill( {2, 2}, 0_g8 );
-    int64_t sum1 = pixel_sum(im) / im.pixel_count();
+    auto sum1 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum1 == 0);
 
     g_8* p = im.line(1);
     for ( size_t i=0; i<im.width(); ++i )
         *p++ = 128;
 
-    int64_t sum2 = pixel_sum(im) / im.pixel_count();
+    auto sum2 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum2 == 64);
 }
 
@@ -157,7 +163,7 @@ TEST_CASE("image_test - apply_test")
     std::tie(min, max) = find_image_range( im );
     auto scale{ (max == min) ? g_8::max() : g_8::max()/(max-min) };
 
-    apply( im, [&min, &scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [&min, &scale](auto, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = find_image_range( im );
     REQUIRE(min == 0);
@@ -182,7 +188,7 @@ TEST_CASE("image_test - scale_test")
     auto scale{ (max == min) ? g_16::max() : g_16::max()/(max-min) };
     std::cout << "min: " << min << ", max: " << max << ", scale: " << scale << "\n";
 
-    apply( im, [min, scale](auto i, auto v){return scale*(v-min);} );
+    apply( im, [min, scale](auto, auto v){return scale*(v-min);} );
 
     std::tie(min, max) = find_image_range( im );
     std::cout << "min: " << min << ", max: " << max << "\n";

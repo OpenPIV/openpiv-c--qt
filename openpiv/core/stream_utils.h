@@ -3,6 +3,7 @@
 
 // std
 #include <iostream>
+#include <list>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -10,11 +11,12 @@
 namespace openpiv::core {
 
     template <typename T,
-              template<typename, typename=std::allocator<T>> class C,
+              typename A,
+              template<typename, typename> class C,
               typename = std::enable_if_t<
-                  std::is_same_v<C<T>, std::list<T>> ||
-                  std::is_same_v<C<T>, std::vector<T>>>>
-    std::string join(const C<T>& container, std::string separator)
+                  std::is_same_v<C<T, A>, std::list<T, A>> ||
+                  std::is_same_v<C<T, A>, std::vector<T, A>>>>
+    std::string join(const C<T, A>& container, std::string separator = ", ")
     {
         std::stringstream result;
         result << "[";
@@ -33,12 +35,13 @@ namespace openpiv::core {
 
 namespace std {
     template <typename T,
-              template<typename> class C,
+              typename A,
+              template<typename, typename> class C,
               typename = std::enable_if_t<
-                  std::is_same_v<C<T>, std::list<T>> ||
-                  std::is_same_v<C<T>, std::vector<T>>>>
-    ostream& operator<<(ostream& os, const C<T>& ts)
+                  std::is_same_v<C<T, A>, std::list<T, A>> ||
+                  std::is_same_v<C<T, A>, std::vector<T, A>>>>
+    ostream& operator<<(ostream& os, const C<T, A>& container)
     {
-        return os << openpiv::core::join(ts, ", ");
+        return os << openpiv::core::join(container, ", ");
     }
 }

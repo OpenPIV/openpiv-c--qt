@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <thread>
@@ -13,7 +14,9 @@
 #include "loaders/image_loader.h"
 #include "core/image_utils.h"
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 using namespace openpiv::algos;
 
@@ -49,7 +52,7 @@ TEST_CASE("image_algos_test - FFTTest")
             else
             {
                 auto p = point2<uint32_t>{ x, y };
-                REQUIRE( (output[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
+                REQUIRE_THAT( (output[ p ].abs_sqr()), WithinAbs(0, 1e-9) );
             }
 
     // inverse transform
@@ -96,7 +99,7 @@ TEST_CASE("image_algos_test - FFT two real images")
                     }
                     else
                     {
-                        REQUIRE( (im[ p ].abs_sqr()) == Catch::Detail::Approx(0).margin(1e-9) );
+                        REQUIRE_THAT( (im[ p ].abs_sqr()), WithinAbs(0, 1e-9) );
                     }
                 }
         };
@@ -108,16 +111,22 @@ TEST_CASE("image_algos_test - FFT two real images")
 TEST_CASE("image_algos_test - FFT Different Size")
 {
     gf_image im{ 256, 256 };
-    fill( im, []( uint32_t w, uint32_t h ){ return (w/2)%2 ? 1.0 : 0.0; } );
+    fill( im, []( uint32_t w, uint32_t ){ return (w/2)%2 ? 1.0 : 0.0; } );
 
     FFT fft( { 512, 512 } );
-    _REQUIRE_THROWS_MATCHES( fft.transform( im ), std::runtime_error, Contains( "image size is different" ) );
+    _REQUIRE_THROWS_MATCHES( fft.transform( im ),
+                             std::runtime_error,
+                             ContainsSubstring( "image size is different"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("image_algos_test - FFT non-power-of-two size")
 {
-    _REQUIRE_THROWS_MATCHES( FFT( { 512, 400 } ), std::runtime_error, Contains( "power of 2" ) );
-    _REQUIRE_THROWS_MATCHES( FFT( { 400, 512 } ), std::runtime_error, Contains( "power of 2" ) );
+    _REQUIRE_THROWS_MATCHES( FFT( { 512, 400 } ),
+                             std::runtime_error,
+                             ContainsSubstring( "power of 2"s, CaseSensitive::No ) );
+    _REQUIRE_THROWS_MATCHES( FFT( { 400, 512 } ),
+                             std::runtime_error,
+                             ContainsSubstring( "power of 2"s, CaseSensitive::No ) );
 }
 
 TEST_CASE("image_algos_test - cross_correlation_test")
@@ -127,8 +136,8 @@ TEST_CASE("image_algos_test - cross_correlation_test")
 
     // extract a couple of small windows
     size s{ 128, 128 };
-    auto view_a{ create_image_view( im, rect{ {20, 20}, s } ) };
-    auto view_b{ create_image_view( im, rect{ {20, 25}, s } ) };
+    auto view_a = create_image_view( im, rect{ {20, 20}, s } );
+    auto view_b = create_image_view( im, rect{ {20, 25}, s } );
 
     REQUIRE( save_to_file( "cross-correlate-a-input.pgm", view_a ) );
     REQUIRE( save_to_file( "cross-correlate-b-input.pgm", view_b ) );
@@ -148,8 +157,8 @@ TEST_CASE("image_algos_test - auto_correlation_test")
 
     // extract a couple of small windows
     size s{ 128, 128 };
-    auto view_a{ create_image_view( im, rect{ {20, 20}, s } ) };
-    auto view_b{ create_image_view( im, rect{ {20, 25}, s } ) };
+    auto view_a = create_image_view( im, rect{ {20, 20}, s } );
+    auto view_b = create_image_view( im, rect{ {20, 25}, s } );
 
     // combine
     gf_image data{ view_a.width(), view_a.height() };
@@ -169,8 +178,8 @@ TEST_CASE("image_algos_test - fft_real_test")
 
     // extract a couple of small windows
     size s{ 128, 128 };
-    auto view_a{ create_image_view( im_a, rect{ {20, 20}, s } ) };
-    auto view_b{ create_image_view( im_a, rect{ {20, 25}, s } ) };
+    auto view_a = create_image_view( im_a, rect{ {20, 20}, s } );
+    auto view_b = create_image_view( im_a, rect{ {20, 25}, s } );
 
     // combine
     gf_image data{ s };

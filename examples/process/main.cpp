@@ -151,8 +151,8 @@ int main( int argc, char* argv[] )
 
     auto processor = [&images, &fft, &found_peaks, &correlator, limit_search]( size_t i, const core::rect& ia )
                      {
-                         auto view_a{ core::extract( images[0], ia ) };
-                         auto view_b{ core::extract( images[1], ia ) };
+                         const auto view_a{ core::extract( images[0], ia ) };
+                         const auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
                          const core::gf_image output{ (fft.*correlator)( view_a, view_b ) };
@@ -172,7 +172,6 @@ int main( int argc, char* argv[] )
                              peaks = core::find_peaks( output, num_peaks, radius );
                          }
 
-
                          // sub-pixel fitting
                          if ( peaks.size() != num_peaks )
                          {
@@ -180,8 +179,9 @@ int main( int argc, char* argv[] )
                              return;
                          }
 
+                         const auto& peak = peaks[0];
                          point_vector result;
-                         result.xy = ia.midpoint();
+                         result.xy = peak.rect().midpoint();
                          result.vxy =
                              core::fit_simple_gaussian( peaks[0] ) -
                              core::point2<double>{ ia.width()/2, ia.height()/2 };
@@ -189,6 +189,8 @@ int main( int argc, char* argv[] )
                          // convert from image normal cartesian
                          result.xy[1] = images[0].height() - result.xy[1];
                          result.vxy[1] = -result.vxy[1];
+
+                         // find s/n (or rather, highest to next highest peak)
                          if ( peaks[1][ {1, 1} ] > 0 )
                              result.sn = peaks[0][ {1, 1} ]/peaks[1][ {1, 1} ];
 

@@ -50,17 +50,6 @@ target_link_libraries(
   PRIVATE fmt::fmt-header-only
   PRIVATE Threads::Threads)
 
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "/EHsc /W3 /WX")
-else()
-  #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-  #set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unknown-pragmas")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG -g -O3 -ffast-math")
-endif()
-
-add_subdirectory(pybind)
-
 # install
 #install(TARGETS ${LIBNAME} DESTINATION lib/${LIBNAME})
 

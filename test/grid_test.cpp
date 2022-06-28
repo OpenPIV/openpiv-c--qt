@@ -1,6 +1,6 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // std
 #include <algorithm>
@@ -52,7 +52,6 @@ TEST_CASE("grid_test - cartesian grid")
                      };
 
     size interrogation{ 32, 32 };
-    auto make_rect = [&interrogation](auto x, auto y){ return rect( {x,y}, interrogation ); };
     std::vector<rect> expected;
 
     SECTION("margin")

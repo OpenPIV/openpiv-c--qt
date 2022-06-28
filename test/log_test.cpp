@@ -1,6 +1,7 @@
 
 // catch
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 // std
 #include <future>
@@ -9,7 +10,9 @@
 // to be tested
 #include "core/log.h"
 
+using namespace std::string_literals;
 using namespace Catch;
+using namespace Catch::Matchers;
 using namespace openpiv::core;
 using namespace openpiv::core::logger;
 using namespace std::literals;
@@ -19,7 +22,7 @@ TEST_CASE("log_test - add and remove sink")
     auto& logger = Logger::instance();
 
     auto sink =
-        [](Level l, const std::string& m) -> bool
+        [](Level, const std::string&) -> bool
         {
             return true;
         };
@@ -54,7 +57,7 @@ TEST_CASE("log_test - add message then sink")
 
     REQUIRE(f.get());
     REQUIRE(level == Level::TEST);
-    REQUIRE_THAT(msg, EndsWith("TEST: 1"));
+    REQUIRE_THAT(msg, EndsWith("TEST: 1"s));
 
     logger.remove_sink(id);
 }
@@ -87,7 +90,7 @@ TEST_CASE("log_test - add sink then message")
 
     REQUIRE(f.get());
     REQUIRE(level == Level::TEST);
-    REQUIRE_THAT(msg, EndsWith("TEST: 2"));
+    REQUIRE_THAT(msg, EndsWith("TEST: 2"s));
     logger.remove_sink(id);
 }
 
@@ -118,7 +121,7 @@ TEST_CASE("log_test - test primitives")
 
     REQUIRE(f.get());
     REQUIRE(level == Level::TEST);
-    REQUIRE_THAT(msg, EndsWith("TEST: 1 3.141 foo! bar"));
+    REQUIRE_THAT(msg, EndsWith("TEST: 1 3.141 foo! bar"s));
     logger.remove_sink(id);
 }
 
@@ -127,7 +130,7 @@ TEST_CASE("log_test - add multiple messages")
     auto& logger = Logger::instance();
 
     std::vector<std::string> msgs;
-    std::atomic<int> msg_count{};
+    std::atomic<size_t> msg_count{};
 
     auto sink =
         [&msgs, &msg_count](Level l, const std::string& m) -> bool

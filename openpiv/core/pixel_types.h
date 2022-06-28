@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <string_view>
 #include <type_traits>
 
 namespace openpiv::core {
@@ -424,6 +425,46 @@ convert( const g<From>& g_, complex<To>& c )
 {
     c = complex<To>{ g_ };
 }
+
+//
+template <typename T>
+constexpr std::string_view pixeltype_name()
+{
+    if constexpr (std::is_same_v<T, g_8>)
+        return "g<uint8_t>";
+    if constexpr (std::is_same_v<T, g_16>)
+        return "g<uint16_t>";
+    if constexpr (std::is_same_v<T, g_32>)
+        return "g<uint32_t>";
+    if constexpr (std::is_same_v<T, g_f>)
+        return "g<double>";
+
+    if constexpr (std::is_same_v<T, c_8>)
+        return "complex<uint8_t>";
+    if constexpr (std::is_same_v<T, c_16>)
+        return "complex<uint16_t>";
+    if constexpr (std::is_same_v<T, c_32>)
+        return "complex<uint32_t>";
+    if constexpr (std::is_same_v<T, c_f>)
+        return "complex<double>";
+
+    if constexpr (std::is_same_v<T, rgba_8>)
+        return "rgba<uint8_t>";
+    if constexpr (std::is_same_v<T, rgba_16>)
+        return "rgba<uint16_t>";
+    if constexpr (std::is_same_v<T, rgba_32>)
+        return "rgba<uint32_t>";
+
+    if constexpr (std::is_same_v<T, yuva_8>)
+        return "yuva<uint8_t>";
+    if constexpr (std::is_same_v<T, yuva_16>)
+        return "yuva<uint16_t>";
+    if constexpr (std::is_same_v<T, yuva_32>)
+        return "yuva<uint32_t>";
+
+    return {};
+}
+
 
 
 #pragma pack(pop)
