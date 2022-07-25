@@ -4,8 +4,9 @@
 
 namespace py = pybind11;
 
-void add_size(py::module &);
 void add_point(py::module &);
+void add_rect(py::module &);
+void add_size(py::module &);
 void add_vector(py::module &);
 
 PYBIND11_MODULE(pyopenpivcore, m) {
@@ -22,8 +23,9 @@ PYBIND11_MODULE(pyopenpivcore, m) {
     )pbdoc";
 
     // add each binding chunk here
-    add_size(m);
     add_point(m);
+    add_rect(m);
+    add_size(m);
     add_vector(m);
 
 #ifdef VERSION_INFO
