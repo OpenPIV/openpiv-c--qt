@@ -43,6 +43,35 @@ The binaries are located in the build directory:
     * average_subtract
   * openpiv -> libopenpivcore.so
 
+### Python Bindings
+
+Python bindings are made through pybind11. Building python modules appears to be a non-trivial
+subject, however as openpivcore is based on vcpkg and cmake, a setup.py is provided to
+build the core library as well as the python bindings using cmake.
+
+Although vcpkg provides pybind11, this is not used as it has a dependency on vcpkg's python; the
+aim is to allow the python bindings to work with the user's installed version of python. As such,
+the supplied `pyproject.toml` specifies pybind11 as a required dependency.
+
+To build using pip/setuptools:
+
+* create a venv at the same level as the openpivcore directory
+* activate the venv
+* run pip against the name of the directory containing the openpiv code e.g. `pip install openpiv-c-qt/`
+
+To build using cmake:
+
+* install pybind11 using pip
+* specify the location of the installed pybind11 libs/cmake modules using `-DCMAKE_PREFIX_PATH=<path to pybind11>`
+  * you can use pip & sed to find this: `pip show pybind11 | sed -n '/^Location/ s/.* \(.*\)/\1/ p'`
+* specify that the python bindings should be built: `-DBUILD_PYBIND=ON`
+
+e.g.
+
+```
+cmake -B build -S . -DBUILD_PYBIND=ON -DCMAKE_PREFIX_PATH=$(pip show pybind11 | sed -n '/^Location/ s/.* \(.*\)/\1/ p')
+```
+
 ### Raspberry Pi
 
 Build times are, as expected, much slower than on a modern Intel CPU, but the code
@@ -174,6 +203,7 @@ These are captured in `vcpkg.json`:
   * benchmark: used to run performance benchmarks
   * async++ (optional): implements c++17 parallel algorithms
   * cxxopts: nice command line parsing
+  * pybind11
 
 ## Examples
 
@@ -187,6 +217,7 @@ These are captured in `vcpkg.json`:
 * build
   * [x] travis/github actions/CI
   * [x] add clang/windows/OS X build
+  * [ ] python bindings
 * core
   * [x] logging
   * [ ] iostream ops for ImageLoaders
@@ -218,7 +249,7 @@ These are captured in `vcpkg.json`:
     * [ ] openCL
     * [ ] apply kernel in Fourier space
     * [ ] use SIMD?
-    * [ ] real -> complex FFT/correlation of real data
+    * [x] real -> complex FFT/correlation of real data
   * [ ] direct correlation
   * [x] peak detection
   * [x] peak fitting

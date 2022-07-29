@@ -1,10 +1,13 @@
+from glob import glob
 import os
 import re
 import subprocess
 import sys
 
-from setuptools import Extension, setup
-from setuptools.command.build_ext import build_ext
+from distutils import sysconfig as ds
+from setuptools import setup
+from setuptools import Extension as _extension
+from setuptools.command.build_ext import build_ext as _build_ext
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -18,13 +21,13 @@ PLAT_TO_CMAKE = {
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
 # If you need multiple extensions, see scikit-build.
-class CMakeExtension(Extension):
+class CMakeExtension(_extension):
     def __init__(self, name, sourcedir=""):
-        Extension.__init__(self, name, sources=[])
+        super().__init__(name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
 
 
-class CMakeBuild(build_ext):
+class CMakeBuild(_build_ext):
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
@@ -32,6 +35,7 @@ class CMakeBuild(build_ext):
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
 
+        # check for mode
         debug = int(os.environ.get("DEBUG", 0)) if self.debug is None else self.debug
         cfg = "Debug" if debug else "Release"
 
@@ -40,21 +44,19 @@ class CMakeBuild(build_ext):
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
 
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
-        # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
-        # from Python.
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
+            f"-DCMAKE_PREFIX_PATH={ds.get_python_lib()}",
+            "-DBUILD_PYBIND=ON",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
         build_args = []
+
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
-
-        # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)
@@ -111,7 +113,7 @@ class CMakeBuild(build_ext):
             os.makedirs(build_temp)
 
         subprocess.check_call(["cmake", ext.sourcedir] + cmake_args, cwd=build_temp)
-        subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=build_temp)
+        subprocess.check_call(["cmake", "--build", ".", "--clean-first"] + build_args, cwd=build_temp)
 
 
 # The information here can also be placed in setup.cfg - better separation of
@@ -123,7 +125,7 @@ setup(
     author_email="tim@bugless.co.uk",
     description="Python bindings for libopenpivcore",
     long_description="",
-    ext_modules=[CMakeExtension("pyopenpivcore")],
+    ext_modules=[ CMakeExtension("pyopenpivcore") ],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
