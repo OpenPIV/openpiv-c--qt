@@ -17,6 +17,12 @@ namespace py = pybind11;
 
 void add_size(py::module& m)
 {
+    auto to_str = [](const size& s) {
+        std::ostringstream ss;
+        ss << s;
+        return ss.str();
+    };
+
     // size
     py::class_<size>(m, "size")
         .def(py::init())
@@ -31,12 +37,8 @@ void add_size(py::module& m)
         .def(py::self - py::self)
         .def(py::self == py::self)
         .def(py::self != py::self)
-        .def("__repr__",
-             [](const size& s) {
-                 std::ostringstream ss;
-                 ss << s;
-                 return ss.str();
-             });
+        .def("__repr__", to_str)
+        .def("__str__", to_str);
     m.def("maximal_size", &maximal_size);
     m.def("minimal_size", &minimal_size);
     m.def("transpose", &transpose);

@@ -39,6 +39,12 @@ bool add_vector_type(py::module& m)
     using vector_t = vector2<T>;
     using value_t = typename vector_t::value_t;
 
+    auto to_str = [](const vector_t& p) {
+        std::ostringstream ss;
+        ss << p;
+        return ss.str();
+    };
+
     py::class_<vector_t>(m, vector_trait<T>::name())
         .def(py::init())
         .def(py::init<value_t, value_t>())
@@ -46,12 +52,8 @@ bool add_vector_type(py::module& m)
         .def(py::self != py::self)
         .def("data", &vector_t::data)
         .def("components", &vector_t::data)
-        .def("__repr__",
-             [](const vector_t& p) {
-                 std::ostringstream ss;
-                 ss << p;
-                 return ss.str();
-             })
+        .def("__repr__", to_str)
+        .def("__str__", to_str)
         .def("__getitem__",
              [](const vector_t& p, size_t i) {
                  return p[i];

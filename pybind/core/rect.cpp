@@ -19,6 +19,12 @@ namespace py = pybind11;
 void add_rect(py::module& m)
 {
     // size
+    auto to_str = [](const rect& r) {
+        std::ostringstream ss;
+        ss << r;
+        return ss.str();
+    };
+
     py::class_<rect>(m, "rect")
         .def(py::init())
         .def(py::init<rect::point_t, size>())
@@ -38,10 +44,6 @@ void add_rect(py::module& m)
         .def("area", &rect::area)
         .def(py::self == py::self)
         .def(py::self != py::self)
-        .def("__repr__",
-             [](const size& s) {
-                 std::ostringstream ss;
-                 ss << s;
-                 return ss.str();
-             });
+        .def("__repr__", to_str)
+        .def("__str__", to_str);
 }
