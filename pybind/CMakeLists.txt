@@ -17,6 +17,7 @@ if (BUILD_PYBIND)
       core/rect.cpp
       core/size.cpp
       core/vector.cpp
+      core/pixel_types.cpp
     )
 
     find_package(fmt CONFIG REQUIRED)

@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // std
+#include <sstream>
 #include <utility>
 
 // to be tested
@@ -42,7 +43,7 @@ TEST_CASE("pixel_types_test - is_pixel_type_test")
     REQUIRE( is_pixeltype_v< rgba<uint16_t> > );
     REQUIRE( is_pixeltype_v< yuva<uint16_t> > );
     REQUIRE( is_pixeltype_v< g<uint16_t> > );
-    REQUIRE( is_pixeltype_v< complex<uint16_t> > );
+    REQUIRE( is_pixeltype_v< complex<int16_t> > );
     REQUIRE( !is_pixeltype_v< uint16_t > );
 }
 
@@ -50,7 +51,7 @@ TEST_CASE("pixel_types_test - is_real_mono_pixel_type_test")
 {
     REQUIRE( !is_real_mono_pixeltype_v< rgba<uint16_t> > );
     REQUIRE( !is_real_mono_pixeltype_v< yuva<uint16_t> > );
-    REQUIRE( !is_real_mono_pixeltype_v< complex<uint16_t> > );
+    REQUIRE( !is_real_mono_pixeltype_v< complex<int16_t> > );
     REQUIRE( !is_real_mono_pixeltype_v< uint16_t > );
     REQUIRE( is_real_mono_pixeltype_v< g<uint32_t> > );
     REQUIRE( is_real_mono_pixeltype_v< g<uint16_t> > );
@@ -143,5 +144,254 @@ TEST_CASE("pixel_types_test - complex_to_greyscale_test")
     {
         c_f c{ 0,  1 };
         REQUIRE( g_f{ c.abs() } == g_f{ 1 } );
+    }
+
+    {
+        c_f c{ 1,  1 };
+        REQUIRE( g_f{ c.abs_sqr() } == g_f{ 2 } );
+    }
+}
+
+TEST_CASE("pixel_types_test - rgba")
+{
+    SECTION("default constructor")
+    {
+        auto p = rgba_8();
+        REQUIRE(std::is_same_v<rgba_8::value_t, uint8_t>);
+        CHECK(p.r == rgba_8::value_t{});
+        CHECK(p.g == rgba_8::value_t{});
+        CHECK(p.b == rgba_8::value_t{});
+        CHECK(p.a == rgba_8::value_t{});
+    }
+
+    SECTION("constructor from value")
+    {
+        auto p = rgba_8(128);
+        CHECK(p.r == 128);
+        CHECK(p.g == 128);
+        CHECK(p.b == 128);
+        CHECK(p.a == std::numeric_limits<rgba_8::value_t>::max());
+    }
+
+    SECTION("assignment from value")
+    {
+        rgba_8 p;
+        p = 128;
+        CHECK(p.r == 128);
+        CHECK(p.g == 128);
+        CHECK(p.b == 128);
+        CHECK(p.a == std::numeric_limits<rgba_8::value_t>::max());
+    }
+
+    SECTION("constructor from values")
+    {
+        auto p = rgba_8(127, 128, 129, 130);
+        CHECK(p.r == 127);
+        CHECK(p.g == 128);
+        CHECK(p.b == 129);
+        CHECK(p.a == 130);
+    }
+
+    SECTION("comparison operators")
+    {
+        auto p1 = rgba_8(127, 128, 129, 130);
+        auto p2 = rgba_8(127, 128, 129, 131);
+        CHECK(p1 != p2);
+        p2.a = 130;
+        CHECK(p1 == p2);
+    }
+
+    SECTION("defaulted constructors")
+    {
+        auto p = rgba_8(1, 2, 3, 4);
+        auto p_copy{ p };
+        auto p_move{ std::move(p) };
+
+        CHECK(p_copy.r == 1);
+        CHECK(p_copy.g == 2);
+        CHECK(p_copy.b == 3);
+        CHECK(p_copy.a == 4);
+
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("defaulted assignments")
+    {
+        auto p = rgba_8(1, 2, 3, 4);
+        rgba_8 p_copy;
+        p_copy = p;
+        rgba_8 p_move;
+        p_move = std::move(p);
+
+        CHECK(p_copy.r == 1);
+        CHECK(p_copy.g == 2);
+        CHECK(p_copy.b == 3);
+        CHECK(p_copy.a == 4);
+
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("ostream")
+    {
+        auto p = rgba_8(1, 2, 3, 4);
+        std::ostringstream ss;
+        ss << p;
+        CHECK(ss.str() == "rgba(1, 2, 3, 4)");
+    }
+}
+
+TEST_CASE("pixel_types_test - yuva")
+{
+    SECTION("default constructor")
+    {
+        auto p = yuva_8();
+        REQUIRE(std::is_same_v<yuva_8::value_t, uint8_t>);
+        CHECK(p.y == yuva_8::value_t{});
+        CHECK(p.u == yuva_8::value_t{});
+        CHECK(p.v == yuva_8::value_t{});
+        CHECK(p.a == yuva_8::value_t{});
+    }
+
+    SECTION("constructor from value")
+    {
+        auto p = yuva_8(128);
+        CHECK(p.y == 128);
+        CHECK(p.u == yuva_8::value_t{});
+        CHECK(p.v == yuva_8::value_t{});
+        CHECK(p.a == std::numeric_limits<yuva_8::value_t>::max());
+    }
+
+    SECTION("assignment from value")
+    {
+        yuva_8 p;
+        p = 128;
+        CHECK(p.y == 128);
+        CHECK(p.u == yuva_8::value_t{});
+        CHECK(p.v == yuva_8::value_t{});
+        CHECK(p.a == std::numeric_limits<yuva_8::value_t>::max());
+    }
+
+    SECTION("constructor from values")
+    {
+        auto p = yuva_8(127, 128, 129, 130);
+        CHECK(p.y == 127);
+        CHECK(p.u == 128);
+        CHECK(p.v == 129);
+        CHECK(p.a == 130);
+    }
+
+    SECTION("comparison operators")
+    {
+        auto p1 = yuva_8(127, 128, 129, 130);
+        auto p2 = yuva_8(127, 128, 129, 131);
+        CHECK(p1 != p2);
+        p2.a = 130;
+        CHECK(p1 == p2);
+    }
+
+    SECTION("defaulted constructors")
+    {
+        auto p = yuva_8(1, 2, 3, 4);
+        auto p_copy{ p };
+        auto p_move{ std::move(p) };
+
+        CHECK(p_copy.y == 1);
+        CHECK(p_copy.u == 2);
+        CHECK(p_copy.v == 3);
+        CHECK(p_copy.a == 4);
+
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("defaulted assignments")
+    {
+        auto p = yuva_8(1, 2, 3, 4);
+        yuva_8 p_copy;
+        p_copy = p;
+        yuva_8 p_move;
+        p_move = std::move(p);
+
+        CHECK(p_copy.y == 1);
+        CHECK(p_copy.u == 2);
+        CHECK(p_copy.v == 3);
+        CHECK(p_copy.a == 4);
+
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("ostream")
+    {
+        auto p = yuva_8(1, 2, 3, 4);
+        std::ostringstream ss;
+        ss << p;
+        CHECK(ss.str() == "yuva(1, 2, 3, 4)");
+    }
+}
+
+TEST_CASE("pixel_types_test - g")
+{
+    SECTION("default constructor")
+    {
+        auto p = g_8();
+        REQUIRE(std::is_same_v<g_8::value_t, uint8_t>);
+        CHECK(p.v == g_8::value_t{});
+    }
+
+    SECTION("constructor from value")
+    {
+        auto p = g_8(128);
+        CHECK(p.v == 128);
+    }
+
+    SECTION("converting constructor")
+    {
+        auto p = g_f( uint8_t{ 127 } );
+        CHECK(p.v == 127);
+    }
+
+    SECTION("assignment from value")
+    {
+        g_8 p;
+        p = 128;
+        CHECK(p.v == 128);
+    }
+
+    SECTION("comparison operators")
+    {
+        auto p1 = g_8(128);
+        auto p2 = g_8(127);
+        CHECK(p1 != p2);
+        p2.v = 128;
+        CHECK(p1 == p2);
+    }
+
+    SECTION("defaulted constructors")
+    {
+        auto p = g_8(127);
+        auto p_copy{ p };
+        auto p_move{ std::move(p) };
+
+        CHECK(p_copy.v == 127);
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("defaulted assignments")
+    {
+        auto p = g_8(127);
+        g_8 p_copy;
+        p_copy = p;
+        g_8 p_move;
+        p_move = std::move(p);
+
+        CHECK(p_copy.v == 127);
+        CHECK(p_copy == p_move);
+    }
+
+    SECTION("ostream")
+    {
+        auto p = g_16(32565);
+        std::ostringstream ss;
+        ss << p;
+        CHECK(ss.str() == "g(32565)");
     }
 }
