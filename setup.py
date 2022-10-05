@@ -1,11 +1,13 @@
 from glob import glob
 import os
 import re
+import shutil
 import subprocess
 import sys
 
 from distutils import sysconfig as ds
 from setuptools import setup
+from setuptools import Command
 from setuptools import Extension as _extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
@@ -17,6 +19,7 @@ PLAT_TO_CMAKE = {
     "win-arm64": "ARM64",
 }
 
+package_root = os.path.dirname(os.path.realpath(__file__))
 
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
@@ -28,7 +31,14 @@ class CMakeExtension(_extension):
 
 
 class CMakeBuild(_build_ext):
+    def __init__(self, args):
+        super().__init__(args)
+        self.clean_cmd = CleanCommand(args)
+
     def build_extension(self, ext):
+        # force cleanup before we build
+        self.clean_cmd.run()
+
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
         # required for auto-detection & inclusion of auxiliary "native" libs
@@ -73,7 +83,6 @@ class CMakeBuild(_build_ext):
                     pass
 
         else:
-
             # Single config generators are handled "normally"
             single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
 
@@ -113,8 +122,31 @@ class CMakeBuild(_build_ext):
             os.makedirs(build_temp)
 
         subprocess.check_call(["cmake", ext.sourcedir] + cmake_args, cwd=build_temp)
-        subprocess.check_call(["cmake", "--build", ".", "--clean-first"] + build_args, cwd=build_temp)
+        subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=build_temp)
 
+
+class CleanCommand(Command):
+    """Custom clean command to tidy up the project root."""
+    CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info'.split(' ')
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        for path_spec in self.CLEAN_FILES:
+            # Make paths absolute and relative to this path
+            abs_paths = glob(os.path.normpath(os.path.join(package_root, path_spec)))
+            for path in [str(p) for p in abs_paths]:
+                if not path.startswith(package_root):
+                    # Die if path in CLEAN_FILES is absolute + outside this directory
+                    raise ValueError(f"{path} is not a valid path")
+                print('removing %s' % os.path.relpath(path))
+                shutil.rmtree(path)
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
@@ -126,7 +158,10 @@ setup(
     description="Python bindings for libopenpivcore",
     long_description="",
     ext_modules=[ CMakeExtension("pyopenpivcore") ],
-    cmdclass={"build_ext": CMakeBuild},
+    cmdclass={
+        "build_ext": CMakeBuild,
+        "clean": CleanCommand
+        },
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.6",

@@ -57,7 +57,8 @@ To build using pip/setuptools:
 
 * create a venv at the same level as the openpivcore directory
 * activate the venv
-* run pip against the name of the directory containing the openpiv code e.g. `pip install openpiv-c-qt/`
+* run pip against the name of the directory containing the openpiv code e.g. `pip install <path to source>`
+  * a clean step should happen as part of the build, this can also be run manually with `python setup.py clean`
 
 To build using cmake:
 
