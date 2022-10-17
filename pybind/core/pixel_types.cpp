@@ -21,45 +21,6 @@ namespace py = pybind11;
 
 
 template <typename T>
-struct pixel_underlying_type_trait
-{
-    template <size_t N=4>
-    static constexpr char_array<N> name()
-    {
-        if constexpr (std::is_same_v<T, uint8_t> )
-            return to_array<N>("8");
-        else if constexpr (std::is_same_v<T, uint16_t> )
-            return to_array<N>("16");
-        else if constexpr (std::is_same_v<T, uint32_t> )
-            return to_array<N>("32");
-        else if constexpr (std::is_same_v<T, double> )
-            return to_array<N>("f");
-
-        return {};
-    }
-};
-
-template <template <typename> class T, typename U>
-struct pixel_type_trait
-{
-    template <size_t N=64>
-    static constexpr char_array<N> name()
-    {
-        if constexpr (std::is_same_v<T<U>, rgba<U>> )
-            return cat<N>(to_array<8>("rgba"), pixel_underlying_type_trait<U>::name());
-        if constexpr (std::is_same_v<T<U>, yuva<U>> )
-            return cat<N>(to_array<8>("yuva"), pixel_underlying_type_trait<U>::name());
-        if constexpr (std::is_same_v<T<U>, complex<U>> )
-            return cat<N>(to_array<8>("complex"), pixel_underlying_type_trait<U>::name());
-        if constexpr (std::is_same_v<T<U>, g<U>> )
-            return cat<N>(to_array<8>("g"), pixel_underlying_type_trait<U>::name());
-
-        return to_array<N>("unknown pixeltype");
-    }
-};
-
-
-template <typename T>
 bool add_rgba_type(py::module& m)
 {
     using pixel_t = rgba<T>;
