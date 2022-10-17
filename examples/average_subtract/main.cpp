@@ -19,7 +19,7 @@
 using namespace openpiv;
 namespace logger = openpiv::core::logger;
 
-core::gf_image load_from_file(const std::string& filename)
+core::image_g_f load_from_file(const std::string& filename)
 {
     try {
         std::ifstream is(filename, std::ios::binary);
@@ -30,7 +30,7 @@ core::gf_image load_from_file(const std::string& filename)
         if ( !loader )
             core::exception_builder<std::runtime_error>() << "failed to find loader for " << filename;
 
-        core::gf_image image;
+        core::image_g_f image;
         loader->load( is, image );
         return image;
     }
@@ -97,7 +97,7 @@ int main( int argc, char* argv[] )
 
     // process: find average
     core::size s;
-    core::gf_image avg;
+    core::image_g_f avg;
     size_t processed = 0;
 
     try {

@@ -14,7 +14,7 @@ using namespace openpiv::algos;
 
 static void fft_cross_correlation_view_benchmark(benchmark::State& state)
 {
-    cf_image im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
+    image_c_f im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
     FFT fft( s );
@@ -33,7 +33,7 @@ BENCHMARK(fft_cross_correlation_view_benchmark)->Threads(4)->RangeMultiplier(2)-
 
 static void fft_cross_correlation_extract_benchmark(benchmark::State& state)
 {
-    cf_image im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
+    image_c_f im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
     FFT fft( s );
@@ -52,7 +52,7 @@ BENCHMARK(fft_cross_correlation_extract_benchmark)->Threads(4)->RangeMultiplier(
 
 static void fft_auto_correlation_view_benchmark(benchmark::State& state)
 {
-    cf_image im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
+    image_c_f im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
     FFT fft( s );
@@ -70,7 +70,7 @@ BENCHMARK(fft_auto_correlation_view_benchmark)->Threads(4)->RangeMultiplier(2)->
 
 static void fft_auto_correlation_extract_benchmark(benchmark::State& state)
 {
-    cf_image im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
+    image_c_f im_a{ load_from_file< g_f >( "corr_a.tiff" ) };
     uint32_t d{ (uint32_t)state.range(0) };
     size s{ d, d };
     FFT fft( s );

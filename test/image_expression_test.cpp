@@ -36,7 +36,7 @@ TEST_CASE("image_expression_test - image_expression_input_test")
 
 TEST_CASE("image_expression_test - image_input_test")
 {
-    using type = g8_image;
+    using type = image_g_8;
     REQUIRE( is_ie_inputtype_v<type> );
     REQUIRE( !is_imageexpression_v<type> );
 }
@@ -57,10 +57,10 @@ TEST_CASE("image_expression_test - negative_input_test")
 
 TEST_CASE("image_expression_test - add_const_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( size( 200, 100 ), 128_g8 );
 
-    g8_image im2( 200, 100 );
+    image_g_8 im2( 200, 100 );
     im2 = im + 1_g8;
     auto [min, max] = find_image_range( im2 );
     REQUIRE(min == 129);
@@ -69,10 +69,10 @@ TEST_CASE("image_expression_test - add_const_test")
 
 TEST_CASE("image_expression_test - conjugate_test")
 {
-    cf_image im;
+    image_c_f im;
     std::tie( im, std::ignore ) = create_and_fill( size( 200, 200 ), c_f{ 0, 1 } );
 
-    cf_image im2( 200, 200 );
+    image_c_f im2( 200, 200 );
     im2 = conj(im);
 
     for ( decltype(im.pixel_count()) i=0; i<im.pixel_count(); ++i )
@@ -81,10 +81,10 @@ TEST_CASE("image_expression_test - conjugate_test")
 
 TEST_CASE("image_expression_test - conjugate_multiply_test")
 {
-    cf_image im;
+    image_c_f im;
     std::tie( im, std::ignore ) = create_and_fill( size( 200, 200 ), c_f{ 2, 1 } );
 
-    cf_image result( 200, 200 );
+    image_c_f result( 200, 200 );
     result = im * conj( im );
 
     for ( decltype(im.pixel_count()) i=0; i<im.pixel_count(); ++i )
@@ -93,7 +93,7 @@ TEST_CASE("image_expression_test - conjugate_multiply_test")
 
 TEST_CASE("image_expression_test - write_to_self_test")
 {
-    cf_image im;
+    image_c_f im;
     std::tie( im, std::ignore ) = create_and_fill( size( 200, 200 ), c_f{ 2, 1 } );
 
     im = im * conj( im );
@@ -104,13 +104,13 @@ TEST_CASE("image_expression_test - write_to_self_test")
 
 TEST_CASE("image_expression_test - add_image_test")
 {
-    g8_image im1; g_8 v1;
+    image_g_8 im1; g_8 v1;
     std::tie( im1, v1 ) = create_and_fill( size( 200, 100 ), 128_g8 );
 
-    g8_image im2; g_8 v2;
+    image_g_8 im2; g_8 v2;
     std::tie( im2, v2 ) = create_and_fill( size( 200, 100 ), 127_g8 );
 
-    g8_image im3( 200, 100 );
+    image_g_8 im3( 200, 100 );
     im3 = im1 + im2;
 
     auto [min, max] = find_image_range( im3 );
@@ -120,13 +120,13 @@ TEST_CASE("image_expression_test - add_image_test")
 
 TEST_CASE("image_expression_test - add_image_const_test")
 {
-    g8_image im1; g_8 v1;
+    image_g_8 im1; g_8 v1;
     std::tie( im1, v1 ) = create_and_fill( size( 200, 100 ), 127_g8 );
 
-    g8_image im2; g_8 v2;
+    image_g_8 im2; g_8 v2;
     std::tie( im2, v2 ) = create_and_fill( size( 200, 100 ), 127_g8 );
 
-    g8_image im3( 200, 100 );
+    image_g_8 im3( 200, 100 );
     im3 = im1 + im2 + 1_g8;
 
     auto [min, max] = find_image_range( im3 );
@@ -142,7 +142,7 @@ TEST_CASE("image_expression_test - scale_test")
     std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     REQUIRE(!!loader);
 
-    g16_image im;
+    image_g_16 im;
     loader->load( is, im );
 
     // scale

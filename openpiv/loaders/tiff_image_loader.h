@@ -22,16 +22,16 @@ namespace openpiv::core {
         size_t num_images() const override;
 
         bool open( std::istream& is ) override;
-        bool extract( size_t index, g16_image& ) override;
-        bool extract( size_t index, gf_image& ) override;
-        bool extract( size_t index, rgba16_image& ) override;
+        bool extract( size_t index, image_g_16& ) override;
+        bool extract( size_t index, image_g_f& ) override;
+        bool extract( size_t index, image_rgba_16& ) override;
 
-        void save( std::ostream&, const g16_image& ) const override;
-        void save( std::ostream&, const gf_image& ) const override;
-        void save( std::ostream&, const rgba16_image& ) const override;
-        void save( std::ostream&, const g16_image_view& ) const override;
-        void save( std::ostream&, const gf_image_view& ) const override;
-        void save( std::ostream&, const rgba16_image_view& ) const override;
+        void save( std::ostream&, const image_g_16& ) const override;
+        void save( std::ostream&, const image_g_f& ) const override;
+        void save( std::ostream&, const image_rgba_16& ) const override;
+        void save( std::ostream&, const image_g_16_view& ) const override;
+        void save( std::ostream&, const image_g_f_view& ) const override;
+        void save( std::ostream&, const image_rgba_16_view& ) const override;
 
     private:
         struct impl;

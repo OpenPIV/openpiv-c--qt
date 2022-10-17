@@ -70,9 +70,9 @@ namespace {
 
     // 8-bit greyscale to 16-bit greyscale
     template <>
-    g16_image copy<g_16, 1, 8>(std::istream& is, uint32_t width, uint32_t height)
+    image_g_16 copy<g_16, 1, 8>(std::istream& is, uint32_t width, uint32_t height)
     {
-        g16_image im(width, height, 0);
+        image_g_16 im(width, height, 0);
 
         // copy per line
         std::vector<char> buffer(width);
@@ -93,9 +93,9 @@ namespace {
 
     // 16-bit greyscale to 16-bit greyscale
     template <>
-    g16_image copy<g_16, 1, 16>(std::istream& is, uint32_t width, uint32_t height)
+    image_g_16 copy<g_16, 1, 16>(std::istream& is, uint32_t width, uint32_t height)
     {
-        g16_image im(width, height, 0);
+        image_g_16 im(width, height, 0);
 
         // copy per line
         const size_t bytesPerLine = width * sizeof(g_16);
@@ -118,9 +118,9 @@ namespace {
 
     // 8-bit RGB to 16-bit RGBA
     template <>
-    rgba16_image copy<rgba_16, 3, 8>(std::istream& is, uint32_t width, uint32_t height)
+    image_rgba_16 copy<rgba_16, 3, 8>(std::istream& is, uint32_t width, uint32_t height)
     {
-        rgba16_image im(width, height, 0);
+        image_rgba_16 im(width, height, 0);
 
         // copy per line
         const size_t bytesPerLine = 3 * width;
@@ -147,9 +147,9 @@ namespace {
 
     // 16-bit RGB to 16-bit RGBA
     template <>
-    rgba16_image copy<rgba_16, 3, 16>(std::istream& is, uint32_t width, uint32_t height)
+    image_rgba_16 copy<rgba_16, 3, 16>(std::istream& is, uint32_t width, uint32_t height)
     {
-        rgba16_image im(width, height, 0);
+        image_rgba_16 im(width, height, 0);
 
         // copy per line
         const size_t bytesPerLine = 3 * width * sizeof(g_16);
@@ -309,17 +309,17 @@ namespace openpiv::core {
         return true;
     }
 
-    bool pnm_image_loader::extract( size_t, g16_image& im )
+    bool pnm_image_loader::extract( size_t, image_g_16& im )
     {
         return impl_->extract(im);
     }
 
-    bool pnm_image_loader::extract( size_t, gf_image& im )
+    bool pnm_image_loader::extract( size_t, image_g_f& im )
     {
         return impl_->extract(im);
     }
 
-    bool pnm_image_loader::extract( size_t, rgba16_image& im )
+    bool pnm_image_loader::extract( size_t, image_rgba_16& im )
     {
         return impl_->extract(im);
     }
@@ -334,7 +334,7 @@ namespace openpiv::core {
            << im.width() << " " << im.height() << "\n"
            << "65535\n";
 
-        const size_t bytesPerLine{ im.width() * sizeof(g16_image::pixel_t) };
+        const size_t bytesPerLine{ im.width() * sizeof(image_g_16::pixel_t) };
 
         std::vector<g_16> buffer( im.width() );
         for ( uint32_t h=0; h<im.height(); ++h )
@@ -351,12 +351,12 @@ namespace openpiv::core {
         os.flush();
     }
 
-    void pnm_image_loader::save( std::ostream& os, const g16_image& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_g_16& im ) const
     {
         save_( os, im );
     }
 
-    void pnm_image_loader::save( std::ostream& os, const g16_image_view& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_g_16_view& im ) const
     {
         save_( os, im );
     }
@@ -380,7 +380,7 @@ namespace openpiv::core {
            << im.width() << " " << im.height() << "\n"
            << "65535\n";
 
-        const size_t bytesPerLine{ im.width() * sizeof(g16_image::pixel_t) };
+        const size_t bytesPerLine{ im.width() * sizeof(image_g_16::pixel_t) };
 
         std::vector<g_16> buffer( im.width() );
         for ( uint32_t h=0; h<im.height(); ++h )
@@ -396,12 +396,12 @@ namespace openpiv::core {
         os.flush();
     }
 
-    void pnm_image_loader::save( std::ostream& os, const gf_image& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_g_f& im ) const
     {
         save_( os, im );
     }
 
-    void pnm_image_loader::save( std::ostream& os, const gf_image_view& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_g_f_view& im ) const
     {
         save_( os, im );
     }
@@ -418,7 +418,7 @@ namespace openpiv::core {
            << "65535\n";
 
         // only write RGB data, not RGBA
-        using sample_type = rgba16_image::pixel_t::value_t;
+        using sample_type = image_rgba_16::pixel_t::value_t;
         const size_t sampleCount = im.width() * 3;
         const size_t bytesPerLine{ sampleCount * sizeof(sample_type) };
         std::vector<sample_type> buffer( bytesPerLine );
@@ -440,12 +440,12 @@ namespace openpiv::core {
         os.flush();
     }
 
-    void pnm_image_loader::save( std::ostream& os, const rgba16_image& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_rgba_16& im ) const
     {
         save_( os, im );
     }
 
-    void pnm_image_loader::save( std::ostream& os, const rgba16_image_view& im ) const
+    void pnm_image_loader::save( std::ostream& os, const image_rgba_16_view& im ) const
     {
         save_( os, im );
     }

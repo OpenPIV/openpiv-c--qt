@@ -27,7 +27,7 @@ TEST_CASE("image_loader_test - tiff_loader_mono")
     REQUIRE(!!loader);
     REQUIRE(loader->name() == std::string("image/tiff") );
 
-    g16_image im;
+    image_g_16 im;
     loader->load( is, im );
 
     REQUIRE(im.width() == 511);
@@ -43,7 +43,7 @@ TEST_CASE("image_loader_test - tiff_loader_rgba")
     REQUIRE(!!loader);
     REQUIRE(loader->name() == std::string("image/tiff"));
 
-    rgba16_image im;
+    image_rgba_16 im;
     loader->load( is, im );
 
     REQUIRE(im.width() == 511);
@@ -65,7 +65,7 @@ TEST_CASE("image_loader_test - pnm_loader_load_p5")
     std::shared_ptr<image_loader> loader{ image_loader_registry::find(ss) };
     REQUIRE(!!loader);
 
-    g16_image im;
+    image_g_16 im;
     loader->load( ss, im );
 
     REQUIRE(im.width() == 300);
@@ -81,7 +81,7 @@ TEST_CASE("image_loader_test - pnm_loader_save_p5")
     std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     REQUIRE(!!loader);
 
-    g16_image im;
+    image_g_16 im;
     loader->load( is, im );
 
     // write data
@@ -101,7 +101,7 @@ TEST_CASE("image_loader_test - pnm_loader_save_p6")
     std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     REQUIRE(!!loader);
 
-    g16_image im;
+    image_g_16 im;
     loader->load( is, im );
 
     // write data

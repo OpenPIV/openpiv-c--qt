@@ -98,7 +98,7 @@ int main( int argc, char* argv[] )
     logger::info("execution: {}", execution);
 
     // get images
-    std::vector<core::gf_image> images;
+    std::vector<core::image_g_f> images;
     try {
         for ( const auto& input_file : input_files )
         {
@@ -110,7 +110,7 @@ int main( int argc, char* argv[] )
             if ( !loader )
                 core::exception_builder<std::runtime_error>() << "failed to find loader for " << input_file;
 
-            core::gf_image image;
+            core::image_g_f image;
             loader->load( is, image );
             images.emplace_back(std::move(image));
         }
@@ -155,7 +155,7 @@ int main( int argc, char* argv[] )
                          const auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
-                         const core::gf_image output{ (fft.*correlator)( view_a, view_b ) };
+                         const core::image_g_f output{ (fft.*correlator)( view_a, view_b ) };
 
                          // find peaks
                          constexpr uint16_t num_peaks = 2;

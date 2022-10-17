@@ -236,11 +236,11 @@ std::ostream& operator<<( std::ostream& os, const image<T>& p )
 
 
 /// standard image types
-using g8_image     = image< g_8 >;
-using g16_image    = image< g_16 >;
-using gf_image     = image< g_f >;
-using rgba8_image  = image< rgba_8 >;
-using rgba16_image = image< rgba_16 >;
-using cf_image     = image< c_f >;
+using image_g_8     = image< g_8 >;
+using image_g_16    = image< g_16 >;
+using image_g_f     = image< g_f >;
+using image_rgba_8  = image< rgba_8 >;
+using image_rgba_16 = image< rgba_16 >;
+using image_c_f     = image< c_f >;
 
 }

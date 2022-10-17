@@ -96,25 +96,25 @@ namespace openpiv::core {
 
         /// Extract an image from an opened stream;
         /// may throw ImageLoaderException if there is an issue
-        virtual bool extract( size_t index, g16_image& ) = 0;
-        virtual bool extract( size_t index, gf_image& ) = 0;
-        virtual bool extract( size_t index, rgba16_image& ) = 0;
+        virtual bool extract( size_t index, image_g_16& ) = 0;
+        virtual bool extract( size_t index, image_g_f& ) = 0;
+        virtual bool extract( size_t index, image_rgba_16& ) = 0;
 
         /// Load the image from \a stream; this is a convenience method
         /// that combines open/extract for the first image found
         /// may throw ImageLoaderException if there is an issue
-        virtual bool load( std::istream& is, g16_image& im ) { return open(is) && extract(0, im); }
-        virtual bool load( std::istream& is, gf_image& im ) { return open(is) && extract(0, im); }
-        virtual bool load( std::istream& is, rgba16_image& im ) { return open(is) && extract(0, im); }
+        virtual bool load( std::istream& is, image_g_16& im ) { return open(is) && extract(0, im); }
+        virtual bool load( std::istream& is, image_g_f& im ) { return open(is) && extract(0, im); }
+        virtual bool load( std::istream& is, image_rgba_16& im ) { return open(is) && extract(0, im); }
 
         /// Save the image to \a stream
         /// may throw ImageLoaderException if there is an issue
-        virtual void save( std::ostream&, const g16_image& ) const = 0;
-        virtual void save( std::ostream&, const gf_image& ) const = 0;
-        virtual void save( std::ostream&, const rgba16_image& ) const = 0;
-        virtual void save( std::ostream&, const g16_image_view& ) const = 0;
-        virtual void save( std::ostream&, const gf_image_view& ) const = 0;
-        virtual void save( std::ostream&, const rgba16_image_view& ) const = 0;
+        virtual void save( std::ostream&, const image_g_16& ) const = 0;
+        virtual void save( std::ostream&, const image_g_f& ) const = 0;
+        virtual void save( std::ostream&, const image_rgba_16& ) const = 0;
+        virtual void save( std::ostream&, const image_g_16_view& ) const = 0;
+        virtual void save( std::ostream&, const image_g_f_view& ) const = 0;
+        virtual void save( std::ostream&, const image_rgba_16_view& ) const = 0;
     };
 
 }

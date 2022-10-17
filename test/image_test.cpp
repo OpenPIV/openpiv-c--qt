@@ -32,7 +32,7 @@ using namespace openpiv::algos;
 
 TEST_CASE("image_test - int_test")
 {
-    g8_image im( 200, 100 );
+    image_g_8 im( 200, 100 );
     CHECK( im.width()  == 200 );
     CHECK( im.height() == 100 );
     CHECK( im.pixel_count() == 100*200 );
@@ -42,7 +42,7 @@ TEST_CASE("image_test - int_test")
 
 TEST_CASE("image_test - resize_test")
 {
-    g8_image im;
+    image_g_8 im;
     REQUIRE( im.width()  == 0 );
     REQUIRE( im.height() == 0 );
 
@@ -62,10 +62,10 @@ TEST_CASE("image_test - resize_test")
 
 TEST_CASE("image_test - copy_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 100}, 128_g8 );
 
-    g8_image im2{ im };
+    image_g_8 im2{ im };
     REQUIRE(im.width()  == im2.width());
     REQUIRE(im.height() == im2.height());
 
@@ -78,10 +78,10 @@ TEST_CASE("image_test - copy_test")
 
 TEST_CASE("image_test - move_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 100}, 128_g8 );
 
-    g8_image im2{ std::move(im) };
+    image_g_8 im2{ std::move(im) };
 
     bool result = true;
     for ( uint32_t i=0; i<im.pixel_count(); ++i )
@@ -92,13 +92,13 @@ TEST_CASE("image_test - move_test")
 
 TEST_CASE("image_test - convert_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 128_g8 );
-    gf_image im2;
+    image_g_f im2;
 
     SECTION( "copy" )
     {
-        im2 = gf_image{ im };
+        im2 = image_g_f{ im };
     }
 
     SECTION( "assign" )
@@ -115,7 +115,7 @@ TEST_CASE("image_test - convert_test")
 
 TEST_CASE("image_test - line_out_of_bounds_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 100}, 128_g8 );
 
     _REQUIRE_THROWS_MATCHES( im.line(101),
@@ -125,7 +125,7 @@ TEST_CASE("image_test - line_out_of_bounds_test")
 
 TEST_CASE("image_test - line_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {2, 2}, 0_g8 );
     auto sum1 = pixel_sum(im) / im.pixel_count();
     REQUIRE(sum1 == 0);
@@ -140,10 +140,10 @@ TEST_CASE("image_test - line_test")
 
 TEST_CASE("image_test - equality_test")
 {
-    g8_image im1;
+    image_g_8 im1;
     std::tie( im1, std::ignore ) = create_and_fill( {200, 100}, 128_g8 );
 
-    g8_image im2;
+    image_g_8 im2;
     std::tie( im2, std::ignore ) = create_and_fill( {200, 100}, 128_g8 );
 
     REQUIRE( im1 == im2 );
@@ -155,7 +155,7 @@ TEST_CASE("image_test - equality_test")
 
 TEST_CASE("image_test - apply_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 128_g8 );
     im[{100, 100}] = 129;
 
@@ -179,7 +179,7 @@ TEST_CASE("image_test - scale_test")
     std::shared_ptr<image_loader> loader{ image_loader_registry::find(is) };
     REQUIRE(!!loader);
 
-    g16_image im;
+    image_g_16 im;
     loader->load( is, im );
 
     // scale
@@ -205,7 +205,7 @@ TEST_CASE("image_test - scale_test")
 TEST_CASE("image_test - complex_conversion_test")
 {
     auto [ g_im, v ] = create_and_fill< g_8 >( { 200, 200 }, 127 );
-    cf_image c_im{ g_im };
+    image_c_f c_im{ g_im };
     {
         auto [ min, max ] = find_image_range( c_im );
         REQUIRE( min == max );
@@ -228,7 +228,7 @@ TEST_CASE("image_test - complex_conversion_test")
 
 TEST_CASE("image_test - iterator_test")
 {
-    g16_image im{ 100, 100 };
+    image_g_16 im{ 100, 100 };
     std::iota( std::begin( im ), std::end( im ), 0 );
 
     for ( auto h : range_start_at(0).length(im.height()) )

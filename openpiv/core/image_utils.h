@@ -58,7 +58,7 @@ result_t fit_simple_guassian( const image_view<ContainedT>& );
 /// operations:
 ///
 /// ```c++
-///     gf_image im{ 100, 100 };
+///     image_g_f im{ 100, 100 };
 ///
 ///     apply(
 ///         im,

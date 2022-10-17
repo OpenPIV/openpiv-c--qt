@@ -25,11 +25,11 @@ static void transpose_benchmark(benchmark::State& state)
 }
 
 // Register the function as a benchmark
-BENCHMARK_TEMPLATE(transpose_benchmark, g8_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
-BENCHMARK_TEMPLATE(transpose_benchmark, g16_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
-BENCHMARK_TEMPLATE(transpose_benchmark, gf_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
-BENCHMARK_TEMPLATE(transpose_benchmark, rgba8_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
-BENCHMARK_TEMPLATE(transpose_benchmark, rgba16_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
-BENCHMARK_TEMPLATE(transpose_benchmark, cf_image)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_g_8)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_g_16)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_g_f)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_rgba_8)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_rgba_16)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
+BENCHMARK_TEMPLATE(transpose_benchmark, image_c_f)->Threads(2)->RangeMultiplier(2)->Range(2, 1024);
 
 BENCHMARK_MAIN();

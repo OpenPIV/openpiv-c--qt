@@ -35,7 +35,7 @@ static auto init = [](){
 
 TEST_CASE("image_view_test - basic_construction_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv = create_image_view( im, rect::from_size({100, 100}) );
@@ -46,7 +46,7 @@ TEST_CASE("image_view_test - basic_construction_test")
 
 TEST_CASE("image_view_test - resize_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 128_g8 );
     auto iv = create_image_view( im, rect::from_size({100, 100}) );
 
@@ -64,7 +64,7 @@ TEST_CASE("image_view_test - resize_test")
 
 TEST_CASE("image_view_test - resize_failure_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 128_g8 );
     auto iv = create_image_view( im, rect::from_size({100, 100}) );
 
@@ -76,7 +76,7 @@ TEST_CASE("image_view_test - resize_failure_test")
 
 TEST_CASE("image_view_test - copy_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im, rect::from_size({100, 100}) );
@@ -92,7 +92,7 @@ TEST_CASE("image_view_test - copy_test")
 
 TEST_CASE("image_view_test - move_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im, rect::from_size({100, 100}) );
@@ -109,7 +109,7 @@ TEST_CASE("image_view_test - move_test")
 
 TEST_CASE("image_view_test - equality_test")
 {
-    g8_image im;
+    image_g_8 im;
     std::tie( im, std::ignore ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im, rect::from_size({100, 100}) );
@@ -119,7 +119,7 @@ TEST_CASE("image_view_test - equality_test")
 
 TEST_CASE("image_view_test - size_inequality_test")
 {
-    g8_image im;
+    image_g_8 im;
     std::tie( im, std::ignore ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im, rect::from_size({100, 101}) );
@@ -129,7 +129,7 @@ TEST_CASE("image_view_test - size_inequality_test")
 
 TEST_CASE("image_view_test - origin_inequality_test")
 {
-    g8_image im;
+    image_g_8 im;
     std::tie( im, std::ignore ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im, rect( {1, 0}, {100, 100}) );
@@ -139,9 +139,9 @@ TEST_CASE("image_view_test - origin_inequality_test")
 
 TEST_CASE("image_view_test - image_inequality_test")
 {
-    g8_image im;
+    image_g_8 im;
     std::tie( im, std::ignore ) = create_and_fill( {200, 200}, 0_g8 );
-    g8_image im2;
+    image_g_8 im2;
     std::tie( im2, std::ignore ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv1 = create_image_view( im,  rect( {0, 0}, {100, 100}) );
@@ -151,7 +151,7 @@ TEST_CASE("image_view_test - image_inequality_test")
 
 TEST_CASE("image_view_test - view_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
     auto iv = create_image_view( im, rect::from_size({100, 100}) );
@@ -164,7 +164,7 @@ TEST_CASE("image_view_test - view_test")
 
 TEST_CASE("image_view_test - offset_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
     im[ {10, 20} ] = 255;
 
@@ -176,7 +176,7 @@ TEST_CASE("image_view_test - offset_test")
 
 TEST_CASE("image_view_test - line_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 127_g8 );
 
     // set a single pixel
@@ -197,11 +197,11 @@ TEST_CASE("image_view_test - line_test")
 
 TEST_CASE("image_view_test - image_from_image_view_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 1_g8 );
 
     auto iv = create_image_view( im, {{10, 20}, {100, 50}} );
-    gf_image im2{ iv };
+    image_g_f im2{ iv };
     REQUIRE( im2.width() == iv.width() );
     REQUIRE( im2.height() == iv.height() );
     REQUIRE( pixel_sum(im2) == 5000 );
@@ -211,7 +211,7 @@ TEST_CASE("image_view_test - image_from_image_view_test")
 
 TEST_CASE("image_view_test - image_view_from_image_view_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 1_g8 );
 
     auto iv1 = create_image_view( im, { {10, 20}, {100, 50} } );
@@ -238,7 +238,7 @@ TEST_CASE("image_view_test - image_view_from_image_view_test")
 
 TEST_CASE("image_view_test - out_of_bounds_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 0_g8 );
 
     _REQUIRE_THROWS_MATCHES(
@@ -251,11 +251,11 @@ TEST_CASE("image_view_test - out_of_bounds_test")
 
 TEST_CASE("image_view_test - convertion_test")
 {
-    g8_image im; g_8 v;
+    image_g_8 im; g_8 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 127_g8 );
 
     auto view = create_image_view( im, { {50, 50}, {100, 100} } );
-    cf_image c( view.size() );
+    image_c_f c( view.size() );
     c = view;
 
     REQUIRE( c.width() == view.width() );
@@ -270,7 +270,7 @@ TEST_CASE("image_view_test - convertion_test")
 
 TEST_CASE("image_view_test - fill_test")
 {
-    g16_image im; g_16 v;
+    image_g_16 im; g_16 v;
     std::tie( im, v ) = create_and_fill( {200, 200}, 127_g16 );
 
     auto view = create_image_view( im, { {50, 50}, {100, 100} } );
