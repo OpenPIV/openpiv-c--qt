@@ -41,30 +41,72 @@ to_array( const char (&s)[N] ) -> char_array<R>
     return result;
 }
 
+template <size_t N, size_t M>
+static constexpr bool
+operator==(const char_array<N>& lhs, const char (&rhs)[M])
+{
+    static_assert(N >= M);
+    for (size_t i=0; i<M; ++i)
+        if (lhs[i] != rhs[i])
+            return false;
+
+    return true;
+}
+
+// tests
+static_assert(to_array<6>("hello") == "hello");
+
+static constexpr auto h = to_array<10>("hello");
+static_assert(h.size() == 10);
+static_assert(h == "hello");
+
+static constexpr auto w = to_array<10>("world");
+static_assert(w.size() == 10);
+static_assert(w == "world");
+
+static constexpr auto c = cat<21>(h, w);
+static_assert(c.size() == 21);
+static_assert(c == "hello_world");
 
 template <typename T>
 struct pixel_underlying_type_trait
 {
-    template <size_t N=4>
+    template <size_t N=15>
     static constexpr char_array<N> name()
     {
         if constexpr (std::is_same_v<T, uint8_t> )
-            return to_array<N>("8");
+            return to_array<N>("u8");
         else if constexpr (std::is_same_v<T, uint16_t> )
-            return to_array<N>("16");
+            return to_array<N>("u16");
         else if constexpr (std::is_same_v<T, uint32_t> )
+            return to_array<N>("u32");
+        else if constexpr (std::is_same_v<T, int8_t> )
+            return to_array<N>("8");
+        else if constexpr (std::is_same_v<T, int16_t> )
+            return to_array<N>("16");
+        else if constexpr (std::is_same_v<T, int32_t> )
             return to_array<N>("32");
         else if constexpr (std::is_same_v<T, double> )
             return to_array<N>("f");
 
-        return {};
+        return to_array<N>("unknown type");
     }
 };
+
+// test
+static_assert(pixel_underlying_type_trait<uint8_t>::name() == "u8");
+static_assert(pixel_underlying_type_trait<uint16_t>::name() == "u16");
+static_assert(pixel_underlying_type_trait<uint32_t>::name() == "u32");
+static_assert(pixel_underlying_type_trait<int8_t>::name() == "8");
+static_assert(pixel_underlying_type_trait<int16_t>::name() == "16");
+static_assert(pixel_underlying_type_trait<int32_t>::name() == "32");
+static_assert(pixel_underlying_type_trait<double>::name() == "f");
+
 
 template <template <typename> class T, typename U>
 struct pixel_type_trait
 {
-    template <size_t N=64>
+    template <size_t N=32>
     static constexpr char_array<N> name()
     {
         if constexpr (std::is_same_v<T<U>, rgba<U>> )
@@ -79,3 +121,9 @@ struct pixel_type_trait
         return to_array<N>("unknown pixeltype");
     }
 };
+
+// test
+static_assert(pixel_type_trait<g, uint8_t>::name() == "g_u8");
+static_assert(pixel_type_trait<rgba, uint16_t>::name() == "rgba_u16");
+static_assert(pixel_type_trait<yuva, uint32_t>::name() == "yuva_u32");
+static_assert(pixel_type_trait<complex, double>::name() == "c_f");

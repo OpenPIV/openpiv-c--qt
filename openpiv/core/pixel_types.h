@@ -256,7 +256,7 @@ template < typename T >
 std::ostream& operator<<(std::ostream& os, const complex<T>& v )
 {
     static const char* sign[] = { " ", " +" };
-    os << "complex(" << v.real << sign[ v.imag< 0 ? 0 : 1 ] << v.imag << "j)";
+    os << "complex(" << +v.real << sign[ v.imag< 0 ? 0 : 1 ] << +v.imag << "j)";
     return os;
 }
 
@@ -303,7 +303,7 @@ inline g_f  operator ""_gf ( long double v )        { return g_f( v ); }
 template < typename T >
 std::ostream& operator<<(std::ostream& os, const g<T>& v )
 {
-    os << "g(" << v.v << ")";
+    os << "g(" << +v.v << ")";
     return os;
 }
 

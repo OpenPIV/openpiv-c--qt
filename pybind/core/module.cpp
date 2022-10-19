@@ -11,6 +11,7 @@ void add_rect(py::module &);
 void add_size(py::module &);
 void add_vector(py::module &);
 void add_pixel_types(py::module &);
+void add_image(py::module &);
 
 PYBIND11_MODULE(pyopenpivcore, m) {
     m.doc() = R"pbdoc(
@@ -33,6 +34,7 @@ PYBIND11_MODULE(pyopenpivcore, m) {
     add_size(m);
     add_vector(m);
     add_pixel_types(m);
+    add_image(m);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
