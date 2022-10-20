@@ -3,6 +3,7 @@
 
 // std
 #include <memory>
+#include <cstring>
 
 
 namespace openpiv::core {
