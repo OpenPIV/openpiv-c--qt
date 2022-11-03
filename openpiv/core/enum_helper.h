@@ -3,7 +3,9 @@
 
 // std
 #include <initializer_list>
+#include <iostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <unordered_map>
 
@@ -17,18 +19,28 @@ class EnumHelper
 {
 public:
     using underlying_t = typename std::underlying_type<E>::type;
-    using map_t = std::unordered_map< E, std::string >;
+    struct mapping_t {
+        mapping_t( std::pair<E, std::string>&& v )
+            : e(v.first)
+            , s(std::move(v.second))
+        {}
 
-    static map_t& storage()
+        E e;
+        std::string s;
+    };
+
+    using storage_t = std::vector<mapping_t>;
+
+    static storage_t& storage()
     {
-        static map_t storage_;
+        static storage_t storage_;
         return storage_;
     }
 
     static bool init(std::initializer_list<std::pair<E, std::string>> l)
     {
         for ( auto i : l )
-            storage().emplace( std::move( i ) );
+            storage().push_back( std::move( i ) );
 
         return true;
     }
@@ -36,12 +48,32 @@ public:
 
 #define DECLARE_ENUM_HELPER( E, ... )                                   \
     static const auto E##EnumHelper__initialize__ = EnumHelper<E>::init( __VA_ARGS__ ); \
-    static std::string to_string(E e)                                   \
-    {                                                                   \
-        if ( !EnumHelper<E>::storage().count(e) )                       \
-            return std::to_string(EnumHelper<E>::underlying_t(e));      \
                                                                         \
-        return EnumHelper<E>::storage().at(e);                          \
+    [[maybe_unused]] static std::string to_string(E e)                  \
+    {                                                                   \
+        for (const auto& v : EnumHelper<E>::storage())                  \
+            if ( v.e == e )                                             \
+                return v.s;                                             \
+                                                                        \
+        return std::to_string(EnumHelper<E>::underlying_t(e));          \
+    }                                                                   \
+                                                                        \
+    template <typename E>                                               \
+    [[maybe_unused]] static E from_string(const std::string_view& s)    \
+    {                                                                   \
+        for (const auto& v : EnumHelper<E>::storage())                  \
+            if ( v.s == s )                                             \
+                return v.e;                                             \
+                                                                        \
+        return {};                                                      \
+    }                                                                   \
+                                                                        \
+    [[maybe_unused]] static std::istream& operator>>( std::istream& is, E& e ) \
+    {                                                                   \
+        std::string s;                                                  \
+        is >> s;                                                        \
+        e = from_string<E>(s);                                          \
+        return is;                                                      \
     }                                                                   \
                                                                         \
     [[maybe_unused]] static std::ostream& operator<<( std::ostream& os, E e ) \

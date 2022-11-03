@@ -32,17 +32,6 @@ namespace logger = openpiv::core::logger;
 
 int main( int argc, char* argv[] )
 {
-    // log to stderr, up to INFO
-    logger::Logger::instance().add_sink(
-        [](logger::Level l, const std::string& m) -> bool
-        {
-            if ( l > logger::Level::INFO )
-                return true;
-
-            std::cerr << m << "\n";
-            return true;
-        });
-
     // get arguments
     cxxopts::Options options(argv[0]);
     options
@@ -56,6 +45,7 @@ int main( int argc, char* argv[] )
     uint8_t thread_count = std::thread::hardware_concurrency()-1;
     bool limit_search = false;
     std::string fft_type;
+    auto log_level = logger::Level::INFO;
 
     try
     {
@@ -68,10 +58,22 @@ int main( int argc, char* argv[] )
             ("t, thread-count", "pool thread count", cxxopts::value<uint8_t>(thread_count)->default_value(std::to_string(thread_count)))
             ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"))
             ("l, limit-search", "limit peak search to central 25% of interrogation area", cxxopts::value<bool>(limit_search))
-            ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("real"));
+            ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("real"))
+            ("loglevel", "log level", cxxopts::value<logger::Level>(log_level)->default_value("INFO"));
 
         options.parse_positional({"input"});
         auto result = options.parse(argc, argv);
+
+        // setup logger
+        logger::Logger::instance().add_sink(
+            [log_level](logger::Level l, const std::string& m) -> bool
+            {
+                if ( l > log_level )
+                    return true;
+
+                std::cerr << m << "\n";
+                return true;
+            });
 
         if (result.count("help"))
         {
@@ -135,6 +137,7 @@ int main( int argc, char* argv[] )
     auto grid = core::generate_cartesian_grid( images[0].size(), ia, overlap );
     logger::info("generated grid for image size: {}, ia: {} ({}% overlap)", images[0].size(), ia, overlap*100);
     logger::info("grid count: {}", grid.size());
+    logger::debug("grid: {}", grid);
 
     // process!
     struct point_vector
@@ -155,6 +158,7 @@ int main( int argc, char* argv[] )
                          const auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
+                         // output of correlation has lost positional information
                          const core::image_g_f output{ (fft.*correlator)( view_a, view_b ) };
 
                          // find peaks
@@ -179,16 +183,17 @@ int main( int argc, char* argv[] )
                              return;
                          }
 
-                         const auto& peak = peaks[0];
                          point_vector result;
-                         result.xy = peak.rect().midpoint();
-                         result.vxy =
-                             core::fit_simple_gaussian( peaks[0] ) -
-                             core::point2<double>{ ia.width()/2, ia.height()/2 };
+                         auto bl = ia.bottomLeft();
+                         auto midpoint = ia.midpoint();
+                         auto peak = peaks[0];
+                         auto peak_location = core::fit_simple_gaussian( peak );
+
+                         result.xy = midpoint;
+                         result.vxy = { midpoint[0] - (bl[0] + peak_location[0]), midpoint[1] - (bl[1] + peak_location[1]) };
 
                          // convert from image normal cartesian
                          result.xy[1] = images[0].height() - result.xy[1];
-                         result.vxy[1] = -result.vxy[1];
 
                          // find s/n (or rather, highest to next highest peak)
                          if ( peaks[1][ {1, 1} ] > 0 )
