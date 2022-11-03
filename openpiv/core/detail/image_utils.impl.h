@@ -54,7 +54,7 @@ ReturnT find_peaks( const ImageT<ContainedT>& im, uint16_t num_peaks, uint32_t p
         for ( uint32_t w=peak_radius; w<im.width()-peak_radius; ++w )
         {
             // check we have peak on this line before checking above and below
-            if ( line[w-1] < line[w] && line[w+1] < line[w] && above[w] < line[w]  && below[w] < line[w] )
+            if ( line[w-1] < line[w] && line[w+1] < line[w] && above[w] < line[w] && below[w] < line[w] )
             {
                 auto r = rect( {w - peak_radius, h - peak_radius}, {result_w, result_h} );
                 auto peak = create_image_view(im, r);
