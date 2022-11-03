@@ -4,6 +4,8 @@
 
 # include catch
 find_package(Catch2 REQUIRED)
+find_package(Threads REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 file(GLOB SOURCES *_test.cpp)
 foreach(SOURCE ${SOURCES})
@@ -16,8 +18,6 @@ foreach(SOURCE ${SOURCES})
   # include openpivcore
   include_directories(${CMAKE_SOURCE_DIR}/openpiv)
 
-  find_package(Threads REQUIRED)
-  find_package(fmt CONFIG REQUIRED)
   target_link_libraries(
     ${OUTPUT}
     PRIVATE Catch2::Catch2WithMain
