@@ -6,7 +6,7 @@
         "catch2",
         "cxxopts",
         "tiff",
-        "benchmark",
+        { "name": "benchmark", "platform": "!windows" },
         "asyncplusplus",
         { "name": "mimalloc", "platform": "!(arm | uwp)" }
     ]
