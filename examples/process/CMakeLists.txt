@@ -7,6 +7,11 @@ find_package(fmt CONFIG REQUIRED)
 
 add_executable(process main.cpp)
 
+# include path for pocket fft
+set(POCKETFFT_EXTERNAL_LIBRARY_CXX ${PROJECT_SOURCE_DIR}/external/pocketfft)
+include_directories(${POCKETFFT_EXTERNAL_LIBRARY_CXX})
+
+
 # include openpivcore
 include_directories(${CMAKE_SOURCE_DIR}/openpiv)
 target_link_libraries(

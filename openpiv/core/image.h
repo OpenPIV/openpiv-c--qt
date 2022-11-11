@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <tuple>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
@@ -204,6 +205,12 @@ public:
     inline constexpr core::size size() const { return r_.size(); }
     inline constexpr index_t pixel_count() const { return r_.area(); }
     inline constexpr core::rect rect() const { return r_; }
+
+    // distance between pixels in x and y directions
+    std::tuple<size_t, size_t> stride() const
+    {
+        return { sizeof(pixel_t), width() * sizeof(pixel_t) };
+    }
 
     /// swap
     void swap( image& rhs )

@@ -9,6 +9,11 @@
 #include <unordered_map>
 #include <vector>
 
+// pocket
+#define POCKETFFT_NO_MULTITHREADING
+#include "pocketfft_hdronly.h"
+#undef POCKETFFT_NO_MULTITHREADING
+
 // local
 #include "algos/fft_common.h"
 #include "core/enum_helper.h"
@@ -21,18 +26,14 @@
 namespace openpiv::algos {
 
     using namespace core;
+    namespace pfft = pocketfft;
 
-    /// A basic decimate-in-time FFT algorithm; not highly optimized.
+    /// Wrapper for PocketFFT
     ///
     /// This class is thread-safe
-    class FFT
+    class PocketFFT
     {
         const size size_;
-
-        /// contains "twiddle factors" for each n: 2^n < N, n>=0
-        using scaling_map_t = std::unordered_map< size_t, std::vector<c_f> >;
-        const scaling_map_t forward_scaling_;
-        const scaling_map_t reverse_scaling_;
 
         /// storage for intermediate data
         struct data_t
@@ -43,7 +44,7 @@ namespace openpiv::algos {
         };
 
         /// helpers to allow TLS for intermediate storage
-        using storage_t = std::vector< std::tuple<FFT*, data_t> >;
+        using storage_t = std::vector< std::tuple<PocketFFT*, data_t> >;
         storage_t& storage() const
         {
             thread_local static storage_t static_data;
@@ -55,7 +56,7 @@ namespace openpiv::algos {
         /// of FFT to be called from multiple threads without locking
         data_t& cache() const
         {
-            FFT* self = const_cast<FFT*>(this);
+            PocketFFT* self = const_cast<PocketFFT*>(this);
             for ( auto& [fft, data] : storage() )
             {
                 if ( fft == self && data.output.size() == size_ )
@@ -73,10 +74,8 @@ namespace openpiv::algos {
         }
 
     public:
-        FFT( const core::size& size )
+        PocketFFT( const core::size& size )
             : size_(size)
-            , forward_scaling_( generate_scaling_factors(size, direction::FORWARD) )
-            , reverse_scaling_( generate_scaling_factors(size, direction::REVERSE) )
         {
             // ensure power-of-two sizes
             if ( !(is_pow2(size_.width()) && is_pow2(size_.height()) ) )
@@ -97,23 +96,28 @@ namespace openpiv::algos {
                     << "image size is different from expected: " << input.size() << ", " << size_;
             }
 
+            using value_t = typename ContainedT::value_t;
+
             // copy data, converting to complex
-            cache().output = input;
-            cache().temp.resize( input.size() );
+            cache().temp = input;
+            cache().output.resize( input.size() );
 
-            // iterate over rows first
-            for ( uint32_t h = 0; h < cache().output.height(); ++h )
-                fft( cache().output.line(h), cache().output.width(), d );
+            const pfft::shape_t shape = {size_.width(), size_.height()};
+            const auto [stride_x, stride_y] = input.stride();
+            const pfft::stride_t stride = {static_cast<long>(stride_x), static_cast<long>(stride_y)};
 
-            // transpose output -> temp
-            transpose( cache().output, cache().temp );
-
-            // now do columns
-            for ( uint32_t h = 0; h < cache().temp.height(); ++h )
-                fft( cache().temp.line(h), cache().temp.width(), d );
-
-            // flip back: temp -> output
-            transpose( cache().temp, cache().output );
+            // can reinterpret core::complex to std::complex because core::complex is packed and
+            // std::complex is also packed and makes guarantees about accessibility through array
+            // access
+            pfft::c2c<value_t>(
+                shape,
+                stride,
+                stride,                  // input and output strides should be the same
+                { 0, 1 },                // axes
+                d == direction::FORWARD, // forward
+                reinterpret_cast<const std::complex<value_t>*>(cache().temp.data()),
+                reinterpret_cast<std::complex<value_t>*>(cache().output.data()),
+                1.0 );
 
             return cache().output;
         }
@@ -141,22 +145,7 @@ namespace openpiv::algos {
             }
 
             // copy data to (real, imag), converting to complex
-            cache().output = join_from_channels(a, b);
-            cache().temp.resize( cache().output.size() );
-
-            // iterate over rows first
-            for ( uint32_t h = 0; h < cache().output.height(); ++h )
-                fft( cache().output.line(h), cache().output.width(), d );
-
-            // transpose output -> temp
-            transpose( cache().output, cache().temp );
-
-            // now do columns
-            for ( uint32_t h = 0; h < cache().temp.height(); ++h )
-                fft( cache().temp.line(h), cache().temp.width(), d );
-
-            // flip back: temp -> output
-            transpose( cache().temp, cache().output );
+            cache().output = transform( join_from_channels(a, b), d );
 
             // and unravel
             const auto& transformed = cache().output;
@@ -233,58 +222,6 @@ namespace openpiv::algos {
             swap_quadrants( cache().output );
 
             return cache().output;
-        }
-
-    private:
-        void fft_inner( c_f* in, c_f* out, const c_f* scaling, size_t n, size_t step ) const
-        {
-            DECLARE_ENTRY_EXIT
-
-            if (step < n)
-            {
-                const size_t doublestep{ 2*step };
-                fft_inner(out,        in,        scaling, n, doublestep);
-                fft_inner(out + step, in + step, scaling, n, doublestep);
-
-                for ( size_t i=0; i<n; i+=doublestep )
-                {
-                    const c_f e{ out[i] };
-                    const c_f o{ out[i + step] * scaling[i] };
-                    in[ i/2 ]      = e + o;
-                    in[ (i+n)/2 ]  = e - o;
-                }
-            }
-        }
-
-        void fft( c_f* in, size_t n, direction d, size_t stride = 1 ) const
-        {
-            DECLARE_ENTRY_EXIT
-
-            typed_memcpy( cache().fft_buffer.data(), in, n, stride );
-            const auto& scaling = (d == direction::FORWARD ? forward_scaling_ : reverse_scaling_).at(n);
-            fft_inner( in, cache().fft_buffer.data(), &scaling[0], n, 1 );
-        }
-
-        static scaling_map_t generate_scaling_factors( const core::size& size, direction d )
-        {
-            scaling_map_t result;
-            size_t n = maximal_size( size ).width();
-            do {
-                const double scaling{ d == direction::FORWARD ? -1.0 : 1.0 };
-                std::vector<c_f> twiddle(n);
-                std::generate(
-                    std::begin(twiddle),
-                    std::end(twiddle),
-                    [i=0, n, scaling]() mutable {
-                        const double theta = (scaling * M_PI * i++)/n;
-                        return c_f{ std::cos( theta ), std::sin( theta ) };
-                    } );
-
-                result[n] = twiddle;
-                n /= 2;
-            } while (n > 2);
-
-            return result;
         }
     };
 
