@@ -37,22 +37,24 @@ endforeach()
 #
 
 # include google benchmark
-find_package(benchmark CONFIG REQUIRED)
+find_package(benchmark)
 
-file(GLOB BM_SOURCES *_benchmark.cpp)
-foreach(BM_SOURCE ${BM_SOURCES})
-  get_filename_component(OUTPUT ${BM_SOURCE} NAME_WE)
-  message("building ${OUTPUT} from ${BM_SOURCE}")
+if(benchmark_FOUND)
+  file(GLOB BM_SOURCES *_benchmark.cpp)
+  foreach(BM_SOURCE ${BM_SOURCES})
+    get_filename_component(OUTPUT ${BM_SOURCE} NAME_WE)
+    message("building ${OUTPUT} from ${BM_SOURCE}")
 
-  # for each file, build a binary
-  add_executable(${OUTPUT} ${BM_SOURCE})
+    # for each file, build a binary
+    add_executable(${OUTPUT} ${BM_SOURCE})
 
-  # include openpivcore
-  include_directories(${CMAKE_SOURCE_DIR})
-  target_link_libraries(
-    ${OUTPUT}
-    PRIVATE openpivcore
-    PRIVATE fmt::fmt-header-only
-    PRIVATE benchmark::benchmark
-    PRIVATE benchmark::benchmark_main)
-endforeach()
+    # include openpivcore
+    include_directories(${CMAKE_SOURCE_DIR})
+    target_link_libraries(
+      ${OUTPUT}
+      PRIVATE openpivcore
+      PRIVATE fmt::fmt-header-only
+      PRIVATE benchmark::benchmark
+      PRIVATE benchmark::benchmark_main)
+  endforeach()
+endif()
