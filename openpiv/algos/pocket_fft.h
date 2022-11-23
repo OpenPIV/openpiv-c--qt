@@ -103,7 +103,7 @@ namespace openpiv::algos {
             cache().output.resize( input.size() );
 
             const pfft::shape_t shape = {size_.width(), size_.height()};
-            const auto [stride_x, stride_y] = input.stride();
+            const auto [stride_x, stride_y] = cache().temp.stride();
             const pfft::stride_t stride = {static_cast<long>(stride_x), static_cast<long>(stride_y)};
 
             // can reinterpret core::complex to std::complex because core::complex is packed and
@@ -182,7 +182,7 @@ namespace openpiv::algos {
                                          const ImageT<ContainedT>& b ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
-            const cf_image& b_fft = transform( b, direction::FORWARD );
+            cf_image b_fft{ transform( b, direction::FORWARD ) };
 
             a_fft = b_fft * conj( a_fft );
             cache().output = real( transform( a_fft, direction::REVERSE ) );

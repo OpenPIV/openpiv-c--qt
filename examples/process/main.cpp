@@ -186,7 +186,7 @@ int main( int argc, char* argv[] )
     auto correlator = correlators[fft_type];
 
     // processing strategy
-    auto processor = [&images, &found_peaks, correlator, limit_search]( size_t i, const core::rect& ia )
+    auto processor = [&images, &found_peaks, correlator = std::move(correlator), limit_search]( size_t i, const core::rect& ia )
                      {
                          const auto view_a{ core::extract( images[0], ia ) };
                          const auto view_b{ core::extract( images[1], ia ) };
