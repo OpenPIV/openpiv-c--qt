@@ -214,11 +214,11 @@ These are captured in `vcpkg.json`:
   * [x] normalize
   * FFT
     * [x] spectral correlation
-    * [ ] optimize
+    * [x] optimize
     * [ ] openCL
     * [ ] apply kernel in Fourier space
-    * [ ] use SIMD?
-    * [ ] real -> complex FFT/correlation of real data
+    * [x] use SIMD?
+    * [x] real -> complex FFT/correlation of real data
   * [ ] direct correlation
   * [x] peak detection
   * [x] peak fitting
