@@ -207,7 +207,7 @@ public:
     inline constexpr core::rect rect() const { return r_; }
 
     // distance between pixels in x and y directions
-    std::tuple<size_t, size_t> stride() const
+    inline constexpr std::tuple<size_t, size_t> stride() const
     {
         return { sizeof(pixel_t), width() * sizeof(pixel_t) };
     }

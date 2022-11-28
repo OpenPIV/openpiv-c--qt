@@ -131,7 +131,7 @@ namespace openpiv::algos {
                        is_real_mono_pixeltype_v<ContainedT>
                        >
                    >
-        std::tuple<cf_image, cf_image>
+        std::tuple<cf_image&, cf_image&>
         transform_real( const ImageT<ContainedT>& a,
                         const ImageT<ContainedT>& b,
                         direction d = direction::FORWARD ) const
@@ -144,69 +144,134 @@ namespace openpiv::algos {
                     << ", " << size_;
             }
 
-            // copy data to (real, imag), converting to complex
-            cache().output = transform( join_from_channels(a, b), d );
+            using value_t = typename ContainedT::value_t;
 
-            // and unravel
-            const auto& transformed = cache().output;
-            auto out_a = cf_image( transformed.size() );
-            auto out_b = cf_image( transformed.size() );
+            cache().output.resize( a.size() );
+            cache().temp.resize( b.size() );
 
-            const auto width = transformed.width();
-            const auto height = transformed.height();
-            for ( uint32_t h=1; h<height/2; ++h)
-            {
-                for (uint32_t w=1; w<width; ++w)
+            auto& out_a = cache().output;
+            auto& out_b = cache().temp;
+
+            constexpr auto stride_lambda = [](auto& im) -> pfft::stride_t
                 {
-                    const auto t1 = transformed[ {w, h} ];
-                    const auto t2 = transformed[ {width - w, height - h} ];
-                    auto a = 0.5*(t1 + t2.conj());
-                    out_a[ {w, h} ] = a;
-                    out_a[ {width - w, height - h} ] = a.conj();
+                    const auto [stride_x, stride_y] = im.stride();
+                    return {static_cast<long>(stride_x), static_cast<long>(stride_y)};
+                };
 
-                    auto b = 0.5*(t1 - t2.conj());
-                    b = c_f(b.imag, -1.0 * b.real);
-                    out_b[ {w, h} ] = b;
-                    out_b[ {width - w, height - h} ] = b.conj();
-                }
-            }
+            const pfft::shape_t shape = {size_.width(), size_.height()};
+            const pfft::stride_t in_a_stride = stride_lambda(a);
+            const pfft::stride_t in_b_stride = stride_lambda(b);
+            const pfft::stride_t out_a_stride = stride_lambda(out_a);
+            const pfft::stride_t out_b_stride = stride_lambda(out_b);
+
+            pfft::r2c<value_t>(
+                shape,
+                in_a_stride,
+                out_a_stride,
+                { 0, 1 },                // axes
+                d == direction::FORWARD, // forward
+                reinterpret_cast<const value_t*>(a.data()),
+                reinterpret_cast<std::complex<value_t>*>(out_a.data()),
+                1.0 );
+
+            pfft::r2c<value_t>(
+                shape,
+                in_b_stride,
+                out_b_stride,
+                { 0, 1 },                // axes
+                d == direction::FORWARD, // forward
+                reinterpret_cast<const value_t*>(b.data()),
+                reinterpret_cast<std::complex<value_t>*>(out_b.data()),
+                1.0 );
 
             return { out_a, out_b };
         }
 
         template < template <typename> class ImageT,
                    typename ContainedT,
+                   typename ValueT = typename ContainedT::value_t,
+                   typename OutT = image<g<ValueT>>,
+                   typename = typename std::enable_if_t<
+                       is_imagetype_v<ImageT<ContainedT>> &&
+                       is_complex_mono_pixeltype_v<ContainedT>
+                       >
+                   >
+        OutT
+        transform_real( const ImageT<ContainedT>& in,
+                        direction d = direction::FORWARD ) const
+        {
+            DECLARE_ENTRY_EXIT
+            if ( in.size() != size_ )
+            {
+                exception_builder< std::runtime_error >()
+                    << "image size is different from expected: " << in.size()
+                    << ", " << size_;
+            }
+
+            OutT out{ in.size() };
+
+            constexpr auto stride_lambda = [](auto& im) -> pfft::stride_t
+                {
+                    const auto [stride_x, stride_y] = im.stride();
+                    return {static_cast<long>(stride_x), static_cast<long>(stride_y)};
+                };
+
+            const pfft::shape_t shape = {size_.width(), size_.height()};
+            const pfft::stride_t in_stride = stride_lambda(in);
+            const pfft::stride_t out_stride = stride_lambda(out);
+
+            pfft::c2r<ValueT>(
+                shape,
+                in_stride,
+                out_stride,
+                { 0, 1 },                // axes
+                d == direction::FORWARD, // forward
+                reinterpret_cast<const std::complex<ValueT>*>(in.data()),
+                reinterpret_cast<ValueT*>(out.data()),
+                1.0 );
+
+            return out;
+        }
+
+        template < template <typename> class ImageT,
+                   typename ContainedT,
+                   typename ValueT = typename ContainedT::value_t,
+                   typename OutT = image<g<ValueT>>,
                    typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
-        const cf_image& cross_correlate( const ImageT<ContainedT>& a,
-                                         const ImageT<ContainedT>& b ) const
+        OutT
+        cross_correlate( const ImageT<ContainedT>& a,
+                         const ImageT<ContainedT>& b ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
             cf_image b_fft{ transform( b, direction::FORWARD ) };
 
             a_fft = b_fft * conj( a_fft );
-            cache().output = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( cache().output );
+            OutT output{ real( transform( a_fft, direction::REVERSE ) ) };
+            swap_quadrants( output );
 
-            return cache().output;
+            return output;
         }
 
         template < template <typename> class ImageT,
                    typename ContainedT,
+                   typename ValueT = typename ContainedT::value_t,
+                   typename OutT = image<g<ValueT>>,
                    typename = typename std::enable_if_t<
                        is_imagetype_v<ImageT<ContainedT>> &&
                        is_real_mono_pixeltype_v<ContainedT>
                        >
                    >
-        const cf_image& cross_correlate_real( const ImageT<ContainedT>& a,
-                                              const ImageT<ContainedT>& b ) const
+        OutT
+        cross_correlate_real( const ImageT<ContainedT>& a,
+                              const ImageT<ContainedT>& b ) const
         {
             auto [a_fft, b_fft] = transform_real( a, b, direction::FORWARD );
             a_fft = b_fft * conj( a_fft );
-            cache().output = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( cache().output );
+            OutT output = transform_real( a_fft, direction::REVERSE );
+            swap_quadrants( output );
 
-            return cache().output;
+            return output;
         }
 
         template < template <typename> class ImageT,

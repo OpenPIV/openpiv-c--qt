@@ -325,6 +325,18 @@ struct is_real_mono_pixeltype<g<T>> : std::true_type {};
 template <typename T>
 inline constexpr bool is_real_mono_pixeltype_v = is_real_mono_pixeltype<T>::value;
 
+//
+//
+//
+template <typename T>
+struct is_complex_mono_pixeltype : std::false_type {};
+
+template <typename T>
+struct is_complex_mono_pixeltype<complex<T>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool is_complex_mono_pixeltype_v = is_complex_mono_pixeltype<T>::value;
+
 
 //
 //
