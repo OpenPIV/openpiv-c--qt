@@ -44,6 +44,14 @@ namespace openpiv::core::logger {
     } )
 
     template <
+        typename Rep,
+        typename Period>
+    static std::string to_string(const std::chrono::duration<Rep, Period>& td)
+    {
+        return std::to_string(td.count());
+    }
+
+    template <
         typename Clock,
         typename Duration>
     static std::string to_string(const std::chrono::time_point<Clock, Duration>& tp)

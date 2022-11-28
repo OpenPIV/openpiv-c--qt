@@ -16,6 +16,10 @@ set(LIBNAME openpivcore)
 add_library(${LIBNAME} SHARED ${SOURCE})
 target_compile_definitions(${LIBNAME} PUBLIC _USE_MATH_DEFINES)
 
+# include path for pocket fft
+set(POCKETFFT_EXTERNAL_LIBRARY_CXX ${PROJECT_SOURCE_DIR}/external/pocketfft)
+include_directories(${POCKETFFT_EXTERNAL_LIBRARY_CXX})
+
 # include packages
 find_package(TIFF)
 if(TIFF_FOUND)

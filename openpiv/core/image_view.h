@@ -182,6 +182,11 @@ namespace openpiv::core {
         const_iterator begin() const { return const_iterator( *this ); }
         const_iterator end() const { return const_iterator( *this, pixel_count() ); }
 
+        std::tuple<size_t, size_t> stride() const
+        {
+            return im_->stride();
+        }
+
         /// return the underlying image type - useful if trying to
         /// e.g. create an image_view from another image_view
         image<T>& underlying() { return *im_; }

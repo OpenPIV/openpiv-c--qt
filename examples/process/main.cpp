@@ -18,6 +18,7 @@
 
 // openpiv
 #include "algos/fft.h"
+#include "algos/pocket_fft.h"
 #include "loaders/image_loader.h"
 #include "core/enumerate.h"
 #include "core/grid.h"
@@ -58,7 +59,7 @@ int main( int argc, char* argv[] )
             ("t, thread-count", "pool thread count", cxxopts::value<uint8_t>(thread_count)->default_value(std::to_string(thread_count)))
             ("e, exec", "execution method", cxxopts::value<std::string>(execution)->default_value("pool"))
             ("l, limit-search", "limit peak search to central 25% of interrogation area", cxxopts::value<bool>(limit_search))
-            ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("real"))
+            ("f, ffttype", "FFT type", cxxopts::value<std::string>(fft_type)->default_value("complex"))
             ("loglevel", "log level", cxxopts::value<logger::Level>(log_level)->default_value("INFO"));
 
         options.parse_positional({"input"});
@@ -147,19 +148,52 @@ int main( int argc, char* argv[] )
         double sn = 0.0;
     };
     std::vector<point_vector> found_peaks( grid.size() );
-    auto fft = algos::FFT( ia );
-    auto correlator = &algos::FFT::cross_correlate_real<core::image, core::g_f>;
-    if (fft_type != "real")
-        correlator = &algos::FFT::cross_correlate<core::image, core::g_f>;
 
-    auto processor = [&images, &fft, &found_peaks, &correlator, limit_search]( size_t i, const core::rect& ia )
+    // wrap correlators
+    using correlator_t = std::function<core::image_g_f(const core::image_g_f&, const core::image_g_f&)>;
+    std::unordered_map<std::string, correlator_t> correlators = {
+        {"complex",
+         [ia](const core::image_g_f& im_a, const core::image_g_f& im_b) -> core::image_g_f
+             {
+                 static algos::FFT fft{ ia };
+                 return fft.cross_correlate(im_a, im_b);
+             } },
+        {"real",
+         [ia](const core::image_g_f& im_a, const core::image_g_f& im_b) -> core::image_g_f
+             {
+                 static algos::FFT fft{ ia };
+                 return fft.cross_correlate_real(im_a, im_b);
+             } },
+        {"pocket",
+         [ia](const core::image_g_f& im_a, const core::image_g_f& im_b) -> core::image_g_f
+             {
+                 static algos::PocketFFT fft{ ia };
+                 return fft.cross_correlate(im_a, im_b);
+             } },
+        {"pocket_real",
+         [ia](const core::image_g_f& im_a, const core::image_g_f& im_b) -> core::image_g_f
+             {
+                 static algos::PocketFFT fft{ ia };
+                 return fft.cross_correlate_real(im_a, im_b);
+             } } };
+
+    if (correlators.count(fft_type) == 0)
+    {
+        logger::error("unknown fft type: {}", fft_type);
+        return 1;
+    }
+
+    auto correlator = correlators[fft_type];
+
+    // processing strategy
+    auto processor = [&images, &found_peaks, correlator = std::move(correlator), limit_search]( size_t i, const core::rect& ia )
                      {
                          const auto view_a{ core::extract( images[0], ia ) };
                          const auto view_b{ core::extract( images[1], ia ) };
 
                          // prepare & correlate
                          // output of correlation has lost positional information
-                         const core::image_g_f output{ (fft.*correlator)( view_a, view_b ) };
+                         const core::image_g_f output{ correlator( view_a, view_b ) };
 
                          // find peaks
                          constexpr uint16_t num_peaks = 2;
@@ -201,6 +235,8 @@ int main( int argc, char* argv[] )
 
                          found_peaks[i] = std::move(result);
                      };
+
+    const auto t1 = std::chrono::high_resolution_clock::now();
 
     // check execution
     if (thread_count <= 1)
@@ -264,6 +300,13 @@ int main( int argc, char* argv[] )
             i += chunk_size_;
         }
     }
+
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double, std::micro> total_us = t2 - t1;
+    logger::info(
+        "processing time: {}us, {}us per interrogation area",
+        total_us,
+        total_us/found_peaks.size());
 
     // dump output
     for ( const auto& pv : found_peaks )
