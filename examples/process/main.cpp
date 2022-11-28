@@ -150,28 +150,28 @@ int main( int argc, char* argv[] )
     std::vector<point_vector> found_peaks( grid.size() );
 
     // wrap correlators
-    using correlator_t = std::function<core::cf_image(const core::gf_image&, const core::gf_image&)>;
+    using correlator_t = std::function<core::gf_image(const core::gf_image&, const core::gf_image&)>;
     std::unordered_map<std::string, correlator_t> correlators = {
         {"complex",
-         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::cf_image
+         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::gf_image
              {
                  static algos::FFT fft{ ia };
                  return fft.cross_correlate(im_a, im_b);
              } },
         {"real",
-         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::cf_image
+         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::gf_image
              {
                  static algos::FFT fft{ ia };
                  return fft.cross_correlate_real(im_a, im_b);
              } },
         {"pocket",
-         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::cf_image
+         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::gf_image
              {
                  static algos::PocketFFT fft{ ia };
                  return fft.cross_correlate(im_a, im_b);
              } },
         {"pocket_real",
-         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::cf_image
+         [ia](const core::gf_image& im_a, const core::gf_image& im_b) -> core::gf_image
              {
                  static algos::PocketFFT fft{ ia };
                  return fft.cross_correlate_real(im_a, im_b);
@@ -236,6 +236,8 @@ int main( int argc, char* argv[] )
                          found_peaks[i] = std::move(result);
                      };
 
+    const auto t1 = std::chrono::high_resolution_clock::now();
+
     // check execution
     if (thread_count <= 1)
     {
@@ -298,6 +300,13 @@ int main( int argc, char* argv[] )
             i += chunk_size_;
         }
     }
+
+    const auto t2 = std::chrono::high_resolution_clock::now();
+    const std::chrono::duration<double, std::micro> total_us = t2 - t1;
+    logger::info(
+        "processing time: {}us, {}us per interrogation area",
+        total_us,
+        total_us/found_peaks.size());
 
     // dump output
     for ( const auto& pv : found_peaks )

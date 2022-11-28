@@ -187,37 +187,43 @@ namespace openpiv::algos {
 
         template < template <typename> class ImageT,
                    typename ContainedT,
+                   typename ValueT = typename ContainedT::value_t,
+                   typename OutT = image<g<ValueT>>,
                    typename = typename std::enable_if_t< is_imagetype_v<ImageT<ContainedT>> >
                    >
-        const cf_image& cross_correlate( const ImageT<ContainedT>& a,
-                                         const ImageT<ContainedT>& b ) const
+        OutT
+        cross_correlate( const ImageT<ContainedT>& a,
+                         const ImageT<ContainedT>& b ) const
         {
             cf_image a_fft{ transform( a, direction::FORWARD ) };
             const cf_image& b_fft = transform( b, direction::FORWARD );
 
             a_fft = b_fft * conj( a_fft );
-            cache().output = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( cache().output );
+            OutT output{ real( transform( a_fft, direction::REVERSE ) ) };
+            swap_quadrants( output );
 
-            return cache().output;
+            return output;
         }
 
         template < template <typename> class ImageT,
                    typename ContainedT,
+                   typename ValueT = typename ContainedT::value_t,
+                   typename OutT = image<g<ValueT>>,
                    typename = typename std::enable_if_t<
                        is_imagetype_v<ImageT<ContainedT>> &&
                        is_real_mono_pixeltype_v<ContainedT>
                        >
                    >
-        const cf_image& cross_correlate_real( const ImageT<ContainedT>& a,
-                                              const ImageT<ContainedT>& b ) const
+        OutT
+        cross_correlate_real( const ImageT<ContainedT>& a,
+                              const ImageT<ContainedT>& b ) const
         {
             auto [a_fft, b_fft] = transform_real( a, b, direction::FORWARD );
             a_fft = b_fft * conj( a_fft );
-            cache().output = real( transform( a_fft, direction::REVERSE ) );
-            swap_quadrants( cache().output );
+            OutT output{ real( transform( a_fft, direction::REVERSE ) ) };
+            swap_quadrants( output );
 
-            return cache().output;
+            return output;
         }
 
         template < template <typename> class ImageT,
