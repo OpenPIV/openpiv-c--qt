@@ -13,16 +13,25 @@
 // local
 #include "core/util.h"
 #include "core/image.h"
+#include "core/log.h"
+#include "core/enum_helper.h"
+
 
 namespace {
 
     using namespace openpiv::core;
+    namespace logger = openpiv::core::logger;
 
     enum class planar_config : uint16_t {
         UNDEFINED = 0,
         CONTIG    = 1,
         SEPARATE  = 2
     };
+    DECLARE_ENUM_HELPER( planar_config, {
+            { planar_config::UNDEFINED, "undefined" },
+            { planar_config::CONTIG,    "contiguous" },
+            { planar_config::SEPARATE,  "separate" }
+        } )
 
     enum class sample_format : uint16_t {
         UNDEFINED     = 0,
@@ -33,6 +42,15 @@ namespace {
         COMPLEXINT    = 5,
         COMPLEXIEEEFP = 6
     };
+    DECLARE_ENUM_HELPER( sample_format, {
+            { sample_format::UNDEFINED,     "undefined" },
+            { sample_format::UINT,          "unsigned int" },
+            { sample_format::INT,           "int" },
+            { sample_format::IEEEFP,        "floating point" },
+            { sample_format::VOID,          "void" },
+            { sample_format::COMPLEXINT,    "complex int" },
+            { sample_format::COMPLEXIEEEFP, "complex floating point" }
+        } )
 
     template < typename PixelT, planar_config, sample_format, uint16_t SampleN, uint16_t BitsPerSample >
     image<PixelT> copy(TIFF* tiff, uint32_t width, uint32_t height);
@@ -163,9 +181,7 @@ namespace openpiv::core {
 
             if ( !tiff )
             {
-                // throw image_loader_exception( "failed to open io for reading" );
-                // \todo: add logging
-                std::cerr << "failed to open TIFF for reading\n";
+                logger::error("failed to open TIFF for reading\n");
                 return false;
             }
 
@@ -185,6 +201,15 @@ namespace openpiv::core {
                 ++num_images;
             } while (TIFFReadDirectory(tiff_));
 
+            logger::debug(
+                "tiff info: {} x {}, bps: {}, spp: {}, format: {}, planar: {}, num: {}",
+                width, height,
+                bps,
+                spp,
+                format,
+                planar,
+                num_images);
+
             // ... and reset current directory
             TIFFSetDirectory( tiff_, 0 );
 
@@ -197,23 +222,22 @@ namespace openpiv::core {
             if ( !tiff )
                 return false;
 
-            if ( spp != 1 && spp != 3 )
+            if ( !(spp == 0 || spp == 1 || spp == 3) )
             {
-                // exception_builder<image_loader_exception>() << "images with spp != 1 or 3 not yet supported: (" << spp << ")";
-                std::cerr << "images with spp != 1 or 3 not yet supported: (" << spp << ")" << "\n";
+                logger::error("images with spp != 1 or 3 not yet supported: ({})", spp);
                 return false;
             }
 
             if ( num_images <= index )
             {
-                std::cerr << "image index out of range (index: " << index << ", num_images: " << num_images << "\n";
+                logger::error("image index out of range (index: {}, num_images: {}", index, num_images);
                 return false;
             }
 
             // get correct image
             if ( TIFFSetDirectory( tiff.get(), (uint16_t)index ) == 0 )
             {
-                std::cerr << "failed to set directory to: " << index << "\n";
+                logger::error("failed to set directory to: {}", index);
                 return false;
             }
 

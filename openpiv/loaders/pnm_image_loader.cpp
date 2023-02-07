@@ -292,9 +292,7 @@ namespace openpiv::core {
 
         if ( !impl_->valid )
         {
-            // exception_builder<image_loader_exception>() << "image type not supported: " << std::string( buffer, 2 );
-            // todo: add logging
-            std::cerr << "image type not supported: " << std::string( buffer, 2 ) << "\n";
+            logger::error("image type not supported: {}", std::string( buffer, 2 ) );
             return false;
         }
 

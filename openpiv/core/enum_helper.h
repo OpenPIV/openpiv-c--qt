@@ -14,7 +14,7 @@
 /// done at initialization time (rather than compile time) however is
 /// sufficient.
 template <typename E,
-          typename = typename std::enable_if_t< std::is_enum<E>::value >>
+          typename = typename std::enable_if_t< std::is_enum_v<E> >>
 class EnumHelper
 {
 public:
@@ -46,6 +46,18 @@ public:
     }
 };
 
+template <typename E,
+          typename = typename std::enable_if_t< std::is_enum_v<E> >>
+[[maybe_unused]] static E from_string(const std::string_view& s)
+{
+    for (const auto& v : EnumHelper<E>::storage())
+        if ( v.s == s )
+            return v.e;
+
+    return {};
+}
+
+
 #define DECLARE_ENUM_HELPER( E, ... )                                   \
     static const auto E##EnumHelper__initialize__ = EnumHelper<E>::init( __VA_ARGS__ ); \
                                                                         \
@@ -56,16 +68,6 @@ public:
                 return v.s;                                             \
                                                                         \
         return std::to_string(EnumHelper<E>::underlying_t(e));          \
-    }                                                                   \
-                                                                        \
-    template <typename E>                                               \
-    [[maybe_unused]] static E from_string(const std::string_view& s)    \
-    {                                                                   \
-        for (const auto& v : EnumHelper<E>::storage())                  \
-            if ( v.s == s )                                             \
-                return v.e;                                             \
-                                                                        \
-        return {};                                                      \
     }                                                                   \
                                                                         \
     [[maybe_unused]] static std::istream& operator>>( std::istream& is, E& e ) \
