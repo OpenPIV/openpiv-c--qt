@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <unordered_map>
+#include <vector>
 
 /// EnumHelper provides a standard way to produce string representations
 /// of enumerations. The enum mapping is not particularly efficient being

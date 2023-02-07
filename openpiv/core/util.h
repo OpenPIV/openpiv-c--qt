@@ -93,7 +93,7 @@ To checked_unsigned_conversion(const From& v);
 template <typename To, typename... From>
 struct are_all_convertible
 {
-    constexpr static bool value = (std::is_convertible<From,To>::value && ...);
+    constexpr static bool value = (std::is_convertible_v<From,To> && ...);
 };
 
 
@@ -103,11 +103,23 @@ inline constexpr bool are_all_convertible_v = are_all_convertible<To, From...>::
 template <typename TypeA, typename... TypeB>
 struct are_all_equal
 {
-    constexpr static bool value = (std::is_same<TypeA, TypeB>::value && ...);
+    constexpr static bool value = (std::is_same_v<TypeA, TypeB> && ...);
 };
 
 template <typename To, typename... From>
 inline constexpr bool are_all_equal_v = are_all_equal<To, From...>::value;
+
+
+template <typename TypeA, typename... TypeB>
+struct are_any_equal
+{
+    constexpr static bool value = (std::is_same_v<TypeA, TypeB> || ...);
+};
+
+
+template <typename To, typename... From>
+inline constexpr bool are_any_equal_v = are_any_equal<To, From...>::value;
+
 
 template<typename Dest, typename Src, std::size_t N>
 auto convert_array_to(const std::array<Src, N> &src) -> std::array<Dest, N>;

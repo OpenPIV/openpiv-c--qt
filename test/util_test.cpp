@@ -143,6 +143,19 @@ TEST_CASE("util_test - are_all_equal_false")
     REQUIRE(!b);
 }
 
+TEST_CASE("util_test - are_any_equal_true")
+{
+    REQUIRE( are_any_equal_v<double, int, double, char> );
+    REQUIRE( are_any_equal_v<double, double, char, int> );
+    REQUIRE( are_any_equal_v<double, char, int, double> );
+}
+
+TEST_CASE("util_test - are_any_equal_false")
+{
+    bool b{ are_all_equal_v<double, char, int, float> };
+    REQUIRE(!b);
+}
+
 TEST_CASE("util_test - convert_array")
 {
     std::array<int, 4> i{ {1, 2, 3, 4} };
