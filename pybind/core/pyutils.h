@@ -1,9 +1,12 @@
 
 #pragma once
 
+// openpiv
+#include "core/image.h"
+
 // std
 #include <array>
-
+#include <vector>
 
 template <size_t N>
 using char_array = std::array<char, N>;
@@ -127,3 +130,47 @@ static_assert(pixel_type_trait<g, uint8_t>::name() == "g_u8");
 static_assert(pixel_type_trait<rgba, uint16_t>::name() == "rgba_u16");
 static_assert(pixel_type_trait<yuva, uint32_t>::name() == "yuva_u32");
 static_assert(pixel_type_trait<complex, double>::name() == "c_f");
+
+
+template <template <typename> class I,
+          template <typename> class P,
+          typename U>
+struct image_type_trait
+{
+    template <size_t N=64>
+    static constexpr char_array<N> name()
+    {
+        return cat<N>(to_array<8>("image"), pixel_type_trait<P, U>::name());
+    }
+
+    /// this returns strides in matrix convention
+    static std::vector<size_t> strides(const I<P<U>>& im)
+    {
+        const auto [column_stride, row_stride] = im.stride();
+        if constexpr (are_any_equal_v<P<U>, rgba<U>, yuva<U>>)
+            return { row_stride, column_stride, 4 };
+        else if constexpr (are_any_equal_v<P<U>, complex<U>>)
+            return { row_stride, column_stride, 2 };
+        else
+            return { row_stride, column_stride };
+    }
+
+    /// this returns dimensions in matrix convention
+    static std::vector<size_t> dimensions(const I<P<U>>& im)
+    {
+        if constexpr (are_any_equal_v<P<U>, rgba<U>, yuva<U>>)
+            return { im.height(), im.width(), 4 };
+        else if constexpr (are_any_equal_v<P<U>, complex<U>>)
+            return { im.height(), im.width(), 2 };
+        else
+            return { im.height(), im.width() };
+    }
+
+};
+
+// test
+static_assert(image_type_trait<image, g, uint8_t>::name() == "image_g_u8");
+static_assert(image_type_trait<image, rgba, uint16_t>::name() == "image_rgba_u16");
+static_assert(image_type_trait<image, yuva, uint32_t>::name() == "image_yuva_u32");
+static_assert(image_type_trait<image, complex, double>::name() == "image_c_f");
+

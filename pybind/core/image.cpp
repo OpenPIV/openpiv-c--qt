@@ -1,6 +1,7 @@
 
 // openpiv
 #include "core/image.h"
+#include "core/util.h"
 
 using namespace openpiv;
 using namespace openpiv::core;
@@ -8,35 +9,16 @@ using namespace openpiv::core;
 // local
 #include "pyutils.h"
 
+// std
+#include <sstream>
+#include <vector>
+
 // pybind
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
 
-// std
-#include <sstream>
-
-
 namespace py = pybind11;
-
-
-template <template <typename> class I,
-          template <typename> class P,
-          typename U>
-struct image_type_trait
-{
-    template <size_t N=64>
-    static constexpr char_array<N> name()
-    {
-        return cat<N>(to_array<8>("image"), pixel_type_trait<P, U>::name());
-    }
-};
-
-// test
-static_assert(image_type_trait<image, g, uint8_t>::name() == "image_g_u8");
-static_assert(image_type_trait<image, rgba, uint16_t>::name() == "image_rgba_u16");
-static_assert(image_type_trait<image, yuva, uint32_t>::name() == "image_yuva_u32");
-static_assert(image_type_trait<image, complex, double>::name() == "image_c_f");
 
 
 template <template <typename> class I,
@@ -53,7 +35,18 @@ bool add_image_(py::module& m)
         return ss.str();
     };
 
-    py::class_<image_t>(m, &image_type_trait<I, P, U>::name()[0])
+    py::class_<image_t>(m, &image_type_trait<I, P, U>::name()[0], py::buffer_protocol())
+        .def_buffer([](image_t& image) -> py::buffer_info {
+            const auto dimensions = image_type_trait<I, P, U>::dimensions(image);
+            const auto strides = image_type_trait<I, P, U>::strides(image);
+            return py::buffer_info(
+                image.data(),                       // pointer to raw data
+                sizeof( U ),                        // size of a single underlying data element
+                py::format_descriptor<U>::format(), // mapping to python char code for underlying
+                dimensions.size(),                  // number of dimensions
+                dimensions,                         // dimensions in matrix convention
+                strides);                           // strides in matrix convention
+        })
         .def(py::init())
         .def(py::init<image_t>())
         .def(py::init<uint32_t, uint32_t>())
