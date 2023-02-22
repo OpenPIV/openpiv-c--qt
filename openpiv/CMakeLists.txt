@@ -54,6 +54,8 @@ target_link_libraries(
   PRIVATE fmt::fmt-header-only
   PRIVATE Threads::Threads)
 
+add_subdirectory(test)
+
 # install
 #install(TARGETS ${LIBNAME} DESTINATION lib/${LIBNAME})
 

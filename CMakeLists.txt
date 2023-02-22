@@ -31,6 +31,5 @@ else()
 endif()
 
 add_subdirectory(openpiv)
-add_subdirectory(test)
 add_subdirectory(examples)
 add_subdirectory(pybind)

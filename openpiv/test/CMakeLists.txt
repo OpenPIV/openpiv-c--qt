@@ -29,7 +29,7 @@ foreach(SOURCE ${SOURCES})
   add_test(
     NAME ${OUTPUT}
     COMMAND ${OUTPUT}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/test)
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/openpiv/test)
 endforeach()
 
 #

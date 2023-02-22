@@ -253,6 +253,7 @@ These are captured in `vcpkg.json`:
     * [x] real -> complex FFT/correlation of real data
   * [ ] direct correlation
   * [x] peak detection
+  * [ ] un-bias peak detection - requires information about interrogation area geometry
   * [x] peak fitting
 * image processing
   * [ ] change image_view to use array of pointers for each row?
