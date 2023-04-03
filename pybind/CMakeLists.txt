@@ -32,4 +32,6 @@ if (BUILD_PYBIND)
       set_target_properties(pyopenpivcore PROPERTIES SUFFIX ".so")
     endif()
   endif()
+
+  add_subdirectory(test)
 endif()
