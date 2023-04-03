@@ -4,6 +4,7 @@ TAGS
 *.#*
 *.o
 *.so
+*.pyc
 .vscode/
 .idea/
 !test/*.cpp
