@@ -90,7 +90,7 @@ bool add_image_(py::module& m)
 template <template <typename> class P, typename... Ts>
 bool add_images(py::module& m)
 {
-    bool result = (add_image_<image, P, Ts>(m) & ...);
+    bool result = (add_image_<image, P, Ts>(m) && ...);
     return result;
 }
 

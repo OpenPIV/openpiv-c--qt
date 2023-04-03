@@ -51,7 +51,7 @@ bool add_rgba_type(py::module& m)
 template <typename... Ts>
 bool add_rgba_types(py::module& m)
 {
-    bool result = (add_rgba_type<Ts>(m) & ...);
+    bool result = (add_rgba_type<Ts>(m) && ...);
     return result;
 }
 
@@ -87,7 +87,7 @@ bool add_yuva_type(py::module& m)
 template <typename... Ts>
 bool add_yuva_types(py::module& m)
 {
-    bool result = (add_yuva_type<Ts>(m) & ...);
+    bool result = (add_yuva_type<Ts>(m) && ...);
     return result;
 }
 
@@ -137,7 +137,7 @@ bool add_complex_type(py::module& m)
 template <typename... Ts>
 bool add_complex_types(py::module& m)
 {
-    bool result = (add_complex_type<Ts>(m) & ...);
+    bool result = (add_complex_type<Ts>(m) && ...);
     return result;
 }
 
@@ -170,7 +170,7 @@ bool add_g_type(py::module& m)
 template <typename... Ts>
 bool add_g_types(py::module& m)
 {
-    bool result = (add_g_type<Ts>(m) & ...);
+    bool result = (add_g_type<Ts>(m) && ...);
     return result;
 }
 
