@@ -1,6 +1,8 @@
 
 // openpiv
+#include "core/exception_builder.h"
 #include "core/point.h"
+#include "core/stream_utils.h"
 #include "core/vector.h"
 
 using namespace openpiv;
@@ -12,6 +14,7 @@ using namespace openpiv::core;
 #include <pybind11/operators.h>
 
 // std
+#include <exception>
 #include <sstream>
 
 
@@ -49,6 +52,13 @@ bool add_point_type(py::module& m)
     py::class_<point_t>(m, point_trait<T>::name())
         .def(py::init())
         .def(py::init<value_t, value_t>())
+        .def(py::init(
+                 [](const std::vector<value_t>& components){
+                     if ( components.size() != 2 )
+                         exception_builder<std::runtime_error>() << "two components required to build point: " << components;
+
+                     return new point_t(components[0], components[1]);
+                 }))
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("data", &point_t::data)
@@ -66,6 +76,7 @@ bool add_point_type(py::module& m)
         .def(py::self - py::self)
         .def(py::self + vector_t())
         .def(py::self - vector_t());
+    py::implicitly_convertible<py::list, point_t>();
 
     return true;
 }
@@ -74,7 +85,7 @@ bool add_point_type(py::module& m)
 template <typename... Ts>
 bool add_point_types(py::module& m)
 {
-    bool result = (add_point_type<Ts>(m) & ...);
+    bool result = (add_point_type<Ts>(m) && ...);
     return result;
 }
 

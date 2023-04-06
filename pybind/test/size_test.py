@@ -1,5 +1,6 @@
 
 import pyopenpivcore as popc
+import pytest
 
 def test_default_construction():
     s = popc.size()
@@ -13,6 +14,17 @@ def test_non_zero():
     assert(s.area() == 600)
     assert(s.components() == [20, 30])
 
+def test_list_construction():
+    s = popc.size( [20, 30] )
+    assert(s.width() == 20)
+    assert(s.height() == 30)
+    assert(s.area() == 600)
+    assert(s.components() == [20, 30])
+
+def test_list_construction_throws():
+    with pytest.raises(RuntimeError) as e:
+        s = popc.size( [20] )
+
 def test_assignment():
     s1 = popc.size(20, 30)
     s2 = s1
@@ -23,6 +35,15 @@ def test_equality():
     s1 = popc.size(20, 30)
     s2 = s1
     assert(s1 == s2)
+
+def test_inequality():
+    s1 = popc.size(20, 30)
+    s2 = popc.size(30, 30)
+    assert(s1 != s2)
+    s3 = popc.size(20, 20)
+    assert(s1 != s3)
+    s4 = popc.size(30, 20)
+    assert(s1 != s4)
 
 def test_addition():
     s1 = popc.size(20, 30)
