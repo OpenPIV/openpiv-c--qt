@@ -1,12 +1,14 @@
 
 // openpiv
 #include "core/exception_builder.h"
+#include "core/log.h"
 #include "core/point.h"
 #include "core/stream_utils.h"
 #include "core/vector.h"
 
 using namespace openpiv;
 using namespace openpiv::core;
+namespace logger = openpiv::core::logger;
 
 // pybind
 #include <pybind11/pybind11.h>
@@ -75,7 +77,11 @@ bool add_point_type(py::module& m)
              })
         .def(py::self - py::self)
         .def(py::self + vector_t())
-        .def(py::self - vector_t());
+        .def(py::self - vector_t())
+        .def(py::self < py::self)
+        .def(py::self <= py::self)
+        .def(py::self > py::self)
+        .def(py::self >= py::self);
     py::implicitly_convertible<py::list, point_t>();
 
     return true;

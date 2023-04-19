@@ -3,6 +3,7 @@
 
 // std
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 
@@ -53,6 +54,31 @@ public:
     // equality
     constexpr inline bool operator==(const point& rhs) const { return data_ == rhs.data_; }
     constexpr inline bool operator!=(const point& rhs) const { return !operator==(rhs); }
+
+    constexpr inline bool operator<(const point& rhs) const
+    {
+        auto p = [](const auto& _p) constexpr { return _p[0]*_p[0] + _p[1]*_p[1]; };
+        auto a = [](const auto& _p) constexpr { return atan2(_p[1], _p[0]); };
+        if ( p(*this) == p(rhs) )
+            return a(*this) < a(rhs);
+
+        return p(*this) < p(rhs);
+    }
+
+    constexpr inline bool operator<=(const point& rhs) const
+    {
+        return operator==(rhs) || operator<(rhs);
+    }
+
+    constexpr inline bool operator>(const point& rhs) const
+    {
+        return !operator<=(rhs);
+    }
+
+    constexpr inline bool operator>=(const point& rhs) const
+    {
+        return operator==(rhs) || !operator<(rhs);
+    }
 
     constexpr inline const T& operator[](size_t i) const
     {

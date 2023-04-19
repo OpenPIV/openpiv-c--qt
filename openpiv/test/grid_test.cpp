@@ -8,24 +8,9 @@
 
 // to be tested
 #include "core/grid.h"
+#include "core/stream_utils.h"
 
 using namespace openpiv::core;
-
-namespace std {
-    template <typename T>
-    std::ostream& operator<<(std::ostream& os, const std::vector<T>& ts)
-    {
-        char separator[] = ", ";
-        const char* ps = nullptr;
-        for ( const auto& t : ts )
-        {
-            os << ( ps ? ps : "") << t;
-            ps = separator;
-        }
-
-        return os;
-    }
-}
 
 
 TEST_CASE("grid_test - cartesian grid")
@@ -34,19 +19,12 @@ TEST_CASE("grid_test - cartesian grid")
     using point_t = rect::point_t;
     auto sort_grid = []( auto& grid )
                      {
-                         // sort by length of vector and by angle if necessary
-                         std::sort( std::begin(grid), std::end(grid),
+                         std::sort( grid.begin(), grid.end(),
                                     [](const rect& lhs, const rect& rhs)
                                     {
-                                        const auto& lhs_tl = lhs.topLeft();
-                                        const auto& rhs_tl = rhs.topLeft();
-                                        auto p = [](const auto& _p){ return _p[0]*_p[0] + _p[1]*_p[1]; };
-                                        auto a = [](const auto& _p){ return atan2(_p[1], _p[0]); };
-                                        if ( p(lhs_tl) == p(rhs_tl) )
-                                            return a(lhs_tl) < a(rhs_tl);
-
-                                        return p(lhs_tl) < p(rhs_tl);
-                                    } );
+                                        return lhs.topLeft() < rhs.topLeft();
+                                    }
+                             );
 
                          return grid;
                      };

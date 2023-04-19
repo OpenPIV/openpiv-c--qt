@@ -74,7 +74,7 @@ bool add_vector_type(py::module& m)
 template <typename... Ts>
 bool add_vector_types(py::module& m)
 {
-    bool result = (add_vector_type<Ts>(m) & ...);
+    bool result = (add_vector_type<Ts>(m) && ...);
     return result;
 }
 

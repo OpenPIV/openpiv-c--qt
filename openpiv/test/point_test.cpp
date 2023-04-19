@@ -87,6 +87,24 @@ TEST_CASE("point_test - equality_test")
     REQUIRE( p1 == p3 );
 }
 
+TEST_CASE("point_test - less_than_or_equal")
+{
+    using point_t = point2<uint32_t>;
+
+    // lt, le
+    CHECK( point_t{ 1, 1 } < point_t{ 2, 2 } );
+    CHECK( !(point_t{ 2, 2 } < point_t{ 1, 1 }) );
+    CHECK( point_t{ 1, 1 } <= point_t{ 1, 1 } );
+
+    // radius match, check angle
+    CHECK( point_t{ 2, 1 } < point_t{ 1, 2 });
+
+    // gt, ge
+    CHECK( point_t{ 2, 2 } > point_t{ 1, 1 } );
+    CHECK( !(point_t{ 1, 1 } > point_t{ 2, 2 }) );
+    CHECK( point_t{ 1, 1 } >= point_t{ 1, 1 } );
+}
+
 TEST_CASE("point_test - ostream_test")
 {
     std::stringstream ss;
