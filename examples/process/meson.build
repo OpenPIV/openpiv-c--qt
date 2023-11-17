@@ -7,6 +7,7 @@ avd_sub_exec = executable(
         fmt_dep,
         thread_dep
     ],
-    cpp_args: ['-D_USE_MATH_DEFINES'],
-    link_with: openpiv_lib
+    cpp_args: ['-D_USE_MATH_DEFINES', '-mavx2'],
+    link_with: openpiv_lib,
+    install: true
 )

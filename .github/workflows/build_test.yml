@@ -1,0 +1,33 @@
+name: CMake
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Configure Meson
+      # Configure meson to dump all executables in the test directory so Windows would work
+      run: cd ${{github.workspace}} && meson setup builddir --prefix ${{github.workspace}}/builddir/tests --bindir ${{github.workspace}}/builddir/tests
+
+    - name: Build
+      # Build your program with the given configuration
+      run: meson compile -C ${{github.workspace}}/builddir --clean --verbose
+
+    - name: Test
+      working-directory: ${{github.workspace}}/builddir
+      # Execute tests defined by meson test configuration.
+      run: meson test
+

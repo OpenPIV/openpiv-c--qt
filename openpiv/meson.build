@@ -13,5 +13,6 @@ openpiv_lib = shared_library(
     openpiv_src,
     include_directories: [openpiv_include, libtiff_include, pocketfft_include],
     dependencies: openpivcore_deps,
-    cpp_args: ['-D_USE_MATH_DEFINES']
+    cpp_args: ['-D_USE_MATH_DEFINES'],
+    install: true
 )

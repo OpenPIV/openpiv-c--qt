@@ -7,5 +7,6 @@ avd_sub_exec = executable(
         fmt_dep,
         thread_dep
     ],
-    link_with: openpiv_lib
+    link_with: openpiv_lib,
+    install: true
 )
