@@ -109,11 +109,10 @@ tiff_dep = dependency(
 )
 
 found_benchmark = false
-if build_machine.system() != 'windows'
+if get_option('benchmarks').enabled()
     benchmark_dep = dependency(
       'benchmark', 
-      include_type: get_option('deps_include_type'),
-      required: get_option('benchmarks')
+      include_type: get_option('deps_include_type')
     )
     found_benchmark = benchmark_dep.found()
 endif
