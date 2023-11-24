@@ -112,7 +112,8 @@ found_benchmark = false
 if build_machine.system() != 'windows'
     benchmark_dep = dependency(
       'benchmark', 
-      include_type: get_option('deps_include_type')
+      include_type: get_option('deps_include_type'),
+      requited: get_option('benchmarks')
     )
     found_benchmark = benchmark_dep.found()
 endif

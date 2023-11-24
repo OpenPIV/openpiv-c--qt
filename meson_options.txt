@@ -1,1 +1,2 @@
 option('deps_include_type', type : 'string', value : 'non-system')
+option('benchmarks', type : 'feature', value : 'disabled')
