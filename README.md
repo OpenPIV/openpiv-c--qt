@@ -1,4 +1,4 @@
-![Build Status](https://github.com/OpenPIV/openpiv-c--qt/actions/workflows/cmake.yml/badge.svg)
+![Build Status](https://github.com/OpenPIV/openpiv-c--qt/actions/workflows/build_test.yml/badge.svg)
 
 # OpenPIV (c++)
 
@@ -11,44 +11,68 @@ There are some external dependencies under external/, so when cloning use:
 
 ```git clone --recursive <path to git repo>```
 
-Building uses cmake and vcpkg, and is simplified by using a vcpkg manifest to specify
-the dependent packages. Vcpkg has some pre-requisites:
+Building uses cmake and meson, and is simplified by using meson wrap files to specify
+the dependent packages. Meson has some pre-requisites:
 
 * a compiler (e.g. `apt install build-essentials`)
 * cmake
-* git
+* python
 * (linux) pkg-config (e.g. `apt install pkg-config`)
 * curl, zip, unzip, tar (e.g. `apt install curl zip unzip tar`)
 * ninja (e.g. `apt install ninja-build`)
+* meson (e.g., pip install --user meson)
+
+On Windows, the following can be used:
+* install TDM-GCC
+* install miniconda and setup virtual environment
+* pip install cmake
+* pip install meson
 
 To build:
+* `meson setup builddir`
+* `meson compile -C builddir`
 
-* `cmake -B build -S .`
-* `cmake --build build`
+On Windows, use the following to build:
+* `meson setup builddir --prefix builddir/tests --bindir builddir/tests` (places binaries in tests directory)
+* `meson compile -C builddir`
+* `meson install -C builddir`
 
 To run tests:
 
-* `cd build`
-* `ctest`
+* `cd build && meson test`
 
-To change the build type, add `-DCMAKE_BUILD_TYPE` e.g.
-`cmake -DCMAKE_BUILD_TYPE=RelWithDebugInfo -B build -S .`.
+To change the build type, add `--buildtype <release/` e.g.
+`meson setup builddir --buildtype debugoptimized`.
 
-The binaries are located in the build directory:
+To get binaries:
+* `meson install -C builddir` or
+* `meson install --destdir <some directory>`
 
-* build
-  * test -> *_test
+Make sure the prefix, or destdir, is set so binaries are not accidentally installed on the system.
+
+The binaries are located in the bindir (if installed) and build directory:
+
+Build directory:
+* builddir
   * examples
     * process
     * average_subtract
   * openpiv -> libopenpivcore.so
 
-### Raspberry Pi
+Install directory:
+* prefix/destdir
+  * bindir
+    * libopenpivcore.so
+    * all other dependent shared libraries
+    * process.exe
+    * average_subtract.exe
+
+### Raspberry Pi (using deprecated VCPKG build system)
 
 Build times are, as expected, much slower than on a modern Intel CPU, but the code
 will compile. Some observations:
 
-* `VCPKG_FORCE_SYSTEM_BINARIES=1` must be set
+* `VCPKG_FORCE_SYSTEM_BINARIES=1` must be set (
 * `VCPKG_MAX_CONCURRENCY=<num cores>` can help if you find you get kernel panics
   due to poor cooling
 
@@ -165,15 +189,18 @@ This is about 230us per interrogation area (7 cores, 3696 interrogation areas, 0
 
 ## Dependencies
 
-These are captured in `vcpkg.json`:
+These are captured in `<dependency>.wrap`:
 
 * c++17 compiler e.g. clang++-5.0, gcc7
-* [vcpkg](https://github.com/Microsoft/vcpkg)
-  * catch2: unit test framework
-  * libtiff: TIFF IO support
+* python3
+* [meson](https://mesonbuild.com/index.html)
   * benchmark: used to run performance benchmarks
-  * async++ (optional): implements c++17 parallel algorithms
+  * catch2: unit test framework
   * cxxopts: nice command line parsing
+  * libtiff: TIFF IO support
+    * libjpeg-turbo
+    * liblzma
+    * zlib
 
 ## Examples
 

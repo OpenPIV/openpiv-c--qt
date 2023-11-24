@@ -1,8 +1,11 @@
 name: CMake
 
 on:
+  workflow_dispatch:
+
   push:
     branches: [ master ]
+
   pull_request:
     branches: [ master ]
 
@@ -20,11 +23,15 @@ jobs:
 
     - name: Configure Meson
       # Configure meson to dump all executables in the test directory so Windows would work
-      run: cd ${{github.workspace}} && meson setup builddir --prefix ${{github.workspace}}/builddir/tests --bindir ${{github.workspace}}/builddir/tests
+      run: cd ${{github.workspace}} && meson setup builddir --prefix ${{github.workspace}}/builddir/tests --bindir /.
 
     - name: Build
       # Build your program with the given configuration
       run: meson compile -C ${{github.workspace}}/builddir --clean --verbose
+
+    - name: Install
+      # Build your program with the given configuration
+      run: meson install -C ${{github.workspace}}/builddir --tags runtime,python-runtime
 
     - name: Test
       working-directory: ${{github.workspace}}/builddir
