@@ -94,6 +94,7 @@ lzma_dep = dependency(
 
 zlib_dep = dependency(
   'zlib', 
+  fallback: ['zlib', 'zlib_dep'],
   include_type: get_option('deps_include_type'),
   required: true
 ##  static: true
@@ -141,13 +142,16 @@ openpiv_dep = declare_dependency(
 )
 
 subdir('examples')
-subdir('tests')
+
+if not meson.is_subproject()
+  subdir('tests')
+endif
 
 pkgconfig = import('pkgconfig')
 
 pkgconfig.generate(
     version: '0.2.0',
-    name: 'OpenPIV-c++',
+    name: 'OpenPIV-cxx',
     description: 'Open-source Particle Image Velocimetry in c++',
     libraries: [openpiv_lib]
 )
