@@ -130,7 +130,7 @@ public:
     constexpr complex( U r ) : real(r) {}
     template < typename U,
                typename E = typename std::enable_if_t< std::is_convertible_v<U, T> > >
-    constexpr complex( U r, U i ) : real(r), imag(i) {}
+    constexpr complex( U r, U i ) : real((T)r), imag((T)i) {}
     constexpr complex( const std::complex<T>& c ) : real(c.real()), imag(c.imag()) {}
 
     complex& operator=( const complex& c ) = default;
@@ -208,7 +208,7 @@ public:
     }
 
     inline constexpr complex conj() const { return { real, static_cast<T>(-imag) }; }
-    inline constexpr T abs() const { return std::sqrt( abs_sqr() ); }
+    inline constexpr T abs() const { return (T)std::sqrt( abs_sqr() ); }
     inline constexpr T abs_sqr() const { return real*real + imag*imag; }
 
     T real{};
