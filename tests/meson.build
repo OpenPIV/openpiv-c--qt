@@ -65,6 +65,10 @@ if found_benchmark
 endif
 
 fs.copyfile(
+  'A_00001_a.tiff'
+)
+
+fs.copyfile(
   'corr_a.tiff'
 )
 
