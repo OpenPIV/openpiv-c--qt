@@ -26,6 +26,14 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Install rtools (mingw-w64) (see SciPy workflow for more details)
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          choco install rtools -y --no-progress --force --version=4.0.0.20220206
+          echo "c:\rtools40\ucrt64\bin;" >> $env:GITHUB_PATH
+        fi
+      shell: bash
+
     - name: Install build dependencies from PyPI
       run: |
         python -m pip install meson cmake ninja
@@ -39,11 +47,12 @@ jobs:
       run: meson compile -C ${{github.workspace}}/builddir --verbose
 
     - name: Install
-      # Build your program with the given configuration
-      run: meson install -C ${{github.workspace}}/builddir --tags runtime,python-runtime
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          meson install -C ${{github.workspace}}/builddir --tags runtime,python-runtime
+        fi
 
     - name: Test
       working-directory: ${{github.workspace}}/builddir
       # Execute tests defined by meson test configuration.
       run: meson test
-
