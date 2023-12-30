@@ -65,7 +65,7 @@ if found_benchmark
 endif
 
 fs.copyfile(
-  'A_00001_a.tiff'
+  'A_00001_a.tif'
 )
 
 fs.copyfile(
