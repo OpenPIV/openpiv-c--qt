@@ -25,7 +25,7 @@ foreach test_file: test_source_files
   exec = executable(
     source_name,
     test_file,
-    include_directories: [openpiv_include, libtiff_include],
+    include_directories: openpiv_include,
     dependencies: openpiv_deps + [catch2_dep],
     cpp_args: ['-D_USE_MATH_DEFINES'],
     link_with: openpiv_lib
@@ -33,7 +33,8 @@ foreach test_file: test_source_files
   
   test(
     source_name,
-    exec
+    exec,
+    workdir: meson.current_build_dir()
   )
   
 endforeach
@@ -58,7 +59,8 @@ if found_benchmark
   
     test(
       source_name,
-      exec
+      exec,
+      workdir: meson.current_build_dir()
     )
   
   endforeach
