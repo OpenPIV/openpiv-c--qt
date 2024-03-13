@@ -66,14 +66,21 @@ catch2_dep = dependency(
   required: true
 )
 
+# Use CMake because Meson overrides the header only dependency for some reason
 fmt_dep = dependency(
   'fmt',
-  fallback: ['fmt', 'fmt_header_only_dep'], 
+#  fallback: ['fmt', 'fmt_header_only_dep'], 
   include_type: get_option('deps_include_type'),
+  default_options: ['default_library=static'],
   method : 'cmake',
   modules : ['fmt::fmt-header-only'],
   required: true
-##  static: true
+)
+
+# Needed for the header only dependency
+add_project_arguments(
+  '-DFMT_HEADER_ONLY',
+  language: 'cpp'
 )
 
 jpeg_dep = dependency(
