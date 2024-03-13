@@ -6,8 +6,8 @@
 
 This project is the result of the collaborative effort of numerous researchers in order to provide one of the fastest PIV software on the market while remaining cross-platform and open-source. The software can do the following:
 
- * Load images with .tif and .pgm extensions
- * Save images with .tif and .pgm extensions
+ * Load images with .tif and .pnm extensions
+ * Save images with .tif and .pnm extensions
  * Pre-process and modify images
  * Perform digital PIV analysis including subpixel estimation
  * and more!
