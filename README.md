@@ -1,9 +1,18 @@
 ![Build Status](https://github.com/OpenPIV/openpiv-c--qt/actions/workflows/build_test.yml/badge.svg)
 
-# OpenPIV (c++)
+# OpenPIV (c++), a fast, open-source particle image velocimetry (PIV) library
 
-An implementation of a PIV analysis engine in C++ using as few dependencies as possible;
-the implementation requires a c++17 compliant compiler.
+## An implementation of a PIV analysis engine in C++ using as few dependencies as possible; the implementation requires a c++17 compliant compiler.
+
+This project is the result of the collaborative effort of numerous researchers in order to provide one of the fastest PIV software on the market while remaining cross-platform and open-source. The software can do the following:
+
+ * Load images with .tif and .pgm extensions
+ * Save images with .tif and .pgm extensions
+ * Pre-process and modify images
+ * Perform digital PIV analysis including subpixel estimation
+ * and more!
+ 
+Additionally, two examples are provided to demonstrate how the library can be used for background subtraction of images and multi-threaded PIV analysis.
 
 ## Build
 
@@ -11,8 +20,7 @@ There are some external dependencies under external/, so when cloning use:
 
 ```git clone --recursive <path to git repo>```
 
-Building uses cmake and meson, and is simplified by using meson wrap files to specify
-the dependent packages. Meson has some pre-requisites:
+Building uses cmake and meson, and is simplified by using meson wrap files to specify the dependent packages. Building has some pre-requisites:
 
 * a compiler (e.g. `apt install build-essentials`)
 * cmake
@@ -22,31 +30,30 @@ the dependent packages. Meson has some pre-requisites:
 * ninja (e.g. `apt install ninja-build`)
 * meson (e.g., pip install --user meson)
 
+Unix users can also use the method used for the Windows build environment as detailed below.
+
 On Windows, the following can be used:
-* install TDM-GCC
-* install miniconda and setup virtual environment
+* install TDM-GCC or any other Windows GNU distribution
+* install miniconda or venv and setup virtual environment
 * pip install cmake
 * pip install meson
 
 To build:
-* `meson setup builddir`
+* `meson setup builddir` Note, it is good practice to setup --prefix flags so files are not installed on the system.
 * `meson compile -C builddir`
 
-On Windows, use the following to build:
-* `meson setup builddir --prefix builddir/tests --bindir builddir/tests` (places binaries in tests directory)
-* `meson compile -C builddir`
-* `meson install -C builddir`
+Meson provides multiple build types such as debug, debugoptimized, and release. To change the build type, use the --buildtype flag. For example, `meson setup builddir --buildtype debugoptimized`.
 
 To run tests:
 
-* `cd build && meson test`
-
-To change the build type, add `--buildtype <release/` e.g.
-`meson setup builddir --buildtype debugoptimized`.
+* `meson test -C builddir'
 
 To get binaries:
-* `meson install -C builddir` or
-* `meson install --destdir <some directory>`
+* `meson install -C builddir` if the prefix was set or
+* `meson install -C buildfir --destdir <some directory>` to install in a specifit directory.
+
+Sometimes you only want the runtime dynamic libraries and executables. Meson comes with a handy targeted installation using the following command:
+ * `meson install -C builddir --tags runtime`
 
 Make sure the prefix, or destdir, is set so binaries are not accidentally installed on the system.
 
@@ -72,7 +79,7 @@ Install directory:
 Build times are, as expected, much slower than on a modern Intel CPU, but the code
 will compile. Some observations:
 
-* `VCPKG_FORCE_SYSTEM_BINARIES=1` must be set (
+* `VCPKG_FORCE_SYSTEM_BINARIES=1` must be set
 * `VCPKG_MAX_CONCURRENCY=<num cores>` can help if you find you get kernel panics
   due to poor cooling
 
