@@ -1,0 +1,6 @@
+# ignore everything
+*
+
+#Except these files
+!*.wrap
+!README.md
