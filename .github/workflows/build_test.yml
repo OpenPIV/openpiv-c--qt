@@ -40,17 +40,11 @@ jobs:
 
     - name: Configure Meson
       # Configure meson to dump all executables in the test directory so Windows would work
-      run: cd ${{github.workspace}} && meson setup builddir --prefix ${{github.workspace}}/builddir/tests --bindir /.
+      run: cd ${{github.workspace}} && meson setup builddir
 
     - name: Build
       # Build your program with the given configuration
       run: meson compile -C ${{github.workspace}}/builddir --verbose
-
-    - name: Install
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          meson install -C ${{github.workspace}}/builddir --tags runtime,python-runtime
-        fi
 
     - name: Test
       working-directory: ${{github.workspace}}/builddir
