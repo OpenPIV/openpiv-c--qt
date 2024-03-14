@@ -62,6 +62,7 @@ TEST_CASE("image_utils_test - pnm_load_save_test")
 
     g16_image im;
     loader->load( is, im );
+    is.close();
 
     // write data
     std::shared_ptr<image_loader> writer{ image_loader_registry::find("image/x-portable-anymap") };
@@ -79,10 +80,12 @@ TEST_CASE("image_utils_test - pnm_load_save_test")
 
     g16_image reloaded;
     loader->load( is, reloaded );
+    is.close();
 
     {
         std::ofstream os( "reloaded.pgm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
         writer->save( os, reloaded );
+        os.close();
     }
 
     // and check the two images are equal
@@ -129,6 +132,7 @@ TEST_CASE("image_utils_test - rgba_join_test")
 
     g16_image im;
     loader->load( is, im );
+    is.close();
 
     g_16 min, max;
     std::tie(min, max) = find_image_range( im );
@@ -147,6 +151,7 @@ TEST_CASE("image_utils_test - rgba_join_test")
     std::shared_ptr<image_loader> writer{ image_loader_registry::find("image/x-portable-anymap") };
     std::fstream os( "test-rgbjoin.ppm", std::ios_base::trunc | std::ios_base::out | std::ios_base::binary );
     writer->save( os, rgba );
+    os.close();
 }
 
 TEST_CASE("image_utils_test - simple_transpose_test")
