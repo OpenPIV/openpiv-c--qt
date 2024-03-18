@@ -27,6 +27,7 @@ image< ContainedT > load_from_file( const std::string& filename )
 
     image< ContainedT > result;
     loader->load( is, result );
+    is.close();
 
     return result;
 }
@@ -44,6 +45,7 @@ bool save_to_file( const std::string& filename, const ImageT< ContainedT >& im )
 
     std::fstream os( filename, std::ios_base::trunc | std::ios_base::out );
     writer->save( os, im );
+    os.close();
 
     return true;
 }

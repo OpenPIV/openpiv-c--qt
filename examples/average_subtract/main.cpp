@@ -86,7 +86,7 @@ int main( int argc, char* argv[] )
         }
 
     }
-    catch (const cxxopts::OptionException& e)
+    catch (const std::exception& e)
     {
         logger::error("error parsing options: {}", e.what());
         return 1;
