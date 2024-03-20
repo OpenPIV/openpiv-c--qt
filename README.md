@@ -20,10 +20,10 @@ There are some external dependencies under external/, so when cloning use:
 
 ```git clone --recursive <path to git repo>```
 
-Building uses cmake and meson, and is simplified by using meson wrap files to specify the dependent packages. Building has some pre-requisites:
+Building uses meson, and is simplified by using meson wrap files to specify the dependent packages. Building has some pre-requisites:
 
 * a compiler (e.g. `apt install build-essentials`)
-* cmake
+* cmake (optional)
 * python
 * (linux) pkg-config (e.g. `apt install pkg-config`)
 * curl, zip, unzip, tar (e.g. `apt install curl zip unzip tar`)
@@ -35,7 +35,7 @@ Unix users can also use the method used for the Windows build environment as det
 On Windows, the following can be used:
 * install TDM-GCC or any other Windows GNU distribution
 * install miniconda or venv and setup virtual environment
-* pip install cmake
+* pip install cmake (optional)
 * pip install meson
 
 To build:
@@ -50,14 +50,14 @@ To run tests:
 
 To get binaries:
 * `meson install -C builddir` if the prefix was set or
-* `meson install -C buildfir --destdir <some directory>` to install in a specifit directory.
+* `meson install -C buildfir --destdir <some directory>` to install in a specific directory.
 
 Sometimes you only want the runtime dynamic libraries and executables. Meson comes with a handy targeted installation using the following command:
  * `meson install -C builddir --tags runtime`
 
 Make sure the prefix, or destdir, is set so binaries are not accidentally installed on the system.
 
-The binaries are located in the bindir (if installed) and build directory:
+The binaries are located the build or installation directory:
 
 Build directory:
 * builddir
@@ -71,8 +71,8 @@ Install directory:
   * bindir
     * libopenpivcore.so
     * all other dependent shared libraries
-    * process.exe
-    * average_subtract.exe
+    * process (executable)
+    * average_subtract (executable)
 
 ### Raspberry Pi (using deprecated VCPKG build system)
 
