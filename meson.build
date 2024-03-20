@@ -155,8 +155,8 @@ endif
 pkgconfig = import('pkgconfig')
 
 pkgconfig.generate(
-    version: '0.2.0',
-    name: 'OpenPIV-cxx',
-    description: 'Open-source Particle Image Velocimetry in c++',
-    libraries: [openpiv_lib]
+  name: meson.project_name(),
+  version: meson.project_version(),
+  description: 'Open-source Particle Image Velocimetry in c++',
+  libraries: [openpiv_lib]
 )
