@@ -1,6 +1,4 @@
-[submodule "external/vcpkg"]
-	path = external/vcpkg
-	url = https://github.com/microsoft/vcpkg
+
 [submodule "external/pocketfft"]
 	path = external/pocketfft
-	url = https://github.com/hayguen/pocketfft
+	url = https://github.com/mreineck/pocketfft.git

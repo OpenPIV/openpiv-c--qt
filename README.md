@@ -1,9 +1,18 @@
-![Build Status](https://github.com/OpenPIV/openpiv-c--qt/actions/workflows/cmake.yml/badge.svg)
+![Build Status](https://github.com/OpenPIV/openpiv-c--qt/actions/workflows/build_test.yml/badge.svg)
 
-# OpenPIV (c++)
+# OpenPIV (c++), a fast, open-source particle image velocimetry (PIV) library
 
-An implementation of a PIV analysis engine in C++ using as few dependencies as possible;
-the implementation requires a c++17 compliant compiler.
+## An implementation of a PIV analysis engine in C++ using as few dependencies as possible; the implementation requires a c++17 compliant compiler.
+
+This project is the result of the collaborative effort of numerous researchers in order to provide one of the fastest PIV software on the market while remaining cross-platform and open-source. The software can do the following:
+
+ * Load images with .tif and .pnm extensions
+ * Save images with .tif and .pnm extensions
+ * Pre-process and modify images
+ * Perform digital PIV analysis including subpixel estimation
+ * and more!
+ 
+Additionally, two examples are provided to demonstrate how the library can be used for background subtraction of images and multi-threaded PIV analysis.
 
 ## Build
 
@@ -11,39 +20,61 @@ There are some external dependencies under external/, so when cloning use:
 
 ```git clone --recursive <path to git repo>```
 
-Building uses cmake and vcpkg, and is simplified by using a vcpkg manifest to specify
-the dependent packages. Vcpkg has some pre-requisites:
+Building uses meson, and is simplified by using meson wrap files to specify the dependent packages. Building has some pre-requisites:
 
 * a compiler (e.g. `apt install build-essentials`)
-* cmake
-* git
+* cmake (optional)
+* python
 * (linux) pkg-config (e.g. `apt install pkg-config`)
 * curl, zip, unzip, tar (e.g. `apt install curl zip unzip tar`)
 * ninja (e.g. `apt install ninja-build`)
+* meson (e.g., pip install --user meson)
+
+Unix users can also use the method used for the Windows build environment as detailed below.
+
+On Windows, the following can be used:
+* install TDM-GCC or any other Windows GNU distribution
+* install miniconda or venv and setup virtual environment
+* pip install cmake (optional)
+* pip install meson
 
 To build:
+* `meson setup builddir` Note, it is good practice to setup --prefix flags so files are not installed on the system.
+* `meson compile -C builddir`
 
-* `cmake -B build -S .`
-* `cmake --build build`
+Meson provides multiple build types such as debug, debugoptimized, and release. To change the build type, use the --buildtype flag. For example, `meson setup builddir --buildtype debugoptimized`.
 
 To run tests:
 
-* `cd build`
-* `ctest`
+* `meson test -C builddir'
 
-To change the build type, add `-DCMAKE_BUILD_TYPE` e.g.
-`cmake -DCMAKE_BUILD_TYPE=RelWithDebugInfo -B build -S .`.
+To get binaries:
+* `meson install -C builddir` if the prefix was set or
+* `meson install -C buildfir --destdir <some directory>` to install in a specific directory.
 
-The binaries are located in the build directory:
+Sometimes you only want the runtime dynamic libraries and executables. Meson comes with a handy targeted installation using the following command:
+ * `meson install -C builddir --tags runtime`
 
-* build
-  * test -> *_test
+Make sure the prefix, or destdir, is set so binaries are not accidentally installed on the system.
+
+The binaries are located the build or installation directory:
+
+Build directory:
+* builddir
   * examples
     * process
     * average_subtract
   * openpiv -> libopenpivcore.so
 
-### Raspberry Pi
+Install directory:
+* prefix/destdir
+  * bindir
+    * libopenpivcore.so
+    * all other dependent shared libraries
+    * process (executable)
+    * average_subtract (executable)
+
+### Raspberry Pi (using deprecated VCPKG build system)
 
 Build times are, as expected, much slower than on a modern Intel CPU, but the code
 will compile. Some observations:
@@ -165,15 +196,18 @@ This is about 230us per interrogation area (7 cores, 3696 interrogation areas, 0
 
 ## Dependencies
 
-These are captured in `vcpkg.json`:
+These are captured in `<dependency>.wrap`:
 
 * c++17 compiler e.g. clang++-5.0, gcc7
-* [vcpkg](https://github.com/Microsoft/vcpkg)
-  * catch2: unit test framework
-  * libtiff: TIFF IO support
+* python3
+* [meson](https://mesonbuild.com/index.html)
   * benchmark: used to run performance benchmarks
-  * async++ (optional): implements c++17 parallel algorithms
+  * catch2: unit test framework
   * cxxopts: nice command line parsing
+  * libtiff: TIFF IO support
+    * libjpeg-turbo
+    * liblzma
+    * zlib
 
 ## Examples
 
