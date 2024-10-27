@@ -10,6 +10,7 @@
 #include <type_traits>
 
 // local
+#include "core/dll_export.h"
 #include "core/image.h"
 #include "core/image_view.h"
 
@@ -23,11 +24,11 @@ namespace openpiv::core {
         {}
     };
 
-    class image_loader;
+    class DLL_EXPORT image_loader;
     using image_loader_ptr_t = std::unique_ptr<image_loader>;
 
     /// central repository for registered image loaders
-    class image_loader_registry
+    class DLL_EXPORT image_loader_registry
     {
     public:
         /// find a loader for an image; if no ImageLoader is returned
@@ -64,7 +65,7 @@ namespace openpiv::core {
     ///
     /// A call to load() or open() must reset the state held within
     /// a loader, and
-    class image_loader
+    class DLL_EXPORT image_loader
     {
     public:
         virtual ~image_loader() {}

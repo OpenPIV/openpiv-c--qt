@@ -4,7 +4,11 @@ TAGS
 *.#*
 *.o
 *.so
+*.dll
+*.lib
+*.exp
+.vs/
 .vscode/
 .idea/
-test/
-build/
+tests/
+builddir/

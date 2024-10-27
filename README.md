@@ -6,14 +6,34 @@
 
 This project is the result of the collaborative effort of numerous researchers in order to provide one of the fastest PIV software on the market while remaining cross-platform and open-source. The software can do the following:
 
- * Load images with .tif and .pnm extensions
- * Save images with .tif and .pnm extensions
+ * Load images
+ * Save images
  * Pre-process and modify images
  * Perform digital PIV analysis including subpixel estimation
  * and more!
  
-Additionally, two examples are provided to demonstrate how the library can be used for background subtraction of images and multi-threaded PIV analysis.
+## Image Loaders
 
+Loading and storing images are crucial for any PIV software. Due to this requirement, openpiv-c--qt implements image loaders that can load, convert, and store images.
+Currently, there are a few extensions that are supported, but more are under development.
+
+|Supported Extensions     | Decode | Encode |
+|-------------------------|--------|--------|
+| .b16 (PCO CamWare :tm: )| Planned| -      | 
+| .bmp                    | Planned| Planned| 
+| .jpeg                   | Planned| Planned| 
+| .png                    | Planned| Planned| 
+| .pnm (.pbm, .pgm, .ppm) | x      | x      |
+| .tif                    | x      | x      |
+| .webp                   | Planned| Planned|                    
+
+## Examples
+
+To demonstrate how this library can perform, two examples are provided in the /examples folder. The first example,
+[average_subtract](examples/average_subtract/README.md), is a utility that reads n images, calculates the average, and
+writes out n new images with the average subtracted. Additionally, a second example, [process](examples/process/README.md),
+is a straight-forward PIV cross correlator that reads two images and performs cross-correlation on them.
+    
 ## Build
 
 There are some external dependencies under external/, so when cloning use:
@@ -28,21 +48,22 @@ Building uses meson, and is simplified by using meson wrap files to specify the 
 * (linux) pkg-config (e.g. `apt install pkg-config`)
 * curl, zip, unzip, tar (e.g. `apt install curl zip unzip tar`)
 * ninja (e.g. `apt install ninja-build`)
-* meson (e.g., pip install --user meson)
+* meson (e.g., `pip install --user meson`)
 
-Unix users can also use the method used for the Windows build environment as detailed below.
+Unix users can also use a similar method to the Windows build environment as detailed below.
 
 On Windows, the following can be used:
-* install TDM-GCC or any other Windows GNU distribution
-* install miniconda or venv and setup virtual environment
+* install Visual Studio 2019 or 2022. Alternatively, MinGW-64 (installed via TDM-GCC 10) and Intel OneAPI c/c++ compilers are also known to work
+* install miniconda or python along with venv and setup virtual environment
 * pip install cmake (optional)
+* pip install ninja
 * pip install meson
 
 To build:
-* `meson setup builddir` Note, it is good practice to setup --prefix flags so files are not installed on the system.
+* `meson setup builddir` Note, it is good practice to setup `--prefix` flags so files are not installed on the system.
 * `meson compile -C builddir`
 
-Meson provides multiple build types such as debug, debugoptimized, and release. To change the build type, use the --buildtype flag. For example, `meson setup builddir --buildtype debugoptimized`.
+Meson provides multiple build types such as debug, debugoptimized, and release. To change the build type, use the `--buildtype` flag. For example, `meson setup builddir --buildtype debugoptimized`.
 
 To run tests:
 
@@ -57,7 +78,7 @@ Sometimes you only want the runtime dynamic libraries and executables. Meson com
 
 Make sure the prefix, or destdir, is set so binaries are not accidentally installed on the system.
 
-The binaries are located the build or installation directory:
+The binaries are located in the build or installation directory:
 
 Build directory:
 * builddir
@@ -195,10 +216,7 @@ sys     0m0.020s
 This is about 230us per interrogation area (7 cores, 3696 interrogation areas, 0.122s)
 
 ## Dependencies
-
-These are captured in `<dependency>.wrap`:
-
-* c++17 compiler e.g. clang++-5.0, gcc7
+* c++17 compiler e.g. clang++-5.0, gcc8
 * python3
 * [meson](https://mesonbuild.com/index.html)
   * benchmark: used to run performance benchmarks
@@ -206,15 +224,7 @@ These are captured in `<dependency>.wrap`:
   * cxxopts: nice command line parsing
   * libtiff: TIFF IO support
     * libjpeg-turbo
-    * liblzma
     * zlib
-
-## Examples
-
-* under build/examples are two simple applications:
-  * [process](examples/process/README.md): a straight-forward PIV cross correlator
-  * [average_subtract](examples/average_subtract/README.md): a utility to read in n
-    images, find the average and write out n new images with the mean subtracted
 
 # TODO
 

@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -26,21 +26,19 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install rtools (mingw-w64) (see SciPy workflow for more details)
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          choco install rtools -y --no-progress --force --version=4.0.0.20220206
-          echo "c:\rtools40\ucrt64\bin;" >> $env:GITHUB_PATH
-        fi
-      shell: bash
-
     - name: Install build dependencies from PyPI
       run: |
         python -m pip install meson cmake ninja
 
-    - name: Configure Meson
-      # Configure meson to dump all executables in the test directory so Windows would work
+    - name: Configure Meson (POSIX)
+      # Configure meson for POSIX environments
+      if: startsWith(matrix.os, 'windows') != true 
       run: cd ${{github.workspace}} && meson setup builddir
+      
+    - name: Configure Meson (Windows)
+      # Configure meson for Windows environments
+      if: startsWith(matrix.os, 'windows') == true 
+      run: cd ${{github.workspace}} && meson setup builddir --vsenv
 
     - name: Build
       # Build your program with the given configuration
@@ -49,4 +47,4 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/builddir
       # Execute tests defined by meson test configuration.
-      run: meson test -v
+      run: meson test -v -j 1

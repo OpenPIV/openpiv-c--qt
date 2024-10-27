@@ -6,10 +6,13 @@
 #include <cstdint>
 #include <iosfwd>
 
+// local
+#include "core/dll_export.h"
+
 namespace openpiv::core {
 
 /// basic 2D integer size i.e. (width, height)
-class size
+class DLL_EXPORT size
 {
 public:
     using component_t = uint32_t;
@@ -58,7 +61,7 @@ public:
 
     size& operator+=( const size& rhs );
     size& operator-=( const size& rhs );
-
+    
 private:
     constexpr inline const component_t& width_() const { return data_[0]; }
     constexpr inline const component_t& height_() const { return data_[1]; }
@@ -69,19 +72,19 @@ private:
 };
 
 /// ostream operator
-std::ostream& operator<<( std::ostream& os, const size& r );
+DLL_EXPORT std::ostream& operator<<( std::ostream& os, const size& r );
 
 // basic arithmetic operators
-size operator+(const size& lhs, const size& rhs);
-size operator-(const size& lhs, const size& rhs);
+DLL_EXPORT size operator+(const size& lhs, const size& rhs);
+DLL_EXPORT size operator-(const size& lhs, const size& rhs);
 
 /// find maximal dimension i.e. (1, 2) -> (2, 2)
-size maximal_size( const size& s );
+DLL_EXPORT size maximal_size( const size& s );
 
 /// find minimal dimension i.e. (1, 2) -> (1, 1)
-size minimal_size( const size& s );
+DLL_EXPORT size minimal_size( const size& s );
 
 /// transpose a size i.e. (1, 2) -> (2, 1)
-size transpose( const size& s );
+DLL_EXPORT size transpose( const size& s );
 
 }
