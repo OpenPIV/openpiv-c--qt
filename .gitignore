@@ -4,7 +4,17 @@ TAGS
 *.#*
 *.o
 *.so
+__pycache__/
 .vscode/
 .idea/
 test/
 build/
+/subprojects
+/openpiv_cpp.egg-info
+/builddir
+/dist
+/openpiv_cpp_pkg/*.so
+/openpiv_cpp_pkg/*.pyd
+/openpiv_cpp_pkg/*.dll
+/openpiv_cpp_pkg/*.dylib
+/wheelhouse

@@ -1,13 +1,21 @@
 {
     "name": "openpiv-cplusplus",
     "version-string": "latest",
-    "dependencies": [
-        "fmt",
-        "catch2",
-        "cxxopts",
-        "tiff",
-        { "name": "benchmark", "platform": "!windows" },
-        "asyncplusplus",
-        { "name": "mimalloc", "platform": "!(arm | uwp)" }
-    ]
+    "dependencies": [],
+    "features": {
+        "tests": {
+            "description": "Dependencies required to build and run tests",
+            "dependencies": [
+                "catch2",
+                { "name": "benchmark", "platform": "!windows" }
+            ]
+        },
+        "examples": {
+            "description": "Dependencies required to build example applications",
+            "dependencies": [
+                "cxxopts",
+                "asyncplusplus"
+            ]
+        }
+    }
 }

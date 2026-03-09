@@ -48,10 +48,8 @@ if(mimalloc_FOUND)
 endif()
 
 find_package(Threads REQUIRED)
-find_package(fmt CONFIG REQUIRED)
 target_link_libraries(
   ${LIBNAME}
-  PRIVATE fmt::fmt-header-only
   PRIVATE Threads::Threads)
 
 # install

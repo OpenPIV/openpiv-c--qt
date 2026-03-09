@@ -1,0 +1,24 @@
+include README.md
+include LICENSE
+include piv_bindings.cpp
+recursive-include openpiv *.h *.cpp
+recursive-include external/pocketfft *.h *.hpp
+include openpiv_cpp_pkg/*.py
+include openpiv_cpp_pkg/*.so
+include openpiv_cpp_pkg/*.pyd
+include openpiv_cpp_pkg/*.dll
+include openpiv_cpp_pkg/*.dylib
+global-exclude *.o
+global-exclude *.a
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude .git
+global-exclude builddir
+global-exclude build
+global-exclude dist
+global-exclude .venv
+global-exclude examples/data/test2/*.piv
+global-exclude examples/data/test2/*.png
+global-exclude *.tif
+global-exclude *.tiff
+global-exclude *.pgm

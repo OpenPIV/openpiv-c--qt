@@ -1,0 +1,33 @@
+# Dockerfile that mimics GitHub Actions ubuntu-latest environment
+# for testing cmake.yml workflow locally
+#
+# Usage:
+#   docker build -f scripts/Dockerfile.cmake-test -t openpiv-cmake-test .
+#   docker run --rm -v "$(pwd)":/workspace -w /workspace openpiv-cmake-test ./scripts/test_cmake_workflow.sh
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies (matches cmake.yml Linux dependencies)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    ninja-build \
+    git \
+    pkg-config \
+    libtiff-dev \
+    curl \
+    zip \
+    unzip \
+    tar \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Disable vcpkg metrics
+ENV VCPKG_DISABLE_METRICS=1
+
+# Default command
+CMD ["./scripts/test_cmake_workflow.sh"]

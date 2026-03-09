@@ -1,0 +1,75 @@
+name: Build Wheels
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-14, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.4.0
+        env:
+          # Build CPython 3.8-3.13
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          # Skip 32-bit, musllinux, and PyPy
+          CIBW_SKIP: "*-win32 *-manylinux_i686 pp* *-musllinux*"
+          # macOS: build arm64 only
+          CIBW_ARCHS_MACOS: "arm64"
+          # Set minimum macOS version
+          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=10.15"
+          # Install dependencies before building
+          CIBW_BEFORE_ALL_MACOS: "brew update && brew install ninja cmake gcc pkg-config libtiff"
+          CIBW_BEFORE_ALL_LINUX: "yum install -y cmake ninja-build pkgconfig libtiff-devel libjpeg-devel zlib-devel"
+          # Windows: bootstrap vcpkg and install dependencies
+          CIBW_BEFORE_ALL_WINDOWS: "cmd /c external\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics"
+          # Windows: set vcpkg toolchain for CMake
+          CIBW_ENVIRONMENT_WINDOWS: "CMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\external\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake;VCPKG_TARGET_TRIPLET=x64-windows"
+          # Test requirements
+          CIBW_TEST_REQUIRES: "pytest numpy"
+          # Test command
+          CIBW_TEST_COMMAND: "python -c \"from openpiv_cpp_pkg.openpiv_cpp import piv_process; print('OK')\""
+          # Skip testing on cross-compiled builds
+          CIBW_TEST_SKIP: "*-macosx_arm64 *-manylinux_aarch64"
+          # Show build progress
+          CIBW_BUILD_VERBOSITY: "1"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  upload_pypi:
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/openpiv-cpp
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-wheels-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

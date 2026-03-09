@@ -5,7 +5,6 @@
 # include catch
 find_package(Catch2 REQUIRED)
 find_package(Threads REQUIRED)
-find_package(fmt CONFIG REQUIRED)
 
 file(GLOB SOURCES *_test.cpp)
 foreach(SOURCE ${SOURCES})
@@ -22,7 +21,6 @@ foreach(SOURCE ${SOURCES})
     ${OUTPUT}
     PRIVATE Catch2::Catch2WithMain
     PRIVATE openpivcore
-    PRIVATE fmt::fmt-header-only
     PRIVATE Threads::Threads)
 
   # add as a test
@@ -53,7 +51,6 @@ if(benchmark_FOUND)
     target_link_libraries(
       ${OUTPUT}
       PRIVATE openpivcore
-      PRIVATE fmt::fmt-header-only
       PRIVATE benchmark::benchmark
       PRIVATE benchmark::benchmark_main)
   endforeach()

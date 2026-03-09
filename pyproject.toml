@@ -1,0 +1,131 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "pybind11>=2.11"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openpiv-cpp"
+version = "0.2.0"
+authors = [
+    {name = "OpenPIV Contributors", email = "openpiv@openpiv.net"},
+]
+description = "Fast Particle Image Velocimetry (PIV) using C++ backend"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: POSIX :: Linux :: Manylinux 2014",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "numpy>=1.20",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.5"]
+dev = ["pytest>=6.0", "matplotlib>=3.5"]
+
+[project.urls]
+Homepage = "https://github.com/OpenPIV/openpiv-c--qt"
+Documentation = "https://github.com/OpenPIV/openpiv-c--qt#readme"
+Repository = "https://github.com/OpenPIV/openpiv-c--qt.git"
+"Bug Tracker" = "https://github.com/OpenPIV/openpiv-c--qt/issues"
+
+[tool.setuptools.packages.find]
+include = ["openpiv_cpp_pkg*"]
+
+[tool.setuptools.package-data]
+openpiv_cpp_pkg = ["*.so", "*.dll", "*.dylib", "*.pyd"]
+
+# =============================================================================
+# cibuildwheel configuration for building manylinux wheels
+# =============================================================================
+[tool.cibuildwheel]
+# Which Python versions to build
+build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+
+# Skip 32-bit, musllinux, and PyPy
+skip = ["*-win32", "*-manylinux_i686", "pp*", "*-musllinux*"]
+
+# Build frontend
+build-frontend = "pip"
+
+# Testing configuration
+test-requires = ["pytest", "numpy"]
+test-command = "python -c \"from openpiv_cpp_pkg.openpiv_cpp import piv_process; r = piv_process; print('OK')\""
+
+# Don't test by default on cross-compiled builds
+test-skip = ["*-*linux_*aarch64", "*-*macosx_arm64"]
+
+# =============================================================================
+# Linux configuration (manylinux)
+# =============================================================================
+[tool.cibuildwheel.linux]
+# Use manylinux2014 for broad compatibility
+manylinux-x86_64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+
+# Architecture support
+archs = ["x86_64", "aarch64"]
+
+# Install system dependencies before build
+before-all = """
+if command -v yum &> /dev/null; then
+    # CentOS/RHEL (manylinux)
+    yum install -y cmake ninja-build pkgconfig libtiff-devel libjpeg-devel zlib-devel
+else
+    # Ubuntu/Debian
+    apt-get update && apt-get install -y cmake ninja-build pkg-config libtiff-dev libjpeg-dev zlib1g-dev
+fi
+"""
+
+# Environment variables
+environment = { CMAKE_BUILD_TYPE = "Release", PIP_VERBOSE = "1" }
+
+# Repair wheels with auditwheel
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
+
+# =============================================================================
+# macOS configuration
+# =============================================================================
+[tool.cibuildwheel.macos]
+# Minimum macOS version
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
+
+# Architecture support (Intel + Apple Silicon)
+archs = ["x86_64", "arm64", "universal2"]
+
+# Install dependencies with brew
+before-all = """
+brew install cmake ninja pkg-config libtiff
+"""
+
+# Delocate for fixing dylib paths
+repair-wheel-command = """
+delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
+"""
+
+# =============================================================================
+# Windows configuration
+# =============================================================================
+[tool.cibuildwheel.windows]
+# Architecture support
+archs = ["AMD64"]
+
+# No repair needed on Windows
+repair-wheel-command = ""
+

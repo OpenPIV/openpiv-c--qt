@@ -8,16 +8,13 @@
 #include <deque>
 #include <functional>
 #include <limits>
+#include <string_view>
 #include <string>
 #include <sstream>
 #include <thread>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-
-
-// libs
-#include <fmt/core.h>
 
 // openpiv
 #include "core/enum_helper.h"
@@ -67,6 +64,37 @@ namespace openpiv::core::logger {
         return ss.str();
     }
 
+    namespace detail {
+        inline void append_format(std::string& output, const std::string_view fmt)
+        {
+            output.append(fmt);
+        }
+
+        template <typename T, typename... Ts>
+        void append_format(std::string& output, const std::string_view fmt, const T& t, const Ts&... ts)
+        {
+            auto pos = fmt.find("{}");
+            if (pos == std::string_view::npos)
+            {
+                output.append(fmt);
+                return;
+            }
+
+            output.append(fmt.substr(0, pos));
+            output += to_string(t);
+            append_format(output, fmt.substr(pos + 2), ts...);
+        }
+
+        template <typename... Ts>
+        std::string format(const std::string_view fmt, const Ts&... ts)
+        {
+            std::string output;
+            output.reserve(fmt.size());
+            append_format(output, fmt, ts...);
+            return output;
+        }
+    }
+
     /// core logging class; can register an arbitrary number
     /// of sinks, all of which will be called (ultimately)
     /// on Logger::add()
@@ -110,14 +138,14 @@ namespace openpiv::core::logger {
             auto entry =
                 [level, now, tid, fmt, args=std::make_tuple(args...)]() mutable
                 {
-                    std::string output = fmt::format(
+                    std::string output = detail::format(
                         "[{}] ({}) {}: ", // timestamp, threadid, level
                         to_string(now),
                         to_string(tid),
                         to_string(level));
                     std::apply(
                         [&output, fmt](const Ts&... ts) {
-                            output += fmt::format(fmt, to_string(ts)...);
+                            output += detail::format(fmt, to_string(ts)...);
                         },
                         args);
 
